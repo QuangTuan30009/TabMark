@@ -118,6 +118,8 @@ pnpm start
 
 Ứng dụng có thể deploy trên Vercel, Netlify, Cloudflare Pages, AWS hoặc Docker như một React static app.
 
+
+
 ## License
 
 MIT
@@ -125,3 +127,4 @@ MIT
 ## Support
 
 Nếu bạn gặp vấn đề, vui lòng tạo issue trong repository hoặc liên hệ support.
+
