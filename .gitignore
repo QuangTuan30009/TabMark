@@ -10,7 +10,16 @@ __v0_jsx-dev-runtime.ts
 .env
 .env*.local
 
+# Build outputs
+dist/
+.next/
+
+# TypeScript build cache
+tsconfig.tsbuildinfo
+
+# npm lockfile (using pnpm)
+package-lock.json
+
 # Common ignores
 node_modules
-.next/
 .DS_Store
