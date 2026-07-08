@@ -139,7 +139,7 @@ export default function KanbanCard({
           onDragStart(e, card.id, columnKey)
         }
       }}
-      className={`group relative p-4 bg-[#10141f] border border-white/[0.04] rounded-xl hover:border-white/10 ${canDrag ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'} transition-all duration-300 ${hoverClassMap[color] || ''}`}
+      className={`group relative p-4 bg-[#131924] border border-white/[0.03] rounded-xl hover:bg-[#162030] hover:border-white/10 ${canDrag ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'} transition-all duration-300 ${hoverClassMap[color] || ''}`}
     >
       {/* Card Header (Icon & Menu button) */}
       <div className="flex items-start justify-between gap-3 mb-2.5">
@@ -213,7 +213,7 @@ export default function KanbanCard({
         {card.tags && card.tags.map((tag) => (
           <span
             key={tag}
-            className="inline-block px-2.5 py-0.5 text-[10px] font-semibold bg-white/[0.02] border border-white/[0.04] rounded-full text-slate-400 select-none"
+            className="inline-block px-2.5 py-0.5 text-[10px] font-semibold bg-[#20293a] border border-white/5 rounded-full text-slate-300 select-none"
           >
             {tag}
           </span>
