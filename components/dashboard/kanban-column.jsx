@@ -65,13 +65,15 @@ export default function KanbanColumn({
         </div>
         
         <div className="flex items-center">
-          <button
-            onClick={() => onAddLink(columnKey)}
-            className="p-1 hover:bg-white/5 rounded-lg text-slate-400 hover:text-white transition-colors cursor-pointer mr-1"
-            title="Add link to group"
-          >
-            <Plus className="w-4 h-4" />
-          </button>
+          {onAddLink && (
+            <button
+              onClick={() => onAddLink(columnKey)}
+              className="p-1 hover:bg-white/5 rounded-lg text-slate-400 hover:text-white transition-colors cursor-pointer mr-1"
+              title="Add link to group"
+            >
+              <Plus className="w-4 h-4" />
+            </button>
+          )}
           
           <div className="relative">
             <button
@@ -85,24 +87,28 @@ export default function KanbanColumn({
               <>
                 <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} />
                 <div className="absolute right-0 mt-1 w-44 bg-[#10141f] border border-white/5 rounded-xl shadow-xl z-20 py-1.5 animate-fade-in-up">
-                  <button
-                    onClick={() => {
-                      setMenuOpen(false)
-                      onEditGroup(columnKey)
-                    }}
-                    className="w-full text-left px-3.5 py-2 text-xs text-slate-300 hover:bg-white/5 hover:text-white transition-colors"
-                  >
-                    Rename group
-                  </button>
-                  <button
-                    onClick={() => {
-                      setMenuOpen(false)
-                      if (onDuplicateGroup) onDuplicateGroup(columnKey)
-                    }}
-                    className="w-full text-left px-3.5 py-2 text-xs text-slate-300 hover:bg-white/5 hover:text-white transition-colors"
-                  >
-                    Duplicate group
-                  </button>
+                  {onEditGroup && (
+                    <button
+                      onClick={() => {
+                        setMenuOpen(false)
+                        onEditGroup(columnKey)
+                      }}
+                      className="w-full text-left px-3.5 py-2 text-xs text-slate-300 hover:bg-white/5 hover:text-white transition-colors"
+                    >
+                      Rename group
+                    </button>
+                  )}
+                  {onDuplicateGroup && (
+                    <button
+                      onClick={() => {
+                        setMenuOpen(false)
+                        onDuplicateGroup(columnKey)
+                      }}
+                      className="w-full text-left px-3.5 py-2 text-xs text-slate-300 hover:bg-white/5 hover:text-white transition-colors"
+                    >
+                      Duplicate group
+                    </button>
+                  )}
                   <button
                     onClick={() => {
                       setMenuOpen(false)
@@ -113,15 +119,17 @@ export default function KanbanColumn({
                   >
                     Open all links ({cards.length})
                   </button>
-                  <button
-                    onClick={() => {
-                      setMenuOpen(false)
-                      onDeleteGroup(columnKey)
-                    }}
-                    className="w-full text-left px-3.5 py-2 text-xs text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors border-t border-white/5"
-                  >
-                    Delete group
-                  </button>
+                  {onDeleteGroup && (
+                    <button
+                      onClick={() => {
+                        setMenuOpen(false)
+                        onDeleteGroup(columnKey)
+                      }}
+                      className="w-full text-left px-3.5 py-2 text-xs text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors border-t border-white/5"
+                    >
+                      Delete group
+                    </button>
+                  )}
                 </div>
               </>
             )}
@@ -129,14 +137,17 @@ export default function KanbanColumn({
         </div>
       </div>
 
-      {/* Cards Scroll Container */}
       <div
         className="flex-1 overflow-y-auto p-3.5 space-y-3.5 custom-scrollbar min-h-0"
         onDragOver={(e) => {
           e.preventDefault()
+          e.stopPropagation()
           onDragOver(e)
         }}
-        onDrop={(e) => onDrop(e, columnKey)}
+        onDrop={(e) => {
+          e.stopPropagation()
+          onDrop(e, columnKey)
+        }}
       >
         {cards.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-28 border border-dashed border-white/5 rounded-xl text-center p-4">

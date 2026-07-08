@@ -128,11 +128,18 @@ export default function KanbanCard({
     return /^https?:\/\//i.test(url) ? url : `https://${url}`
   }
 
+  const canDrag = !!onDragStart;
+
   return (
     <div
-      draggable
-      onDragStart={(e) => onDragStart(e, card.id, columnKey)}
-      className={`group relative p-4 bg-[#10141f] border border-white/[0.04] rounded-xl hover:border-white/10 cursor-grab active:cursor-grabbing transition-all duration-300 ${hoverClassMap[color] || ''}`}
+      draggable={canDrag}
+      onDragStart={(e) => {
+        if (canDrag) {
+          e.stopPropagation()
+          onDragStart(e, card.id, columnKey)
+        }
+      }}
+      className={`group relative p-4 bg-[#10141f] border border-white/[0.04] rounded-xl hover:border-white/10 ${canDrag ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'} transition-all duration-300 ${hoverClassMap[color] || ''}`}
     >
       {/* Card Header (Icon & Menu button) */}
       <div className="flex items-start justify-between gap-3 mb-2.5">
@@ -140,38 +147,46 @@ export default function KanbanCard({
           {getBrandIcon(card.icon, card.url)}
         </div>
         <div className="relative">
-          <button
-            onClick={() => setShowMenu(!showMenu)}
-            className="opacity-0 group-hover:opacity-100 p-1.5 hover:bg-white/5 text-slate-400 hover:text-white rounded-lg transition-all cursor-pointer"
-          >
-            <MoreVertical className="w-4 h-4" />
-          </button>
+          {(onEdit || onDuplicate || onDelete) && (
+            <button
+              onClick={() => setShowMenu(!showMenu)}
+              className="opacity-0 group-hover:opacity-100 p-1.5 hover:bg-white/5 text-slate-400 hover:text-white rounded-lg transition-all cursor-pointer"
+            >
+              <MoreVertical className="w-4 h-4" />
+            </button>
+          )}
           
           {showMenu && (
             <>
               <div className="fixed inset-0 z-10" onClick={() => setShowMenu(false)} />
               <div className="absolute right-0 mt-1 w-36 bg-[#161b26] border border-white/5 rounded-xl shadow-xl z-20 overflow-hidden py-1">
-                <button
-                  onClick={() => { setShowMenu(false); onEdit(card) }}
-                  className="w-full flex items-center gap-2 px-3.5 py-2 text-xs text-slate-300 hover:bg-white/5 hover:text-white transition-colors"
-                >
-                  <Edit className="w-3.5 h-3.5" />
-                  Edit
-                </button>
-                <button
-                  onClick={() => { setShowMenu(false); onDuplicate(card) }}
-                  className="w-full flex items-center gap-2 px-3.5 py-2 text-xs text-slate-300 hover:bg-white/5 hover:text-white transition-colors"
-                >
-                  <Copy className="w-3.5 h-3.5" />
-                  Duplicate
-                </button>
-                <button
-                  onClick={() => { setShowMenu(false); onDelete(card.id) }}
-                  className="w-full flex items-center gap-2 px-3.5 py-2 text-xs text-red-400 hover:bg-white/5 hover:text-red-300 transition-colors border-t border-white/5"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                  Delete
-                </button>
+                {onEdit && (
+                  <button
+                    onClick={() => { setShowMenu(false); onEdit(card) }}
+                    className="w-full flex items-center gap-2 px-3.5 py-2 text-xs text-slate-300 hover:bg-white/5 hover:text-white transition-colors"
+                  >
+                    <Edit className="w-3.5 h-3.5" />
+                    Edit
+                  </button>
+                )}
+                {onDuplicate && (
+                  <button
+                    onClick={() => { setShowMenu(false); onDuplicate(card) }}
+                    className="w-full flex items-center gap-2 px-3.5 py-2 text-xs text-slate-300 hover:bg-white/5 hover:text-white transition-colors"
+                  >
+                    <Copy className="w-3.5 h-3.5" />
+                    Duplicate
+                  </button>
+                )}
+                {onDelete && (
+                  <button
+                    onClick={() => { setShowMenu(false); onDelete(card.id) }}
+                    className="w-full flex items-center gap-2 px-3.5 py-2 text-xs text-red-400 hover:bg-white/5 hover:text-red-300 transition-colors border-t border-white/5"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    Delete
+                  </button>
+                )}
               </div>
             </>
           )}

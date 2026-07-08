@@ -1,10 +1,23 @@
 create table if not exists public.bookmark_collections (
   id uuid primary key default gen_random_uuid(),
+  owner_id uuid default auth.uid(),
   name text not null,
   description text not null default '',
+  share_mode text not null default 'private' check (share_mode in ('private', 'view', 'edit')),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+-- Thêm các cột nếu table đã tồn tại trước đó
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='bookmark_collections' AND column_name='owner_id') THEN
+        ALTER TABLE public.bookmark_collections ADD COLUMN owner_id uuid default auth.uid();
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='bookmark_collections' AND column_name='share_mode') THEN
+        ALTER TABLE public.bookmark_collections ADD COLUMN share_mode text not null default 'private' check (share_mode in ('private', 'view', 'edit'));
+    END IF;
+END $$;
 
 create table if not exists public.bookmark_links (
   id uuid primary key default gen_random_uuid(),
@@ -36,34 +49,56 @@ drop policy if exists "Allow public link inserts" on public.bookmark_links;
 drop policy if exists "Allow public link updates" on public.bookmark_links;
 drop policy if exists "Allow public link deletes" on public.bookmark_links;
 
-create policy "Allow public collection reads"
+-- Collection Policies
+create policy "Allow user to read own or shared collections"
   on public.bookmark_collections for select
-  using (true);
+  using (owner_id = auth.uid() or share_mode in ('view', 'edit'));
 
-create policy "Allow public collection inserts"
+create policy "Allow user to insert collections"
   on public.bookmark_collections for insert
-  with check (true);
+  with check (auth.uid() is not null);
 
-create policy "Allow public collection updates"
+create policy "Allow user to update own or edit-shared collections"
   on public.bookmark_collections for update
-  using (true);
+  using (owner_id = auth.uid() or (share_mode = 'edit' and auth.uid() is not null));
 
-create policy "Allow public collection deletes"
+create policy "Allow user to delete own collections"
   on public.bookmark_collections for delete
-  using (true);
+  using (owner_id = auth.uid());
 
-create policy "Allow public link reads"
+-- Link Policies
+create policy "Allow user to read own or shared links"
   on public.bookmark_links for select
-  using (true);
+  using (
+    collection_id in (
+      select id from public.bookmark_collections
+      where owner_id = auth.uid() or share_mode in ('view', 'edit')
+    )
+  );
 
-create policy "Allow public link inserts"
+create policy "Allow user to insert links"
   on public.bookmark_links for insert
-  with check (true);
+  with check (
+    collection_id in (
+      select id from public.bookmark_collections
+      where owner_id = auth.uid() or (share_mode = 'edit' and auth.uid() is not null)
+    )
+  );
 
-create policy "Allow public link updates"
+create policy "Allow user to update own or edit-shared links"
   on public.bookmark_links for update
-  using (true);
+  using (
+    collection_id in (
+      select id from public.bookmark_collections
+      where owner_id = auth.uid() or (share_mode = 'edit' and auth.uid() is not null)
+    )
+  );
 
-create policy "Allow public link deletes"
+create policy "Allow user to delete own or edit-shared links"
   on public.bookmark_links for delete
-  using (true);
+  using (
+    collection_id in (
+      select id from public.bookmark_collections
+      where owner_id = auth.uid() or (share_mode = 'edit' and auth.uid() is not null)
+    )
+  );
