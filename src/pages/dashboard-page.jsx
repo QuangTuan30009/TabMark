@@ -254,7 +254,7 @@ export function DashboardPage({ onBackHome, user, onLogout, sharedCollectionId }
         />
 
         {/* Kanban Area */}
-        <main className="flex-1 flex flex-col overflow-hidden bg-[#080a10]">
+        <main className="flex-1 flex flex-col overflow-hidden kanban-board-bg">
           {/* Active Group Description Header */}
           <div className="px-6 pt-5 pb-1 flex items-center justify-between">
             <div>
