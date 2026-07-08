@@ -80,6 +80,29 @@ export default function AuthScreen({ onLogin, onBackHome }) {
     setMessage(null)
   }
 
+  async function handleGoogleSignIn() {
+    setError(null)
+    setMessage(null)
+    if (isSupabaseConfigured) {
+      try {
+        const { error: googleError } = await supabase.auth.signInWithOAuth({
+          provider: 'google',
+        })
+        if (googleError) throw googleError
+      } catch (err) {
+        console.error(err)
+        setError(err.message || 'Lỗi đăng nhập Google, vui lòng thử lại.')
+      }
+    } else {
+      // Mock Local mode authentication for Google
+      setLoading(true)
+      setTimeout(() => {
+        setLoading(false)
+        onLogin({ email: 'google.user@example.com', isMock: true, provider: 'google' })
+      }, 1000)
+    }
+  }
+
   return (
     <div style={styles.root}>
       <style>{`
@@ -140,6 +163,7 @@ export default function AuthScreen({ onLogin, onBackHome }) {
           {/* Google button */}
           <button
             type="button"
+            onClick={handleGoogleSignIn}
             style={styles.googleBtn}
             onMouseEnter={e => e.currentTarget.style.backgroundColor = '#f3f4f6'}
             onMouseLeave={e => e.currentTarget.style.backgroundColor = '#ffffff'}
@@ -150,7 +174,7 @@ export default function AuthScreen({ onLogin, onBackHome }) {
               <path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.3 35.3 26.8 36 24 36c-5.3 0-9.7-3.4-11.3-8H6.3C9.7 35.7 16.3 40 24 44z" />
               <path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-.8 2.2-2.2 4.1-4.1 5.6l6.2 5.2C41.2 35.4 44 30.1 44 24c0-1.3-.1-2.6-.4-3.9z" />
             </svg>
-            Sign in with Google
+            {isSignUp ? 'Đăng ký với Google' : 'Đăng nhập với Google'}
           </button>
 
           {/* Divider */}

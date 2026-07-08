@@ -8,9 +8,11 @@ export default function DashboardHeader({
   onExport,
   onImport,
   onSync,
+  onShare,
   syncStatus,
   isCloudEnabled,
-}) {
+  isSharedView,
+} ) {
   return (
     <header className="border-b border-white/5 bg-[#080a10]/80 backdrop-blur-md sticky top-0 z-40 px-6 py-4">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -63,21 +65,35 @@ export default function DashboardHeader({
             <span>Sync</span>
           </button>
 
-          <button
-            onClick={onAddGroup}
-            className="flex items-center gap-2 px-4 py-2.5 bg-white/[0.03] hover:bg-white/[0.06] border border-white/5 rounded-xl text-sm font-medium text-slate-300 hover:text-white transition-all cursor-pointer"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Add group</span>
-          </button>
+          {!isSharedView && (
+            <button
+              onClick={onShare}
+              className="flex items-center gap-2 px-4 py-2.5 bg-purple-600/20 hover:bg-purple-600/30 border border-purple-500/30 rounded-xl text-sm font-medium text-purple-300 hover:text-purple-200 transition-all cursor-pointer"
+            >
+              <Sparkles className="w-4 h-4" />
+              <span>Share</span>
+            </button>
+          )}
 
-          <button
-            onClick={onAddLink}
-            className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-500 rounded-xl text-sm font-semibold text-white transition-all shadow-[0_0_15px_rgba(59,130,246,0.3)] cursor-pointer"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Add link</span>
-          </button>
+          {onAddGroup && (
+            <button
+              onClick={onAddGroup}
+              className="flex items-center gap-2 px-4 py-2.5 bg-white/[0.03] hover:bg-white/[0.06] border border-white/5 rounded-xl text-sm font-medium text-slate-300 hover:text-white transition-all cursor-pointer"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Add group</span>
+            </button>
+          )}
+
+          {onAddLink && (
+            <button
+              onClick={onAddLink}
+              className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-500 rounded-xl text-sm font-semibold text-white transition-all shadow-[0_0_15px_rgba(59,130,246,0.3)] cursor-pointer"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Add link</span>
+            </button>
+          )}
         </div>
       </div>
     </header>

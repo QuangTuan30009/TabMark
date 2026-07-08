@@ -1,0 +1,150 @@
+import { useState, useEffect } from 'react'
+import { Sun, Moon, X, Menu } from 'lucide-react'
+
+export function Navbar({ onOpenDashboard, onLoginClick }) {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    // Check localStorage or fallback to initial html class
+    const saved = localStorage.getItem('theme');
+    if (saved) return saved === 'dark';
+    return document.documentElement.classList.contains('dark');
+  });
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        setIsMenuOpen(false);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (isDarkMode) {
+      root.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      root.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  }, [isDarkMode]);
+
+  const navLinks = [
+    { href: "#features", text: "Features" },
+    { href: "#pricing", text: "Pricing" },
+    { href: "#contact", text: "Contact" }
+  ];
+
+  return (
+    <header 
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b ${
+        isScrolled 
+          ? 'bg-white/90 dark:bg-[#06111f]/90 backdrop-blur-xl shadow-lg border-slate-200 dark:border-white/10' 
+          : 'bg-white/50 dark:bg-[#06111f]/50 backdrop-blur-md border-transparent'
+      }`}
+    >
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 max-w-7xl">
+        <div className="flex h-16 sm:h-20 items-center justify-between">
+          {/* Logo */}
+          <div className="flex items-center">
+            <a href="#" className="flex items-center group cursor-pointer" onClick={onOpenDashboard}>
+              <img 
+                src="/Tabmark-removebg-preview.png" 
+                alt="Tabmark Logo" 
+                className="w-32 sm:w-40 lg:w-48 h-auto object-contain transition-transform group-hover:scale-105 dark:invert" 
+              />
+            </a>
+          </div>
+
+          {/* Desktop Nav */}
+          <nav className="hidden md:flex items-center space-x-4 lg:space-x-6 xl:space-x-8">
+            {navLinks.map(link => (
+              <a 
+                key={link.text} 
+                href={link.href} 
+                className="text-sm lg:text-base font-medium text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors relative group"
+              >
+                {link.text}
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gray-900 dark:bg-white transition-all duration-300 group-hover:w-full"></span>
+              </a>
+            ))}
+          </nav>
+
+          {/* Desktop Actions */}
+          <div className="hidden md:flex items-center space-x-3 lg:space-x-4">
+            <button 
+              onClick={() => setIsDarkMode(!isDarkMode)}
+              className="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors focus:outline-none"
+              aria-label="Toggle Dark Mode"
+            >
+              {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </button>
+            <button 
+              onClick={onLoginClick}
+              className="px-5 lg:px-7 py-2 text-sm lg:text-base font-semibold bg-primary text-primary-foreground rounded-full transition-all hover:brightness-110 hover:shadow-[0_0_24px_rgba(47,155,255,0.35)]"
+            >
+              Đăng nhập
+            </button>
+          </div>
+
+          {/* Mobile Menu Toggle */}
+          <div className="md:hidden flex items-center space-x-2">
+            <button 
+              onClick={() => setIsDarkMode(!isDarkMode)}
+              className="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors focus:outline-none"
+            >
+              {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </button>
+            <button 
+              onClick={() => setIsMenuOpen(!isMenuOpen)} 
+              className="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md transition-colors"
+            >
+              {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile Menu Content */}
+        <div 
+          className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${
+            isMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+          }`}
+        >
+          <div className="py-4 border-t border-gray-200 dark:border-gray-800">
+            <div className="flex flex-col space-y-1">
+              {navLinks.map(link => (
+                <a 
+                  key={link.text} 
+                  href={link.href} 
+                  onClick={() => setIsMenuOpen(false)} 
+                  className="px-3 py-3 text-base font-medium text-gray-600 dark:text-gray-300 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                >
+                  {link.text}
+                </a>
+              ))}
+              <div className="pt-4 mt-2 border-t border-gray-200 dark:border-gray-700">
+                <button 
+                  onClick={onLoginClick}
+                  className="w-full px-4 py-3 text-base font-semibold bg-primary text-primary-foreground rounded-lg transition-all hover:brightness-110 hover:shadow-[0_0_24px_rgba(47,155,255,0.35)]"
+                >
+                  Đăng nhập
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+}
