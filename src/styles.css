@@ -410,48 +410,48 @@
     radial-gradient(circle at 90% 80%, rgba(139, 92, 246, 0.08) 0%, transparent 45%);
 }
 
-/* Column Glow Effects with Gradient Backgrounds */
+/* Column Glow Effects with Solid Tinted Backgrounds */
 .glow-todo {
-  background: linear-gradient(180deg, rgba(59, 130, 246, 0.06) 0%, rgba(11, 13, 20, 0.5) 100%) !important;
-  border-color: rgba(59, 130, 246, 0.28) !important;
+  background: linear-gradient(180deg, #0e1324 0%, #080a10 100%) !important;
+  border-color: rgba(59, 130, 246, 0.25) !important;
   box-shadow: 0 0 25px rgba(59, 130, 246, 0.03);
 }
 .glow-todo:hover {
-  background: linear-gradient(180deg, rgba(59, 130, 246, 0.09) 0%, rgba(11, 13, 20, 0.5) 100%) !important;
-  border-color: rgba(59, 130, 246, 0.45) !important;
+  background: linear-gradient(180deg, #10172e 0%, #080a10 100%) !important;
+  border-color: rgba(59, 130, 246, 0.4) !important;
   box-shadow: 0 0 30px rgba(59, 130, 246, 0.06);
 }
 
 .glow-progress {
-  background: linear-gradient(180deg, rgba(16, 185, 129, 0.06) 0%, rgba(11, 13, 20, 0.5) 100%) !important;
-  border-color: rgba(16, 185, 129, 0.28) !important;
+  background: linear-gradient(180deg, #0b1517 0%, #080a10 100%) !important;
+  border-color: rgba(16, 185, 129, 0.25) !important;
   box-shadow: 0 0 25px rgba(16, 185, 129, 0.03);
 }
 .glow-progress:hover {
-  background: linear-gradient(180deg, rgba(16, 185, 129, 0.09) 0%, rgba(11, 13, 20, 0.5) 100%) !important;
-  border-color: rgba(16, 185, 129, 0.45) !important;
+  background: linear-gradient(180deg, #0e1d1f 0%, #080a10 100%) !important;
+  border-color: rgba(16, 185, 129, 0.4) !important;
   box-shadow: 0 0 30px rgba(16, 185, 129, 0.06);
 }
 
 .glow-review {
-  background: linear-gradient(180deg, rgba(245, 158, 11, 0.06) 0%, rgba(11, 13, 20, 0.5) 100%) !important;
-  border-color: rgba(245, 158, 11, 0.26) !important;
+  background: linear-gradient(180deg, #16110f 0%, #080a10 100%) !important;
+  border-color: rgba(245, 158, 11, 0.23) !important;
   box-shadow: 0 0 25px rgba(245, 158, 11, 0.03);
 }
 .glow-review:hover {
-  background: linear-gradient(180deg, rgba(245, 158, 11, 0.09) 0%, rgba(11, 13, 20, 0.5) 100%) !important;
-  border-color: rgba(245, 158, 11, 0.43) !important;
+  background: linear-gradient(180deg, #1e1613 0%, #080a10 100%) !important;
+  border-color: rgba(245, 158, 11, 0.38) !important;
   box-shadow: 0 0 30px rgba(245, 158, 11, 0.06);
 }
 
 .glow-done {
-  background: linear-gradient(180deg, rgba(139, 92, 246, 0.06) 0%, rgba(11, 13, 20, 0.5) 100%) !important;
-  border-color: rgba(139, 92, 246, 0.28) !important;
+  background: linear-gradient(180deg, #140e21 0%, #080a10 100%) !important;
+  border-color: rgba(139, 92, 246, 0.25) !important;
   box-shadow: 0 0 25px rgba(139, 92, 246, 0.03);
 }
 .glow-done:hover {
-  background: linear-gradient(180deg, rgba(139, 92, 246, 0.09) 0%, rgba(11, 13, 20, 0.5) 100%) !important;
-  border-color: rgba(139, 92, 246, 0.45) !important;
+  background: linear-gradient(180deg, #1a1030 0%, #080a10 100%) !important;
+  border-color: rgba(139, 92, 246, 0.4) !important;
   box-shadow: 0 0 30px rgba(139, 92, 246, 0.06);
 }
 
