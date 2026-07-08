@@ -402,39 +402,47 @@
   overflow: hidden;
 }
 
-/* Column Glow Effects */
+/* Column Glow Effects with Gradient Backgrounds */
 .glow-todo {
+  background: linear-gradient(180deg, rgba(59, 130, 246, 0.05) 0%, rgba(11, 13, 20, 0.4) 100%) !important;
   border-color: rgba(59, 130, 246, 0.15) !important;
   box-shadow: 0 0 25px rgba(59, 130, 246, 0.02);
 }
 .glow-todo:hover {
+  background: linear-gradient(180deg, rgba(59, 130, 246, 0.08) 0%, rgba(11, 13, 20, 0.4) 100%) !important;
   border-color: rgba(59, 130, 246, 0.3) !important;
   box-shadow: 0 0 30px rgba(59, 130, 246, 0.05);
 }
 
 .glow-progress {
+  background: linear-gradient(180deg, rgba(16, 185, 129, 0.05) 0%, rgba(11, 13, 20, 0.4) 100%) !important;
   border-color: rgba(16, 185, 129, 0.15) !important;
   box-shadow: 0 0 25px rgba(16, 185, 129, 0.02);
 }
 .glow-progress:hover {
+  background: linear-gradient(180deg, rgba(16, 185, 129, 0.08) 0%, rgba(11, 13, 20, 0.4) 100%) !important;
   border-color: rgba(16, 185, 129, 0.3) !important;
   box-shadow: 0 0 30px rgba(16, 185, 129, 0.05);
 }
 
 .glow-review {
+  background: linear-gradient(180deg, rgba(245, 158, 11, 0.05) 0%, rgba(11, 13, 20, 0.4) 100%) !important;
   border-color: rgba(245, 158, 11, 0.15) !important;
   box-shadow: 0 0 25px rgba(245, 158, 11, 0.02);
 }
 .glow-review:hover {
+  background: linear-gradient(180deg, rgba(245, 158, 11, 0.08) 0%, rgba(11, 13, 20, 0.4) 100%) !important;
   border-color: rgba(245, 158, 11, 0.3) !important;
   box-shadow: 0 0 30px rgba(245, 158, 11, 0.05);
 }
 
 .glow-done {
+  background: linear-gradient(180deg, rgba(139, 92, 246, 0.05) 0%, rgba(11, 13, 20, 0.4) 100%) !important;
   border-color: rgba(139, 92, 246, 0.15) !important;
   box-shadow: 0 0 25px rgba(139, 92, 246, 0.02);
 }
 .glow-done:hover {
+  background: linear-gradient(180deg, rgba(139, 92, 246, 0.08) 0%, rgba(11, 13, 20, 0.4) 100%) !important;
   border-color: rgba(139, 92, 246, 0.3) !important;
   box-shadow: 0 0 30px rgba(139, 92, 246, 0.05);
 }
