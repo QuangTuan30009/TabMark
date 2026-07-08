@@ -49,9 +49,9 @@ export default function KanbanColumn({
 
   return (
     <div
-      className={`w-full flex flex-col rounded-2xl bg-[#0b0d14]/40 border transition-all duration-300 max-h-[calc(100vh-12rem)] ${
+      className={`w-full flex flex-col rounded-2xl border transition-all duration-300 max-h-[calc(100vh-12rem)] ${
         isHighlighted ? 'highlight-active-column' : 'border-white/[0.04]'
-      } ${glowClass}`}
+      } ${glowClass || 'bg-[#0b0d14]/40'}`}
     >
       {/* Column Header */}
       <div className="px-4 py-4 flex items-center justify-between border-b border-white/[0.03]">
