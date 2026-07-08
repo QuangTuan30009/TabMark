@@ -219,40 +219,14 @@ export function useCollections({ animatedSwal, user, sharedCollectionId }) {
             setCollections(cloudCollections)
             setActiveCollectionId(sharedCollectionId || cloudCollections[0]?.id)
             setSyncStatus(sharedCollectionId ? 'Viewing shared collection' : 'Synced with Supabase')
-          } else if (user && !sharedCollectionId) {
-            setSyncStatus('Seeding default collections to Supabase...')
-            const seeded = []
-            for (const col of defaultCollections) {
-              const savedCol = await createCollection({
-                name: col.name,
-                description: col.description || ''
-              })
-              const savedLinks = []
-              if (col.links && col.links.length > 0) {
-                for (let i = 0; i < col.links.length; i++) {
-                  const link = col.links[i]
-                  const savedLink = await createLink({
-                    title: link.title,
-                    url: link.url,
-                    icon: link.icon || link.title.slice(0, 2).toUpperCase(),
-                    tags: link.tags || [],
-                    note: link.note || '',
-                    status: link.status || 'todo',
-                    time: link.time || '5 min'
-                  }, savedCol.id, i)
-                  savedLinks.push(savedLink)
-                }
-              }
-              seeded.push({
-                ...savedCol,
-                links: savedLinks
-              })
-            }
-            setCollections(seeded)
-            if (seeded.length > 0) {
-              setActiveCollectionId(seeded[0].id)
-            }
-            setSyncStatus('Database seeded and synced')
+          } else if (sharedCollectionId) {
+            setCollections([])
+            setActiveCollectionId(null)
+            setSyncStatus('Shared collection not found or access denied')
+          } else if (user) {
+            setCollections([])
+            setActiveCollectionId(null)
+            setSyncStatus('Synced with Supabase')
           }
         }
       } catch (error) {

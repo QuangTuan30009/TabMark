@@ -30,7 +30,11 @@ export default function App() {
       const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
         setUser(session?.user ?? null)
         if (session?.user) {
-          setPage('dashboard')
+          // Chỉ chuyển sang dashboard nếu không truy cập từ link shared
+          const hash = window.location.hash
+          if (!hash.startsWith('#shared/')) {
+            setPage('dashboard')
+          }
         }
       })
 
