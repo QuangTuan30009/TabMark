@@ -404,40 +404,84 @@
 
 /* Column Glow Effects */
 .glow-todo {
-  box-shadow: 0 0 20px rgba(59, 130, 246, 0.05);
+  border-color: rgba(59, 130, 246, 0.15) !important;
+  box-shadow: 0 0 25px rgba(59, 130, 246, 0.02);
 }
+.glow-todo:hover {
+  border-color: rgba(59, 130, 246, 0.3) !important;
+  box-shadow: 0 0 30px rgba(59, 130, 246, 0.05);
+}
+
 .glow-progress {
-  box-shadow: 0 0 20px rgba(16, 185, 129, 0.05);
+  border-color: rgba(16, 185, 129, 0.15) !important;
+  box-shadow: 0 0 25px rgba(16, 185, 129, 0.02);
 }
+.glow-progress:hover {
+  border-color: rgba(16, 185, 129, 0.3) !important;
+  box-shadow: 0 0 30px rgba(16, 185, 129, 0.05);
+}
+
 .glow-review {
-  box-shadow: 0 0 20px rgba(245, 158, 11, 0.05);
+  border-color: rgba(245, 158, 11, 0.15) !important;
+  box-shadow: 0 0 25px rgba(245, 158, 11, 0.02);
 }
+.glow-review:hover {
+  border-color: rgba(245, 158, 11, 0.3) !important;
+  box-shadow: 0 0 30px rgba(245, 158, 11, 0.05);
+}
+
 .glow-done {
-  box-shadow: 0 0 20px rgba(139, 92, 246, 0.05);
+  border-color: rgba(139, 92, 246, 0.15) !important;
+  box-shadow: 0 0 25px rgba(139, 92, 246, 0.02);
+}
+.glow-done:hover {
+  border-color: rgba(139, 92, 246, 0.3) !important;
+  box-shadow: 0 0 30px rgba(139, 92, 246, 0.05);
 }
 
 /* Card Hover glow */
 .card-hover-todo:hover {
-  border-color: rgba(59, 130, 246, 0.3) !important;
-  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.1);
+  border-color: rgba(59, 130, 246, 0.5) !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4), 0 0 20px rgba(59, 130, 246, 0.2);
+  transform: translateY(-3px);
 }
 .card-hover-progress:hover {
-  border-color: rgba(16, 185, 129, 0.3) !important;
-  box-shadow: 0 4px 20px rgba(16, 185, 129, 0.1);
+  border-color: rgba(16, 185, 129, 0.5) !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4), 0 0 20px rgba(16, 185, 129, 0.2);
+  transform: translateY(-3px);
 }
 .card-hover-review:hover {
-  border-color: rgba(245, 158, 11, 0.3) !important;
-  box-shadow: 0 4px 20px rgba(245, 158, 11, 0.1);
+  border-color: rgba(245, 158, 11, 0.5) !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4), 0 0 20px rgba(245, 158, 11, 0.2);
+  transform: translateY(-3px);
 }
 .card-hover-done:hover {
-  border-color: rgba(139, 92, 246, 0.3) !important;
-  box-shadow: 0 4px 20px rgba(139, 92, 246, 0.1);
+  border-color: rgba(139, 92, 246, 0.5) !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4), 0 0 20px rgba(139, 92, 246, 0.2);
+  transform: translateY(-3px);
 }
 
-/* AI Tooltip Glassmorphism */
+/* AI Tooltip Glassmorphism with Gradient Border */
 .ai-summary-glow {
-  box-shadow: 0 0 25px rgba(139, 92, 246, 0.25), inset 0 0 10px rgba(139, 92, 246, 0.1);
-  border: 1px solid rgba(139, 92, 246, 0.4) !important;
+  background: rgba(13, 17, 28, 0.95) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: none !important;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6), 0 0 25px rgba(139, 92, 246, 0.15) !important;
+  position: absolute;
+}
+
+.ai-summary-glow::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 1rem;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.6), rgba(16, 185, 129, 0.6), rgba(245, 158, 11, 0.6), rgba(139, 92, 246, 0.6));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
 }
 
 /* AI Chat button glow */
