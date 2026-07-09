@@ -23,6 +23,7 @@ export default function KanbanColumn({
   onDeleteGroup,
   onDuplicateGroup,
   onReorderCollections,
+  onGenerateSummary,
 }) {
   const [menuOpen, setMenuOpen] = useState(false)
   const [showPopupModal, setShowPopupModal] = useState(false)
@@ -165,6 +166,7 @@ export default function KanbanColumn({
               onEdit={onEdit}
               onDelete={onDelete}
               onDuplicate={onDuplicate}
+              onGenerateSummary={onGenerateSummary}
             />
           ))
         )}

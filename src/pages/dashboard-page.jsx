@@ -10,6 +10,7 @@ import { LinkModal } from '@/components/modals/link-modal'
 import { ShareModal } from '@/components/modals/share-modal'
 import { useCollections } from '@/src/hooks/use-collections'
 import { isSupabaseConfigured } from '@/src/lib/bookmarksApi'
+import { chatWithGemini, isGeminiConfigured, generateLinkSummary } from '@/src/lib/geminiApi'
 
 const animatedSwal = Swal.mixin({
   background: '#10141f',
@@ -144,7 +145,7 @@ export function DashboardPage({ onBackHome, user, onLogout, sharedCollectionId }
   }
 
   // AI Chat Submission
-  function handleSendAiMessage(e) {
+  async function handleSendAiMessage(e) {
     e.preventDefault()
     if (!aiChatInput.trim()) return
 
@@ -154,54 +155,115 @@ export function DashboardPage({ onBackHome, user, onLogout, sharedCollectionId }
     setAiChatInput('')
     setIsAiResponding(true)
 
-    setTimeout(() => {
-      let responseText = ''
-      const queryLower = userQuery.toLowerCase()
+    if (!isGeminiConfigured) {
+      setTimeout(() => {
+        let responseText = ''
+        const queryLower = userQuery.toLowerCase()
 
-      if (queryLower.includes('tóm tắt') || queryLower.includes('summarize')) {
-        const linksCount = activeCollection?.links?.length || 0
-        if (linksCount === 0) {
-          responseText = `Bộ sưu tập "${activeCollection?.name}" hiện tại chưa có bookmark nào để tóm tắt.`
-        } else {
-          responseText = `Dưới đây là tóm tắt nhanh các bookmark trong nhóm **${activeCollection.name}**:\n\n`
-          activeCollection.links.slice(0, 5).forEach((link, idx) => {
-            responseText += `${idx + 1}. **${link.title}** (${link.url})\n   👉 *${link.note || 'Không có mô tả.'}*\n\n`
-          })
-          if (linksCount > 5) {
-            responseText += `*Và ${linksCount - 5} bookmark khác...*`
-          }
-        }
-      } else if (queryLower.includes('tìm') || queryLower.includes('search') || queryLower.includes('find')) {
-        const searchTerm = queryLower.replace(/tìm kiếm|tìm|search|find/g, '').trim()
-        if (!searchTerm) {
-          responseText = 'Bạn muốn tìm kiếm từ khóa nào? Hãy nhập ví dụ: "Tìm React".'
-        } else {
-          const found = []
-          collections.forEach(col => {
-            (col.links || []).forEach(link => {
-              if (link.title.toLowerCase().includes(searchTerm) || link.url.toLowerCase().includes(searchTerm)) {
-                found.push({ ...link, colName: col.name })
-              }
-            })
-          })
-          if (found.length === 0) {
-            responseText = `Không tìm thấy bookmark nào liên quan đến từ khóa **"${searchTerm}"**.`
+        if (queryLower.includes('tóm tắt') || queryLower.includes('summarize')) {
+          const linksCount = activeCollection?.links?.length || 0
+          if (linksCount === 0) {
+            responseText = `Bộ sưu tập "${activeCollection?.name}" hiện tại chưa có bookmark nào để tóm tắt.`
           } else {
-            responseText = `Tìm thấy **${found.length}** liên kết liên quan đến **"${searchTerm}"**:\n\n`
-            found.forEach((link, idx) => {
-              responseText += `${idx + 1}. **${link.title}** (${link.url}) - trong nhóm *${link.colName}*\n`
+            responseText = `Dưới đây là tóm tắt nhanh các bookmark trong nhóm **${activeCollection.name}**:\n\n`
+            activeCollection.links.slice(0, 5).forEach((link, idx) => {
+              responseText += `${idx + 1}. **${link.title}** (${link.url})\n   👉 *${link.note || 'Không có mô tả.'}*\n\n`
             })
+            if (linksCount > 5) {
+              responseText += `*Và ${linksCount - 5} bookmark khác...*`
+            }
           }
+        } else if (queryLower.includes('tìm') || queryLower.includes('search') || queryLower.includes('find')) {
+          const searchTerm = queryLower.replace(/tìm kiếm|tìm|search|find/g, '').trim()
+          if (!searchTerm) {
+            responseText = 'Bạn muốn tìm kiếm từ khóa nào? Hãy nhập ví dụ: "Tìm React".'
+          } else {
+            const found = []
+            collections.forEach(col => {
+              (col.links || []).forEach(link => {
+                if (link.title.toLowerCase().includes(searchTerm) || link.url.toLowerCase().includes(searchTerm)) {
+                  found.push({ ...link, colName: col.name })
+                }
+              })
+            })
+            if (found.length === 0) {
+              responseText = `Không tìm thấy bookmark nào liên quan đến từ khóa **"${searchTerm}"**.`
+            } else {
+              responseText = `Tìm thấy **${found.length}** liên kết liên quan đến **"${searchTerm}"**:\n\n`
+              found.forEach((link, idx) => {
+                responseText += `${idx + 1}. **${link.title}** (${link.url}) - trong nhóm *${link.colName}*\n`
+              })
+            }
+          }
+        } else if (queryLower.includes('hello') || queryLower.includes('hi') || queryLower.includes('chào')) {
+          responseText = 'Xin chào! Tôi có thể giúp gì cho bạn? Hãy thử gõ: **"Tóm tắt các link"** hoặc **"Tìm React"**.'
+        } else {
+          responseText = 'Tôi là Tabmark AI (Chế độ giả lập). Tôi có thể:\n- 📝 **Tóm tắt** các bookmark hiện tại (gõ "tóm tắt")\n- 🔍 **Tìm kiếm** link trong hệ thống (gõ "tìm [từ khóa]")\n- 🤖 Giải đáp thắc mắc của bạn về bộ sưu tập link.\n\n*(Lưu ý: Để bật AI thực tế, hãy cấu hình VITE_GEMINI_API_KEY trong file .env)*'
         }
-      } else if (queryLower.includes('hello') || queryLower.includes('hi') || queryLower.includes('chào')) {
-        responseText = 'Xin chào! Tôi có thể giúp gì cho bạn? Hãy thử gõ: **"Tóm tắt các link"** hoặc **"Tìm React"**.'
-      } else {
-        responseText = 'Tôi là Tabmark AI. Tôi có thể:\n- 📝 **Tóm tắt** các bookmark hiện tại (gõ "tóm tắt")\n- 🔍 **Tìm kiếm** link trong hệ thống (gõ "tìm [từ khóa]")\n- 🤖 Giải đáp thắc mắc của bạn về bộ sưu tập link.'
-      }
 
-      setAiChatMessages(prev => [...prev, { sender: 'ai', text: responseText }])
+        setAiChatMessages(prev => [...prev, { sender: 'ai', text: responseText }])
+        setIsAiResponding(false)
+      }, 1000)
+      return
+    }
+
+    try {
+      const response = await chatWithGemini(newMessages, activeCollection?.links || [])
+      setAiChatMessages(prev => [...prev, { sender: 'ai', text: response }])
+    } catch (error) {
+      console.error('Gemini error:', error)
+      const errorMsg = `❌ **Đã xảy ra lỗi khi gọi Gemini AI:**\n${error.message || 'Lỗi không xác định.'}`
+      setAiChatMessages(prev => [...prev, { sender: 'ai', text: errorMsg }])
+    } finally {
       setIsAiResponding(false)
-    }, 1000)
+    }
+  }
+
+  // AI Note Generator for Kanban Card
+  async function handleGenerateSummary(card) {
+    if (!isGeminiConfigured) {
+      const mockSummaries = [
+        "Tài liệu hữu ích phục vụ cho việc học tập và nghiên cứu công nghệ liên quan.",
+        "Trang web chính thức cung cấp công cụ, thư viện và hướng dẫn sử dụng chi tiết.",
+        "Kho lưu trữ mã nguồn và tài nguyên chia sẻ của dự án.",
+        "Bảng tính trực tuyến theo dõi tiến độ công việc và kế hoạch hành động."
+      ]
+      const summary = mockSummaries[Math.floor(Math.random() * mockSummaries.length)]
+      
+      const containingCol = collections.find(c => c.links.some(l => l.id === card.id))
+      if (containingCol) {
+        handleSaveLink(
+          { ...card, note: summary },
+          'edit',
+          card.id,
+          containingCol.id
+        )
+      }
+      return
+    }
+
+    try {
+      const summary = await generateLinkSummary(card.title, card.url, card.tags || [])
+      const containingCol = collections.find(c => c.links.some(l => l.id === card.id))
+      if (containingCol) {
+        await handleSaveLink(
+          { ...card, note: summary },
+          'edit',
+          card.id,
+          containingCol.id
+        )
+      }
+    } catch (error) {
+      console.error('Failed to generate summary:', error)
+      Swal.fire({
+        title: 'Lỗi tạo tóm tắt',
+        text: error.message || 'Không thể tạo tóm tắt bằng Gemini.',
+        icon: 'error',
+        background: '#10141f',
+        color: '#fff'
+      })
+      throw error
+    }
   }
 
   function handleDragStart(e, cardId, fromCollectionId) {
@@ -285,85 +347,95 @@ export function DashboardPage({ onBackHome, user, onLogout, sharedCollectionId }
             onDeleteGroup={canEditGroup ? handleDeleteGroup : undefined}
             onDuplicateGroup={canEditGroup ? handleDuplicateGroup : undefined}
             onReorderCollections={canEditGroup ? handleReorderCollections : undefined}
+            onGenerateSummary={canEditLinks ? handleGenerateSummary : undefined}
           />
         </main>
       </div>
 
-      {/* Right AI Chat Sidebar Drawer */}
+      {/* Floating Messenger-style AI Chat Bubble */}
+      {!aiChatOpen && (
+        <button
+          onClick={() => setAiChatOpen(true)}
+          className="fixed bottom-6 right-6 p-4 rounded-full bg-gradient-to-tr from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white shadow-lg shadow-purple-500/20 transition-all duration-300 z-40 flex items-center justify-center scale-100 hover:scale-105 active:scale-95 cursor-pointer"
+          title="Mở AI Assistant"
+        >
+          <Sparkles className="w-5.5 h-5.5 fill-white/10" />
+        </button>
+      )}
+
+      {/* Floating Messenger-style AI Chat Widget */}
       {aiChatOpen && (
-        <div className="fixed inset-0 z-50 flex justify-end">
-          {/* Backdrop */}
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-xs transition-opacity" onClick={() => setAiChatOpen(false)} />
-          
-          {/* Drawer Content */}
-          <div className="relative w-96 max-w-full bg-[#0c0f16] border-l border-white/5 shadow-2xl flex flex-col h-full z-10 animate-fade-in-up">
-            {/* Header */}
-            <div className="p-4 border-b border-white/5 flex items-center justify-between">
-              <div className="flex items-center gap-2">
+        <div className="fixed bottom-6 right-6 w-96 max-w-[calc(100vw-3rem)] bg-[#0c0f16]/95 backdrop-blur-md border border-white/10 shadow-2xl rounded-2xl flex flex-col h-[520px] max-h-[80vh] z-50 animate-fade-in-up">
+          {/* Header */}
+          <div className="p-4 border-b border-white/5 flex items-center justify-between bg-white/[0.01] rounded-t-2xl">
+            <div className="flex items-center gap-2">
+              <div className="relative">
                 <Sparkles className="w-5 h-5 text-purple-400 fill-purple-400/10" />
-                <div>
-                  <h3 className="font-bold text-sm text-white">AI Assistant</h3>
-                  <p className="text-[10px] text-slate-500">Hỏi đáp về các bookmark của bạn</p>
+                <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-emerald-500 rounded-full border border-[#0c0f16]" />
+              </div>
+              <div>
+                <h3 className="font-bold text-sm text-white">AI Assistant</h3>
+                <p className="text-[10px] text-slate-500">Hỏi đáp về các bookmark của bạn</p>
+              </div>
+            </div>
+            <button
+              onClick={() => setAiChatOpen(false)}
+              className="p-1.5 hover:bg-white/5 rounded-lg text-slate-400 hover:text-white transition-colors cursor-pointer"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Chat Messages */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            {aiChatMessages.map((msg, idx) => (
+              <div
+                key={idx}
+                className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+              >
+                <div
+                  className={`max-w-[85%] rounded-2xl p-3.5 text-xs leading-relaxed whitespace-pre-line ${
+                    msg.sender === 'user'
+                      ? 'bg-blue-600 text-white rounded-br-none shadow-[0_0_15px_rgba(59,130,246,0.2)]'
+                      : 'bg-white/[0.03] border border-white/5 text-slate-300 rounded-bl-none'
+                  }`}
+                >
+                  {msg.text}
                 </div>
               </div>
+            ))}
+            {isAiResponding && (
+              <div className="flex justify-start">
+                <div className="bg-white/[0.03] border border-white/5 text-slate-300 rounded-2xl rounded-bl-none p-3.5 text-xs flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                  <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                  <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                </div>
+              </div>
+            )}
+            <div ref={chatEndRef} />
+          </div>
+
+          {/* Input Form */}
+          <form onSubmit={handleSendAiMessage} className="p-4 border-t border-white/5 bg-[#090b11]/50 rounded-b-2xl">
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                value={aiChatInput}
+                onChange={(e) => setAiChatInput(e.target.value)}
+                placeholder="Hỏi AI về bookmark..."
+                className="flex-1 bg-white/[0.02] border border-white/10 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
+                disabled={isAiResponding}
+              />
               <button
-                onClick={() => setAiChatOpen(false)}
-                className="p-1.5 hover:bg-white/5 rounded-lg text-slate-400 hover:text-white transition-colors cursor-pointer"
+                type="submit"
+                disabled={!aiChatInput.trim() || isAiResponding}
+                className="p-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white rounded-xl transition-all cursor-pointer flex items-center justify-center"
               >
-                <X className="w-4 h-4" />
+                <Send className="w-4 h-4" />
               </button>
             </div>
-
-            {/* Chat Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              {aiChatMessages.map((msg, idx) => (
-                <div
-                  key={idx}
-                  className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div
-                    className={`max-w-[85%] rounded-2xl p-3.5 text-xs leading-relaxed whitespace-pre-line ${
-                      msg.sender === 'user'
-                        ? 'bg-blue-600 text-white rounded-br-none shadow-[0_0_15px_rgba(59,130,246,0.2)]'
-                        : 'bg-white/[0.03] border border-white/5 text-slate-300 rounded-bl-none'
-                    }`}
-                  >
-                    {msg.text}
-                  </div>
-                </div>
-              ))}
-              {isAiResponding && (
-                <div className="flex justify-start">
-                  <div className="bg-white/[0.03] border border-white/5 text-slate-300 rounded-2xl rounded-bl-none p-3.5 text-xs flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
-                    <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
-                    <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
-                  </div>
-                </div>
-              )}
-              <div ref={chatEndRef} />
-            </div>
-
-            {/* Input Form */}
-            <form onSubmit={handleSendAiMessage} className="p-4 border-t border-white/5 bg-[#090b11]">
-              <div className="flex items-center gap-2">
-                <input
-                  type="text"
-                  value={aiChatInput}
-                  onChange={(e) => setAiChatInput(e.target.value)}
-                  placeholder="Gõ 'tóm tắt' hoặc đặt câu hỏi..."
-                  className="flex-1 px-3.5 py-2.5 bg-white/[0.03] border border-white/5 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-white placeholder:text-slate-500"
-                />
-                <button
-                  type="submit"
-                  disabled={!aiChatInput.trim()}
-                  className="p-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl disabled:opacity-40 transition-all cursor-pointer shadow-[0_0_15px_rgba(59,130,246,0.2)]"
-                >
-                  <Send className="w-4 h-4" />
-                </button>
-              </div>
-            </form>
-          </div>
+          </form>
         </div>
       )}
 

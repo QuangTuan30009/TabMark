@@ -108,10 +108,25 @@ export default function KanbanCard({
   onDragStart,
   onEdit,
   onDelete,
-  onDuplicate
+  onDuplicate,
+  onGenerateSummary
 }) {
   const [showMenu, setShowMenu] = useState(false)
   const [showAISummary, setShowAISummary] = useState(false)
+  const [isGenerating, setIsGenerating] = useState(false)
+
+  const handleAIClick = async (e) => {
+    e.stopPropagation()
+    if (!onGenerateSummary) return
+    setIsGenerating(true)
+    try {
+      await onGenerateSummary(card)
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setIsGenerating(false)
+    }
+  }
 
   // Map column colors for hover classes
   const hoverClassMap = {
@@ -227,12 +242,15 @@ export default function KanbanCard({
           <span className="text-[10px] font-semibold">{card.time || '5 min'}</span>
         </div>
         <button
-          onMouseEnter={() => setShowAISummary(true)}
+          onClick={handleAIClick}
+          onMouseEnter={() => !isGenerating && setShowAISummary(true)}
           onMouseLeave={() => setShowAISummary(false)}
-          className="text-xs text-blue-400 hover:text-purple-400 transition-colors flex items-center gap-1 py-1 px-2 rounded-lg bg-blue-500/5 border border-blue-500/10 hover:border-purple-500/20 cursor-pointer"
+          disabled={isGenerating}
+          className="text-xs text-blue-400 hover:text-purple-400 transition-colors flex items-center gap-1 py-1 px-2 rounded-lg bg-blue-500/5 border border-blue-500/10 hover:border-purple-500/20 cursor-pointer disabled:opacity-50"
+          title="Click để tạo/cập nhật tóm tắt bằng AI"
         >
-          <Sparkles className="w-3.5 h-3.5 fill-blue-400/10" />
-          <span className="font-semibold text-[10px]">AI</span>
+          <Sparkles className={`w-3.5 h-3.5 fill-blue-400/10 ${isGenerating ? 'animate-spin text-purple-400' : ''}`} />
+          <span className="font-semibold text-[10px]">{isGenerating ? 'AI...' : 'AI'}</span>
         </button>
       </div>
 

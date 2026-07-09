@@ -24,6 +24,7 @@ export default function KanbanBoard({
   onDeleteGroup,
   onDuplicateGroup,
   onReorderCollections,
+  onGenerateSummary,
 }) {
   const boardRef = useRef(null)
   const [draggedColId, setDraggedColId] = useState(null)
@@ -121,6 +122,7 @@ export default function KanbanBoard({
                 onEditGroup={onEditGroup}
                 onDeleteGroup={onDeleteGroup}
                 onDuplicateGroup={onDuplicateGroup}
+                onGenerateSummary={onGenerateSummary}
               />
             </div>
           )
