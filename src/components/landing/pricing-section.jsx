@@ -52,23 +52,6 @@ const plans = [
   },
 ]
 
-const addons = [
-  {
-    name: 'Gói Sinh Viên Ưu Đãi',
-    target: 'Dành riêng cho sinh viên FPT / ĐH',
-    price: '49.000 đ',
-    period: '/tháng',
-    features: ['Đầy đủ tính năng Pro', 'Ưu đãi xác thực email trường .edu.vn'],
-  },
-  {
-    name: 'Bản Quyền 1 Năm (Tiết kiệm 30%)',
-    target: 'Người dùng gắn bó lâu dài',
-    price: '1.199.000 đ',
-    period: '/năm',
-    features: ['Tiết kiệm gần 600.000đ/năm', 'Tặng 3 tháng sử dụng miễn phí'],
-  },
-]
-
 export function PricingSection({ onOpenDashboard }) {
   return (
     <section id="pricing" className="px-4 sm:px-6 py-20 md:py-28 relative bg-[#070a12] overflow-hidden">
@@ -139,49 +122,6 @@ export function PricingSection({ onOpenDashboard }) {
             </RevealSection>
           ))}
         </div>
-
-        {/* Add-ons Section */}
-        <RevealSection className="mt-16">
-          <div className="rounded-3xl border border-white/10 bg-[#0c101c]/60 p-8 md:p-10 backdrop-blur-xl">
-            <div className="mb-8 text-center md:text-left">
-              <h3 className="text-2xl font-bold text-white">Gói Mua Thêm (Add-ons)</h3>
-              <p className="mt-2 text-sm text-slate-400">
-                Mua thêm dung lượng AI Credit khi bạn cần sử dụng nhiều hơn giới hạn của gói.
-              </p>
-            </div>
-
-            <div className="grid gap-6 md:grid-cols-2">
-              {addons.map((addon) => (
-                <div
-                  key={addon.name}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border border-white/[0.06] bg-white/[0.02] p-5 transition-all hover:bg-white/[0.04] hover:border-cyan-500/20"
-                >
-                  <div>
-                    <h4 className="font-bold text-white">{addon.name}</h4>
-                    <p className="text-xs text-cyan-400 mt-1 font-semibold">{addon.target}</p>
-                    <ul className="mt-3 space-y-1.5">
-                      {addon.features.map((f) => (
-                        <li key={f} className="flex items-center gap-2 text-xs text-slate-300">
-                          <Check className="h-3 w-3 text-cyan-400" />
-                          <span>{f}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-center border-t border-white/5 pt-4 sm:border-0 sm:pt-0">
-                    <span className="text-xl font-extrabold text-white">{addon.price}</span>
-                    <button
-                      onClick={onOpenDashboard}
-                      className="rounded-xl bg-cyan-500/15 border border-cyan-500/30 px-4 py-1.5 text-xs font-bold text-cyan-300 transition-all hover:bg-cyan-500/25 sm:mt-2 cursor-pointer"
-                    >
-                      Mua thêm
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </RevealSection>
       </div>
     </section>
   )
