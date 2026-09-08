@@ -9,6 +9,7 @@ import { CollectionModal } from '@/components/modals/collection-modal'
 import { LinkModal } from '@/components/modals/link-modal'
 import { ShareModal } from '@/components/modals/share-modal'
 import { PaymentModal } from '@/components/modals/payment-modal'
+import { SettingsModal } from '@/components/modals/settings-modal'
 import { useCollections } from '@/hooks/use-collections'
 import { isSupabaseConfigured } from '@/lib/bookmarksApi'
 import { chatWithGemini, isGeminiConfigured, generateLinkSummary } from '@/lib/geminiApi'
@@ -70,6 +71,7 @@ export function DashboardPage({ onBackHome, user, onLogout, sharedCollectionId }
   const [collectionModalOpen, setCollectionModalOpen] = useState(false)
   const [shareModalOpen, setShareModalOpen] = useState(false)
   const [paymentModalOpen, setPaymentModalOpen] = useState(false)
+  const [settingsModalOpen, setSettingsModalOpen] = useState(false)
   const [linkEditor, setLinkEditor] = useState(null)
   const [currentUser, setCurrentUser] = useState(user)
 
@@ -298,11 +300,7 @@ export function DashboardPage({ onBackHome, user, onLogout, sharedCollectionId }
         onAIChatToggle={() => setAiChatOpen(!aiChatOpen)}
         user={currentUser}
         onOpenPayment={() => setPaymentModalOpen(true)}
-        onSettingsClick={() => animatedSwal.fire({
-          title: 'Coming Soon',
-          text: 'Settings and configuration interface is being updated!',
-          icon: 'info'
-        })}
+        onSettingsClick={() => setSettingsModalOpen(true)}
         onLogout={onLogout}
       />
 
@@ -484,6 +482,17 @@ export function DashboardPage({ onBackHome, user, onLogout, sharedCollectionId }
           onUpgradeSuccess={(plan) => {
             setCurrentUser(prev => ({ ...prev, is_pro: true, plan: plan.id }))
           }}
+        />
+      )}
+
+      {settingsModalOpen && (
+        <SettingsModal
+          isOpen={settingsModalOpen}
+          onClose={() => setSettingsModalOpen(false)}
+          user={currentUser}
+          onUserUpdated={(updated) => setCurrentUser(updated)}
+          onOpenPayment={() => setPaymentModalOpen(true)}
+          onLogout={onLogout}
         />
       )}
 
