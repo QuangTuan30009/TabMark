@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
-import { isSupabaseConfigured } from '@/src/lib/bookmarksApi'
-import LandingPage from './LandingPage'
-import WelcomeScreen from './WelcomeScreen'
-import AuthScreen from './AuthScreen'
-import { DashboardPage } from './pages/dashboard-page'
-import { supabase } from '@/src/lib/supabaseClient'
+import { isSupabaseConfigured, getUserProfile } from '@/lib/bookmarksApi'
+import LandingPage from '@/pages/LandingPage'
+import WelcomeScreen from '@/pages/WelcomeScreen'
+import AuthScreen from '@/pages/AuthScreen'
+import { DashboardPage } from '@/pages/dashboard-page'
+import { supabase } from '@/lib/supabaseClient'
 
 export default function App() {
   const [page, setPage] = useState(() => {
@@ -17,24 +17,50 @@ export default function App() {
   const [showWelcome, setShowWelcome] = useState(() => window.location.hash !== '#dashboard')
   const [user, setUser] = useState(null)
 
+  // Sync user with profile data
+  async function syncUserWithProfile(rawUser) {
+    if (!rawUser) {
+      setUser(null)
+      return
+    }
+    try {
+      const profile = await getUserProfile(rawUser.id)
+      if (profile) {
+        setUser({ ...rawUser, ...profile })
+      } else {
+        setUser(rawUser)
+      }
+    } catch {
+      setUser(rawUser)
+    }
+  }
+
   // Restore session
   useEffect(() => {
     if (isSupabaseConfigured) {
       // Restore from Supabase
       supabase.auth.getSession().then(({ data: { session } }) => {
         if (session?.user) {
-          setUser(session.user)
+          syncUserWithProfile(session.user)
+          if (!window.location.hash.startsWith('#shared/')) {
+            setShowWelcome(false)
+            setPage('dashboard')
+          }
         }
       })
 
       const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-        setUser(session?.user ?? null)
         if (session?.user) {
+          syncUserWithProfile(session.user)
+          setShowWelcome(false)
           // Chỉ chuyển sang dashboard nếu không truy cập từ link shared
           const hash = window.location.hash
           if (!hash.startsWith('#shared/')) {
+            window.history.pushState(null, '', '#dashboard')
             setPage('dashboard')
           }
+        } else {
+          setUser(null)
         }
       })
 
@@ -118,7 +144,7 @@ export default function App() {
 
   return (
     <>
-      {showWelcome && <WelcomeScreen onComplete={() => setShowWelcome(false)} />}
+      {showWelcome && !user && <WelcomeScreen onComplete={() => setShowWelcome(false)} />}
       
       {page === 'login' ? (
         <AuthScreen onLogin={handleLogin} onBackHome={goHome} />
@@ -134,7 +160,7 @@ export default function App() {
           <AuthScreen onLogin={handleLogin} onBackHome={goHome} />
         )
       ) : (
-        <LandingPage onOpenDashboard={goToDashboard} onLoginClick={goToLogin} />
+        <LandingPage onOpenDashboard={goToDashboard} onLoginClick={goToLogin} user={user} />
       )}
     </>
   )

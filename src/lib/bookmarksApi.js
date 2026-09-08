@@ -177,3 +177,88 @@ export async function updateCollectionShareMode(id, shareMode) {
   if (error) throw error
   return data
 }
+
+// ==========================================
+// USER PROFILE & PRO MEMBERSHIP MANAGEMENT
+// ==========================================
+
+export async function getUserProfile(userId) {
+  if (!isSupabaseConfigured || !userId) return null
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single()
+    if (error) throw error
+    return data
+  } catch (err) {
+    console.warn('Could not fetch user profile:', err.message)
+    return null
+  }
+}
+
+export async function updateUserProfile(userId, updates) {
+  if (!isSupabaseConfigured || !userId) return null
+  const { data, error } = await supabase
+    .from('profiles')
+    .update({
+      ...updates,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', userId)
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
+export async function upgradeUserToPro(userId, plan = 'pro') {
+  if (!isSupabaseConfigured || !userId) return null
+  const { data, error } = await supabase
+    .from('profiles')
+    .update({
+      is_pro: true,
+      plan: plan,
+      pro_expires_at: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', userId)
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
+export async function recordTransaction({ userId, email, planId, planName, amount, transactionCode }) {
+  if (!isSupabaseConfigured || !userId) return null
+  const { data, error } = await supabase
+    .from('transactions')
+    .insert({
+      user_id: userId,
+      email: email || '',
+      plan_id: planId,
+      plan_name: planName,
+      amount: amount,
+      transaction_code: transactionCode,
+      status: 'completed',
+      payment_method: 'vietqr',
+    })
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
+export async function fetchUserTransactions(userId) {
+  if (!isSupabaseConfigured || !userId) return []
+  const { data, error } = await supabase
+    .from('transactions')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return data || []
+}
+
+

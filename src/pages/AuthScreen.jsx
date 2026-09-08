@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Mail, Lock, AlertCircle, Check, Eye, EyeOff } from 'lucide-react'
-import { isSupabaseConfigured, supabase } from './lib/supabaseClient'
+import { isSupabaseConfigured, supabase } from '@/lib/supabaseClient'
 
 export default function AuthScreen({ onLogin, onBackHome }) {
   const [isSignUp, setIsSignUp] = useState(false)
@@ -85,13 +85,18 @@ export default function AuthScreen({ onLogin, onBackHome }) {
     setMessage(null)
     if (isSupabaseConfigured) {
       try {
+        setLoading(true)
         const { error: googleError } = await supabase.auth.signInWithOAuth({
           provider: 'google',
+          options: {
+            redirectTo: window.location.origin
+          }
         })
         if (googleError) throw googleError
       } catch (err) {
         console.error(err)
         setError(err.message || 'Lỗi đăng nhập Google, vui lòng thử lại.')
+        setLoading(false)
       }
     } else {
       // Mock Local mode authentication for Google

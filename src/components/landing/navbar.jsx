@@ -48,53 +48,59 @@ export function Navbar({ onOpenDashboard, onLoginClick }) {
 
   return (
     <header 
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b ${
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled 
-          ? 'bg-white/90 dark:bg-[#06111f]/90 backdrop-blur-xl shadow-lg border-slate-200 dark:border-white/10' 
-          : 'bg-white/50 dark:bg-[#06111f]/50 backdrop-blur-md border-transparent'
+          ? 'bg-[#06080f]/90 backdrop-blur-xl border-b border-white/[0.08] shadow-[0_4px_30px_rgba(0,0,0,0.8)]' 
+          : 'bg-transparent border-b border-transparent'
       }`}
     >
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 max-w-7xl">
-        <div className="flex h-16 sm:h-20 items-center justify-between">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+        <div className="flex h-20 items-center justify-between">
           {/* Logo */}
           <div className="flex items-center">
             <a href="#" className="flex items-center group cursor-pointer" onClick={onOpenDashboard}>
               <img 
-                src="/Tabmark-removebg-preview.png" 
-                alt="Tabmark Logo" 
-                className="w-32 sm:w-40 lg:w-48 h-auto object-contain transition-transform group-hover:scale-105 dark:invert" 
+                src="tabmark-logo-white.png" 
+                alt="TabMark Logo" 
+                className="h-9 sm:h-10 w-auto object-contain transition-transform group-hover:scale-105" 
               />
             </a>
           </div>
 
           {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center space-x-4 lg:space-x-6 xl:space-x-8">
+          <nav className="hidden md:flex items-center space-x-8">
             {navLinks.map(link => (
               <a 
                 key={link.text} 
                 href={link.href} 
-                className="text-sm lg:text-base font-medium text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors relative group"
+                className="text-sm font-medium text-slate-300 hover:text-white transition-colors relative group py-1"
               >
                 {link.text}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gray-900 dark:bg-white transition-all duration-300 group-hover:w-full"></span>
+                <span className="absolute -bottom-0.5 left-0 w-0 h-0.5 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
               </a>
             ))}
           </nav>
 
           {/* Desktop Actions */}
-          <div className="hidden md:flex items-center space-x-3 lg:space-x-4">
+          <div className="hidden md:flex items-center space-x-4">
             <button 
               onClick={() => setIsDarkMode(!isDarkMode)}
-              className="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors focus:outline-none"
+              className="p-2 text-slate-300 hover:bg-white/10 rounded-full transition-colors focus:outline-none"
               aria-label="Toggle Dark Mode"
             >
-              {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
             <button 
               onClick={onLoginClick}
-              className="px-5 lg:px-7 py-2 text-sm lg:text-base font-semibold bg-primary text-primary-foreground rounded-full transition-all hover:brightness-110 hover:shadow-[0_0_24px_rgba(47,155,255,0.35)]"
+              className="text-sm font-semibold text-slate-300 hover:text-white transition-colors px-3 py-2 cursor-pointer"
             >
-              Đăng nhập
+              Log in
+            </button>
+            <button 
+              onClick={onOpenDashboard}
+              className="px-5 py-2 text-sm font-semibold text-white bg-white/[0.06] hover:bg-white/[0.12] border border-white/20 hover:border-white/40 rounded-full transition-all cursor-pointer backdrop-blur-md"
+            >
+              Sign up Free
             </button>
           </div>
 

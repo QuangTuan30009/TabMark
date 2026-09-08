@@ -8,9 +8,10 @@ import KanbanBoard from '@/components/dashboard/kanban-board'
 import { CollectionModal } from '@/components/modals/collection-modal'
 import { LinkModal } from '@/components/modals/link-modal'
 import { ShareModal } from '@/components/modals/share-modal'
-import { useCollections } from '@/src/hooks/use-collections'
-import { isSupabaseConfigured } from '@/src/lib/bookmarksApi'
-import { chatWithGemini, isGeminiConfigured, generateLinkSummary } from '@/src/lib/geminiApi'
+import { PaymentModal } from '@/components/modals/payment-modal'
+import { useCollections } from '@/hooks/use-collections'
+import { isSupabaseConfigured } from '@/lib/bookmarksApi'
+import { chatWithGemini, isGeminiConfigured, generateLinkSummary } from '@/lib/geminiApi'
 
 const animatedSwal = Swal.mixin({
   background: '#10141f',
@@ -68,7 +69,13 @@ export function DashboardPage({ onBackHome, user, onLogout, sharedCollectionId }
   const [sidebarSearchQuery, setSidebarSearchQuery] = useState('')
   const [collectionModalOpen, setCollectionModalOpen] = useState(false)
   const [shareModalOpen, setShareModalOpen] = useState(false)
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false)
   const [linkEditor, setLinkEditor] = useState(null)
+  const [currentUser, setCurrentUser] = useState(user)
+
+  useEffect(() => {
+    setCurrentUser(user)
+  }, [user])
 
   // AI Chat states
   const [aiChatOpen, setAiChatOpen] = useState(false)
@@ -289,7 +296,8 @@ export function DashboardPage({ onBackHome, user, onLogout, sharedCollectionId }
         searchQuery={sidebarSearchQuery}
         onSearchChange={setSidebarSearchQuery}
         onAIChatToggle={() => setAiChatOpen(!aiChatOpen)}
-        user={user}
+        user={currentUser}
+        onOpenPayment={() => setPaymentModalOpen(true)}
         onSettingsClick={() => animatedSwal.fire({
           title: 'Coming Soon',
           text: 'Settings and configuration interface is being updated!',
@@ -313,6 +321,8 @@ export function DashboardPage({ onBackHome, user, onLogout, sharedCollectionId }
           syncStatus={syncStatus}
           isCloudEnabled={isSupabaseConfigured}
           isSharedView={isSharedView}
+          user={currentUser}
+          onOpenPayment={() => setPaymentModalOpen(true)}
         />
 
         {/* Kanban Area */}
@@ -455,9 +465,25 @@ export function DashboardPage({ onBackHome, user, onLogout, sharedCollectionId }
       {linkEditor && (
         <LinkModal
           mode={linkEditor.mode}
+          collections={collections}
+          activeCollectionId={linkEditor.collectionId || activeCollectionId}
           initialValues={linkEditor.link ? { ...linkEditor.link, tags: linkEditor.link.tags.join(', ') } : undefined}
           onClose={() => setLinkEditor(null)}
-          onSave={(link) => handleSaveLink(link, linkEditor.mode, linkEditor.link?.id, linkEditor.collectionId, () => setLinkEditor(null))}
+          onSave={(link) => {
+            const targetColId = link.collectionId || linkEditor.collectionId || activeCollectionId
+            handleSaveLink(link, linkEditor.mode, linkEditor.link?.id, targetColId, () => setLinkEditor(null))
+          }}
+        />
+      )}
+
+      {paymentModalOpen && (
+        <PaymentModal
+          isOpen={paymentModalOpen}
+          onClose={() => setPaymentModalOpen(false)}
+          user={currentUser}
+          onUpgradeSuccess={(plan) => {
+            setCurrentUser(prev => ({ ...prev, is_pro: true, plan: plan.id }))
+          }}
         />
       )}
 

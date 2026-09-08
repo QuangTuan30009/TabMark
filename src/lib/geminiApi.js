@@ -1,23 +1,43 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
+import { isSupabaseConfigured, supabase } from './supabaseClient'
 
-const apiKey = import.meta.env.VITE_GEMINI_API_KEY
+const clientApiKey = import.meta.env.VITE_GEMINI_API_KEY
 const modelName = import.meta.env.VITE_GEMINI_MODEL || 'gemini-2.5-flash'
 
-export const isGeminiConfigured = !!apiKey
+export const isGeminiConfigured = isSupabaseConfigured || !!clientApiKey
 
 let genAI = null
-if (apiKey) {
-  genAI = new GoogleGenerativeAI(apiKey)
+if (clientApiKey) {
+  genAI = new GoogleGenerativeAI(clientApiKey)
 }
 
 /**
- * Trò chuyện với Gemini sử dụng lịch sử tin nhắn và ngữ cảnh các bookmarks hiện tại
+ * Trò chuyện với Gemini (Ưu tiên qua Supabase Edge Function bảo mật, fallback qua client SDK)
  * @param {Array<{sender: 'user'|'ai', text: string}>} messages - Lịch sử chat
  * @param {Array} contextBookmarks - Danh sách bookmark hiện tại
  */
 export async function chatWithGemini(messages, contextBookmarks = []) {
+  // 1. Thử gọi qua Supabase Edge Function (Bảo mật 100% không lộ key)
+  if (isSupabaseConfigured) {
+    try {
+      const { data, error } = await supabase.functions.invoke('gemini-ai', {
+        body: {
+          action: 'chat',
+          messages,
+          contextBookmarks,
+        },
+      })
+      if (!error && data?.result) {
+        return data.result
+      }
+    } catch (e) {
+      console.warn('Edge Function gemini-ai chưa kích hoạt, thử fallback client SDK...', e)
+    }
+  }
+
+  // 2. Fallback sang Client SDK nếu có VITE_GEMINI_API_KEY
   if (!genAI) {
-    throw new Error('Gemini API Key chưa được cấu hình. Vui lòng thêm VITE_GEMINI_API_KEY vào file .env')
+    throw new Error('Chưa cấu hình Gemini AI. Vui lòng thiết lập Supabase Edge Function hoặc thêm VITE_GEMINI_API_KEY vào .env')
   }
 
   let systemInstruction = `Bạn là Tabmark AI, một trợ lý ảo thông minh được tích hợp trực tiếp trong ứng dụng quản lý bookmark Tabmark.\n`
@@ -32,7 +52,7 @@ export async function chatWithGemini(messages, contextBookmarks = []) {
   } else {
     systemInstruction += `Nhóm bookmark hiện tại của người dùng đang trống. Hãy thân thiện hướng dẫn họ cách thêm bookmark hoặc hỏi xem có thể hỗ trợ gì khác.\n`
   }
-  
+
   systemInstruction += `\nLưu ý:\n`
   systemInstruction += `1. Luôn trả lời bằng tiếng Việt một cách lịch sự, ngắn gọn và hữu ích.\n`
   systemInstruction += `2. Bạn có thể sử dụng markdown để định dạng câu trả lời (như in đậm, danh sách, bảng biểu, liên kết).\n`
@@ -42,13 +62,10 @@ export async function chatWithGemini(messages, contextBookmarks = []) {
     systemInstruction: systemInstruction,
   })
 
-  // Gemini SDK chat expects history format: { role: 'user' | 'model', parts: [{ text: '...' }] }
   const history = []
-  const historyInput = messages.slice(0, -1) // Bỏ tin nhắn mới nhất
-  const latestMessage = messages[messages.length - 1] // Tin nhắn mới nhất
+  const historyInput = messages.slice(0, -1)
+  const latestMessage = messages[messages.length - 1]
 
-  // Lịch sử chat của Gemini bắt buộc phải bắt đầu bằng tin nhắn của 'user' (role: 'user').
-  // Do đó ta sẽ bỏ qua tin nhắn chào mừng ban đầu của AI (nếu có).
   let foundFirstUser = false
   historyInput.forEach((msg) => {
     if (msg.sender === 'user') {
@@ -72,14 +89,34 @@ export async function chatWithGemini(messages, contextBookmarks = []) {
 }
 
 /**
- * Tạo tóm tắt tự động cho một bookmark dựa trên thông tin Title, URL và Tags
+ * Tạo tóm tắt tự động cho một bookmark (Ưu tiên qua Supabase Edge Function)
  * @param {string} title 
  * @param {string} url 
  * @param {Array<string>} tags 
  */
 export async function generateLinkSummary(title, url, tags = []) {
+  // 1. Thử gọi qua Supabase Edge Function (Bảo mật 100%)
+  if (isSupabaseConfigured) {
+    try {
+      const { data, error } = await supabase.functions.invoke('gemini-ai', {
+        body: {
+          action: 'summary',
+          title,
+          url,
+          tags,
+        },
+      })
+      if (!error && data?.result) {
+        return data.result
+      }
+    } catch (e) {
+      console.warn('Edge Function gemini-ai chưa kích hoạt, thử fallback client SDK...', e)
+    }
+  }
+
+  // 2. Fallback sang Client SDK
   if (!genAI) {
-    throw new Error('Gemini API Key chưa được cấu hình. Vui lòng thêm VITE_GEMINI_API_KEY vào file .env')
+    throw new Error('Chưa cấu hình Gemini AI. Vui lòng thiết lập Supabase Edge Function hoặc thêm VITE_GEMINI_API_KEY vào .env')
   }
 
   const model = genAI.getGenerativeModel({ model: modelName })
@@ -89,3 +126,76 @@ export async function generateLinkSummary(title, url, tags = []) {
   const response = await result.response
   return response.text().trim()
 }
+
+/**
+ * Trích xuất Metadata thông minh bằng Gemini AI cho tính năng Add Link
+ * @param {{ url: string, title?: string }} param0
+ * @returns {Promise<{ title: string, tags: string[], note: string, icon: string, time: string }>}
+ */
+export async function extractLinkMetadataWithAI({ url, title = '' }) {
+  // 1. Heuristic fallback nếu không có AI
+  const domainMatch = url.replace(/^(?:https?:\/\/)?(?:www\.)?/i, '').split('/')[0]
+  const domainName = domainMatch.split('.')[0] || 'Link'
+  const fallbackTitle = title.trim() || domainName.charAt(0).toUpperCase() + domainName.slice(1)
+  
+  const fallbackResult = {
+    title: fallbackTitle,
+    tags: [domainName.toLowerCase(), 'bookmark'],
+    note: `Liên kết được lưu từ ${domainMatch}`,
+    icon: domainName.slice(0, 2).toUpperCase(),
+    time: '3 min',
+  }
+
+  // 2. Thử gọi qua Supabase Edge Function nếu có
+  if (isSupabaseConfigured) {
+    try {
+      const { data, error } = await supabase.functions.invoke('gemini-ai', {
+        body: {
+          action: 'extract_metadata',
+          url,
+          title,
+        },
+      })
+      if (!error && data?.result) {
+        return {
+          title: data.result.title || fallbackResult.title,
+          tags: Array.isArray(data.result.tags) ? data.result.tags : fallbackResult.tags,
+          note: data.result.note || fallbackResult.note,
+          icon: data.result.icon || fallbackResult.icon,
+          time: data.result.time || fallbackResult.time,
+        }
+      }
+    } catch (e) {
+      console.warn('Edge function metadata extract failed, trying client SDK...', e)
+    }
+  }
+
+  // 3. Fallback sang Google Generative AI Client SDK
+  if (genAI) {
+    try {
+      const model = genAI.getGenerativeModel({
+        model: modelName,
+        generationConfig: { responseMimeType: 'application/json' },
+      })
+
+      const prompt = `Phân tích đường link sau và trả về thông tin dạng JSON:\nURL: "${url}"\nTiêu đề hiện tại (nếu có): "${title}"\n\nHãy sinh dữ liệu JSON theo đúng schema sau:\n{\n  "title": "Tiêu đề ngắn gọn, chuẩn xác của trang web (tối đa 40 ký tự)",\n  "tags": ["3 đến 5 tags tiếng Anh hoặc tiếng Việt liên quan nhất dạng chữ thường không dấu cách"],\n  "note": "Tóm tắt súc tích nội dung/mục đích trang web từ 1 đến 2 câu tiếng Việt (tối đa 100 ký tự)",\n  "icon": "2 ký tự viết hoa đại diện cho website hoặc tên icon (VD: RE, GH, GG, AI)",\n  "time": "Ước tính thời gian đọc (VD: 3 min, 5 min, 10 min)"\n}`
+
+      const result = await model.generateContent(prompt)
+      const text = result.response.text()
+      const parsed = JSON.parse(text)
+      return {
+        title: parsed.title || fallbackResult.title,
+        tags: Array.isArray(parsed.tags) ? parsed.tags : fallbackResult.tags,
+        note: parsed.note || fallbackResult.note,
+        icon: parsed.icon || fallbackResult.icon,
+        time: parsed.time || fallbackResult.time,
+      }
+    } catch (err) {
+      console.warn('Gemini metadata extraction fallback to heuristic:', err)
+    }
+  }
+
+  // 4. Nếu không có key hoặc lỗi, trả về fallback thông minh
+  return fallbackResult
+}
+

@@ -10,8 +10,8 @@ import {
   updateLink,
   updateCollection,
   deleteCollection,
-} from '@/src/lib/bookmarksApi'
-import { supabase } from '@/src/lib/supabaseClient'
+} from '@/lib/bookmarksApi'
+import { supabase } from '@/lib/supabaseClient'
 
 const STORAGE_KEY = 'tabmark.collections.v2'
 
@@ -262,7 +262,74 @@ export function useCollections({ animatedSwal, user, sharedCollectionId }) {
 
   useEffect(() => {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(collections))
+    window.postMessage({ type: 'TABMARK_COLLECTIONS_UPDATED', collections }, '*')
   }, [collections])
+
+  // Listen for live link saves from TabMark Chrome Extension via window.postMessage
+  useEffect(() => {
+    function handleWindowMessage(event) {
+      if (event.data?.type === 'TABMARK_EXT_ADD_LINK') {
+        const { link, collectionId } = event.data
+        if (!link) return
+
+        const isUUID = (str) => typeof str === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str)
+        const targetId = (collectionId || activeCollectionId || 'default').toString().trim().toLowerCase()
+        const newLink = {
+          id: link.id || createId(),
+          title: link.title || 'Untitled',
+          url: link.url,
+          icon: link.icon || '🔗',
+          tags: link.tags || [],
+          note: link.note || '',
+          status: link.status || 'todo',
+          time: link.time || '5 min'
+        }
+
+        let targetCol = null
+
+        setCollections(current => {
+          let matched = false
+          const updated = current.map(col => {
+            const isMatch = (col.id && col.id.toString().toLowerCase() === targetId) ||
+                            (col.name && col.name.trim().toLowerCase() === targetId) ||
+                            (targetId === 'default' && col.id === current[0]?.id)
+            if (isMatch) {
+              matched = true
+              targetCol = col
+              return {
+                ...col,
+                links: [newLink, ...(col.links || []).filter(l => l.url !== newLink.url || l.title !== newLink.title)]
+              }
+            }
+            return col
+          })
+
+          if (!matched && updated.length > 0) {
+            targetCol = updated[0]
+            updated[0] = {
+              ...updated[0],
+              links: [newLink, ...(updated[0].links || []).filter(l => l.url !== newLink.url || l.title !== newLink.title)]
+            }
+          }
+          return updated
+        })
+
+        // Nếu chưa lưu trên Cloud (link.id chưa phải UUID) và user đang login, lưu tiếp vào Supabase
+        if (isSupabaseConfigured && user && targetCol?.id && isUUID(targetCol.id) && !isUUID(newLink.id)) {
+          createLink(newLink, targetCol.id).catch(err => console.warn('[TabMark Extension Sync] Supabase save error:', err))
+        }
+
+        setToast({
+          message: `🔖 Extension đã lưu: "${newLink.title}"`
+        })
+      }
+    }
+
+    window.addEventListener('message', handleWindowMessage)
+    return () => window.removeEventListener('message', handleWindowMessage)
+  }, [activeCollectionId, user])
+
+
 
   const activeCollection = useMemo(() => {
     return collections.find((collection) => collection.id === activeCollectionId) ?? collections[0]
@@ -547,6 +614,31 @@ export function useCollections({ animatedSwal, user, sharedCollectionId }) {
   }
 
   async function handleDeleteLink(linkId) {
+    let targetLink = null
+    let targetCol = null
+    for (const c of collections) {
+      const found = (c.links || []).find(l => l.id === linkId)
+      if (found) {
+        targetLink = found
+        targetCol = c
+        break
+      }
+    }
+
+    if (animatedSwal && targetLink) {
+      const result = await animatedSwal.fire({
+        title: 'Xóa bookmark?',
+        text: `Bạn có chắc muốn xóa link "${targetLink.title}" khỏi nhóm "${targetCol?.name || ''}"?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#3b82f6',
+        confirmButtonText: 'Xóa ngay',
+        cancelButtonText: 'Hủy'
+      })
+      if (!result.isConfirmed) return
+    }
+
     if (isSupabaseConfigured) {
       try {
         await deleteLink(linkId)
@@ -559,8 +651,14 @@ export function useCollections({ animatedSwal, user, sharedCollectionId }) {
 
     setCollections((current) => current.map((collection) => ({
       ...collection,
-      links: collection.links.filter((link) => link.id !== linkId)
+      links: (collection.links || []).filter((link) => link.id !== linkId)
     })))
+
+    if (targetLink) {
+      setToast({
+        message: `🗑️ Đã xóa link "${targetLink.title}"`
+      })
+    }
   }
 
   async function handleDuplicateLink(link) {

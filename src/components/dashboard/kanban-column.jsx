@@ -55,13 +55,13 @@ export default function KanbanColumn({
       } ${glowClass || 'bg-[#0b0d14]/40'}`}
     >
       {/* Column Header */}
-      <div className="px-4 py-4 flex items-center justify-between border-b border-white/[0.03]">
+      <div className="px-4 py-3.5 flex items-center justify-between border-b border-white/[0.04] bg-white/[0.01]">
         <div className="flex items-center gap-2.5 min-w-0">
-          {/* Vertical Color Indicator Pill */}
-          <div className={`w-1.5 h-4.5 rounded-full ${indicatorColor}`} />
-          <h3 className="font-bold text-sm text-white truncate">{title}</h3>
-          <span className="text-[10px] font-semibold text-slate-500 bg-white/[0.03] border border-white/5 px-2 py-0.5 rounded-full flex-shrink-0">
-            {cards.length}
+          {/* Color Indicator Dot */}
+          <div className={`w-2 h-2 rounded-full ${indicatorColor} shadow-[0_0_8px_currentColor]`} />
+          <h3 className="font-bold text-sm text-white truncate tracking-wide">{title}</h3>
+          <span className="text-[11px] font-semibold text-slate-400 bg-white/[0.04] border border-white/5 px-2.5 py-0.5 rounded-full flex-shrink-0">
+            {cards.length} {cards.length === 1 ? 'card' : 'cards'}
           </span>
         </div>
         

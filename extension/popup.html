@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TabMark Quick Saver</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="extension-container">
+    <!-- Header -->
+    <header class="header">
+      <div class="brand">
+        <div class="logo-icon">🔖</div>
+        <div class="brand-info">
+          <h1>TabMark Saver</h1>
+          <div class="status-row">
+            <span id="auth-status-badge" class="auth-tag">🟡 Đang đồng bộ...</span>
+          </div>
+        </div>
+      </div>
+      <a href="http://localhost:5173" target="_blank" class="btn-dashboard" title="Mở Dashboard">
+        <span>Dashboard</span>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+          <polyline points="15 3 21 3 21 9"></polyline>
+          <line x1="10" y1="14" x2="21" y2="3"></line>
+        </svg>
+      </a>
+    </header>
+
+    <!-- Main Content Form -->
+    <main id="form-section">
+      <!-- Target Collection -->
+      <div class="form-group">
+        <label for="collection-select">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+          </svg>
+          <span>Lưu vào nhóm (Collection)</span>
+        </label>
+        <select id="collection-select" class="input-control select-control">
+          <option value="default">📁 Default</option>
+        </select>
+      </div>
+
+      <!-- Page Title -->
+      <div class="form-group">
+        <label for="page-title">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+          </svg>
+          <span>Tiêu đề trang</span>
+        </label>
+        <div class="input-with-favicon">
+          <img id="page-favicon" src="icons/icon16.png" alt="Favicon" class="favicon-img">
+          <input type="text" id="page-title" class="input-control" placeholder="Đang lấy tiêu đề trang...">
+        </div>
+      </div>
+
+      <!-- Page URL -->
+      <div class="form-group">
+        <label for="page-url">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="2" y1="12" x2="22" y2="12"></line>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+          </svg>
+          <span>Đường dẫn (URL)</span>
+        </label>
+        <input type="text" id="page-url" class="input-control mono-font" placeholder="https://..." readonly>
+      </div>
+
+      <!-- Tags & Quick Chips -->
+      <div class="form-group">
+        <label for="page-tags">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+            <line x1="7" y1="7" x2="7.01" y2="7"></line>
+          </svg>
+          <span>Tags (phân cách bằng dấu phẩy)</span>
+        </label>
+        <input type="text" id="page-tags" class="input-control" placeholder="dev, design, article, tools">
+        
+        <!-- Quick Tags -->
+        <div class="quick-tags-container">
+          <span class="quick-tags-label">Gợi ý:</span>
+          <button type="button" class="tag-chip" data-tag="dev">#dev</button>
+          <button type="button" class="tag-chip" data-tag="design">#design</button>
+          <button type="button" class="tag-chip" data-tag="tools">#tools</button>
+          <button type="button" class="tag-chip" data-tag="docs">#docs</button>
+          <button type="button" class="tag-chip" data-tag="reading">#reading</button>
+        </div>
+      </div>
+
+      <!-- Note / Ghi chú -->
+      <div class="form-group">
+        <label for="page-note">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+          </svg>
+          <span>Ghi chú ngắn</span>
+        </label>
+        <textarea id="page-note" rows="2" class="input-control textarea-control" placeholder="Lý do lưu hoặc ghi chú quan trọng..."></textarea>
+      </div>
+
+      <!-- Action Button -->
+      <div class="action-footer">
+        <button type="button" id="btn-save" class="btn-primary">
+          <span class="btn-icon">💾</span>
+          <span class="btn-text">Lưu vào TabMark</span>
+        </button>
+      </div>
+    </main>
+
+    <!-- Success Screen (Hidden initially) -->
+    <div id="success-section" class="success-screen hidden">
+      <div class="success-icon-wrapper">
+        <div class="success-checkmark">✓</div>
+      </div>
+      <h2>Đã lưu thành công!</h2>
+      <p id="saved-target-text">Bookmark đã được thêm vào nhóm của bạn.</p>
+      
+      <div class="success-actions">
+        <a href="http://localhost:5173" target="_blank" class="btn-view-board">
+          <span>Xem trên Dashboard</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </a>
+        <button type="button" id="btn-close-popup" class="btn-secondary">Đóng</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
