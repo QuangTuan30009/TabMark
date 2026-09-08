@@ -2,7 +2,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai'
 import { isSupabaseConfigured, supabase } from './supabaseClient'
 
 const clientApiKey = import.meta.env.VITE_GEMINI_API_KEY
-const modelName = import.meta.env.VITE_GEMINI_MODEL || 'gemini-2.5-flash'
+const modelName = import.meta.env.VITE_GEMINI_MODEL || 'gemini-1.5-flash'
 
 export const isGeminiConfigured = isSupabaseConfigured || !!clientApiKey
 
@@ -44,7 +44,7 @@ export async function chatWithGemini(messages, contextBookmarks = []) {
   systemInstruction += `Nhiệm vụ của bạn là hỗ trợ người dùng quản lý, tìm kiếm, tóm tắt và sắp xếp các liên kết (bookmark).\n\n`
 
   if (contextBookmarks && contextBookmarks.length > 0) {
-    systemInstruction += `Dưới đây là danh sách các bookmark hiện có trong nhóm mà người dùng đang mở làm ngữ cảnh (Context):\n`
+    systemInstruction += `Dưới đây là danh sách các bookmark hiện có trong kho mà người dùng đang mở làm ngữ cảnh (Context):\n`
     contextBookmarks.forEach((link, idx) => {
       systemInstruction += `- ${idx + 1}. Title: "${link.title}" | URL: "${link.url}" | Ghi chú: "${link.note || 'Không có'}" | Tags: [${(link.tags || []).join(', ')}]\n`
     })
@@ -181,7 +181,9 @@ export async function extractLinkMetadataWithAI({ url, title = '' }) {
       const prompt = `Phân tích đường link sau và trả về thông tin dạng JSON:\nURL: "${url}"\nTiêu đề hiện tại (nếu có): "${title}"\n\nHãy sinh dữ liệu JSON theo đúng schema sau:\n{\n  "title": "Tiêu đề ngắn gọn, chuẩn xác của trang web (tối đa 40 ký tự)",\n  "tags": ["3 đến 5 tags tiếng Anh hoặc tiếng Việt liên quan nhất dạng chữ thường không dấu cách"],\n  "note": "Tóm tắt súc tích nội dung/mục đích trang web từ 1 đến 2 câu tiếng Việt (tối đa 100 ký tự)",\n  "icon": "2 ký tự viết hoa đại diện cho website hoặc tên icon (VD: RE, GH, GG, AI)",\n  "time": "Ước tính thời gian đọc (VD: 3 min, 5 min, 10 min)"\n}`
 
       const result = await model.generateContent(prompt)
-      const text = result.response.text()
+      let text = result.response.text().trim()
+      // Clean markdown code blocks if any
+      text = text.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim()
       const parsed = JSON.parse(text)
       return {
         title: parsed.title || fallbackResult.title,

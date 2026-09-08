@@ -14,6 +14,7 @@ import {
 } from 'lucide-react'
 import { extractLinkMetadataWithAI } from '@/lib/geminiApi'
 import { isSupabaseConfigured } from '@/lib/bookmarksApi'
+import { getAiQuota, consumeAiQuota, showQuotaExceededAlert } from '@/lib/quotaManager'
 
 const QUICK_TAGS = ['dev', 'design', 'ai', 'tools', 'docs', 'learning', 'reading', 'work', 'tutorial']
 
@@ -22,6 +23,8 @@ export function LinkModal({
   initialValues,
   collections = [],
   activeCollectionId,
+  user,
+  onUpgrade,
   onClose,
   onSave,
 }) {
@@ -79,6 +82,13 @@ export function LinkModal({
       return
     }
 
+    // 1. Kiểm tra và trừ Quota
+    const quotaResult = consumeAiQuota(user)
+    if (!quotaResult.success) {
+      showQuotaExceededAlert(onUpgrade, getAiQuota(user))
+      return
+    }
+
     setIsAiLoading(true)
     setAiSuccessMessage('')
 
@@ -93,8 +103,10 @@ export function LinkModal({
         if (metadata.icon) setIcon(metadata.icon)
         if (metadata.time) setTime(metadata.time)
 
-        setAiSuccessMessage('✦ AI đã tự động điền thông tin!')
-        setTimeout(() => setAiSuccessMessage(''), 3500)
+        const quotaInfo = getAiQuota(user)
+        const remainingNote = quotaInfo.isUnlimited ? '' : ` (Còn ${quotaInfo.remaining} lượt hôm nay)`
+        setAiSuccessMessage(`✦ AI đã tự động điền thông tin!${remainingNote}`)
+        setTimeout(() => setAiSuccessMessage(''), 4000)
       }
     } catch (err) {
       console.error('AI Auto-Fill error:', err)

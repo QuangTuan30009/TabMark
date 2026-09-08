@@ -13,6 +13,7 @@ import { SettingsModal } from '@/components/modals/settings-modal'
 import { useCollections } from '@/hooks/use-collections'
 import { isSupabaseConfigured } from '@/lib/bookmarksApi'
 import { chatWithGemini, isGeminiConfigured, generateLinkSummary } from '@/lib/geminiApi'
+import { getAiQuota, consumeAiQuota, showQuotaExceededAlert } from '@/lib/quotaManager'
 
 const animatedSwal = Swal.mixin({
   background: '#10141f',
@@ -156,13 +157,28 @@ export function DashboardPage({ onBackHome, user, onLogout, sharedCollectionId }
   // AI Chat Submission
   async function handleSendAiMessage(e) {
     e.preventDefault()
-    if (!aiChatInput.trim()) return
+    if (!aiChatInput.trim() || isAiResponding) return
+
+    // 1. Kiểm tra & Trừ Quota AI
+    const quotaResult = consumeAiQuota(currentUser)
+    if (!quotaResult.success) {
+      showQuotaExceededAlert(() => setPaymentModalOpen(true), getAiQuota(currentUser))
+      return
+    }
 
     const userQuery = aiChatInput.trim()
     const newMessages = [...aiChatMessages, { sender: 'user', text: userQuery }]
     setAiChatMessages(newMessages)
     setAiChatInput('')
     setIsAiResponding(true)
+
+    // Lấy context từ tất cả các bookmark thuộc mọi danh mục để AI có góc nhìn toàn diện
+    const allBookmarksContext = collections.flatMap(col => 
+      (col.links || []).map(link => ({
+        ...link,
+        collectionName: col.name
+      }))
+    )
 
     if (!isGeminiConfigured) {
       setTimeout(() => {
@@ -205,9 +221,9 @@ export function DashboardPage({ onBackHome, user, onLogout, sharedCollectionId }
             }
           }
         } else if (queryLower.includes('hello') || queryLower.includes('hi') || queryLower.includes('chào')) {
-          responseText = 'Xin chào! Tôi có thể giúp gì cho bạn? Hãy thử gõ: **"Tóm tắt các link"** hoặc **"Tìm React"**.'
+          responseText = 'Xin chào! Tôi là TabMark AI. Tôi có thể giúp gì cho bạn? Hãy thử gõ: **"Tóm tắt các link"** hoặc **"Tìm React"**.'
         } else {
-          responseText = 'Tôi là Tabmark AI (Chế độ giả lập). Tôi có thể:\n- 📝 **Tóm tắt** các bookmark hiện tại (gõ "tóm tắt")\n- 🔍 **Tìm kiếm** link trong hệ thống (gõ "tìm [từ khóa]")\n- 🤖 Giải đáp thắc mắc của bạn về bộ sưu tập link.\n\n*(Lưu ý: Để bật AI thực tế, hãy cấu hình VITE_GEMINI_API_KEY trong file .env)*'
+          responseText = 'Tôi là TabMark AI (Chế độ giả lập). Tôi có thể:\n- 📝 **Tóm tắt** các bookmark hiện tại (gõ "tóm tắt")\n- 🔍 **Tìm kiếm** link trong hệ thống (gõ "tìm [từ khóa]")\n- 🤖 Giải đáp thắc mắc của bạn về bộ sưu tập link.\n\n*(Lưu ý: Để bật AI thực tế, hãy cấu hình VITE_GEMINI_API_KEY trong file .env)*'
         }
 
         setAiChatMessages(prev => [...prev, { sender: 'ai', text: responseText }])
@@ -217,7 +233,7 @@ export function DashboardPage({ onBackHome, user, onLogout, sharedCollectionId }
     }
 
     try {
-      const response = await chatWithGemini(newMessages, activeCollection?.links || [])
+      const response = await chatWithGemini(newMessages, allBookmarksContext.length > 0 ? allBookmarksContext : (activeCollection?.links || []))
       setAiChatMessages(prev => [...prev, { sender: 'ai', text: response }])
     } catch (error) {
       console.error('Gemini error:', error)
@@ -230,6 +246,13 @@ export function DashboardPage({ onBackHome, user, onLogout, sharedCollectionId }
 
   // AI Note Generator for Kanban Card
   async function handleGenerateSummary(card) {
+    // 1. Kiểm tra & Trừ Quota AI
+    const quotaResult = consumeAiQuota(currentUser)
+    if (!quotaResult.success) {
+      showQuotaExceededAlert(() => setPaymentModalOpen(true), getAiQuota(currentUser))
+      return
+    }
+
     if (!isGeminiConfigured) {
       const mockSummaries = [
         "Tài liệu hữu ích phục vụ cho việc học tập và nghiên cứu công nghệ liên quan.",
@@ -372,80 +395,94 @@ export function DashboardPage({ onBackHome, user, onLogout, sharedCollectionId }
       )}
 
       {/* Floating Messenger-style AI Chat Widget */}
-      {aiChatOpen && (
-        <div className="fixed bottom-6 right-6 w-96 max-w-[calc(100vw-3rem)] bg-[#0c0f16]/95 backdrop-blur-md border border-white/10 shadow-2xl rounded-2xl flex flex-col h-[520px] max-h-[80vh] z-50 animate-fade-in-up">
-          {/* Header */}
-          <div className="p-4 border-b border-white/5 flex items-center justify-between bg-white/[0.01] rounded-t-2xl">
-            <div className="flex items-center gap-2">
-              <div className="relative">
-                <Sparkles className="w-5 h-5 text-purple-400 fill-purple-400/10" />
-                <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-emerald-500 rounded-full border border-[#0c0f16]" />
-              </div>
-              <div>
-                <h3 className="font-bold text-sm text-white">AI Assistant</h3>
-                <p className="text-[10px] text-slate-500">Hỏi đáp về các bookmark của bạn</p>
-              </div>
-            </div>
-            <button
-              onClick={() => setAiChatOpen(false)}
-              className="p-1.5 hover:bg-white/5 rounded-lg text-slate-400 hover:text-white transition-colors cursor-pointer"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-
-          {/* Chat Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
-            {aiChatMessages.map((msg, idx) => (
-              <div
-                key={idx}
-                className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-              >
-                <div
-                  className={`max-w-[85%] rounded-2xl p-3.5 text-xs leading-relaxed whitespace-pre-line ${
-                    msg.sender === 'user'
-                      ? 'bg-blue-600 text-white rounded-br-none shadow-[0_0_15px_rgba(59,130,246,0.2)]'
-                      : 'bg-white/[0.03] border border-white/5 text-slate-300 rounded-bl-none'
-                  }`}
-                >
-                  {msg.text}
+      {aiChatOpen && (() => {
+        const aiQuota = getAiQuota(currentUser)
+        return (
+          <div className="fixed bottom-6 right-6 w-96 max-w-[calc(100vw-3rem)] bg-[#0c0f16]/95 backdrop-blur-md border border-white/10 shadow-2xl rounded-2xl flex flex-col h-[520px] max-h-[80vh] z-50 animate-fade-in-up">
+            {/* Header */}
+            <div className="p-4 border-b border-white/5 flex items-center justify-between bg-white/[0.01] rounded-t-2xl">
+              <div className="flex items-center gap-2.5">
+                <div className="relative">
+                  <Sparkles className="w-5 h-5 text-purple-400 fill-purple-400/10" />
+                  <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-emerald-500 rounded-full border border-[#0c0f16]" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-bold text-sm text-white">TabMark AI</h3>
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${
+                      aiQuota.isUnlimited 
+                        ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30'
+                        : aiQuota.remaining > 0
+                        ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
+                        : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
+                    }`}>
+                      {aiQuota.isUnlimited ? '⚡ Pro Unlimited' : `✨ ${aiQuota.remaining}/${aiQuota.dailyLimit} lượt`}
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-slate-400">Trợ lý tìm kiếm & tóm tắt liên kết</p>
                 </div>
               </div>
-            ))}
-            {isAiResponding && (
-              <div className="flex justify-start">
-                <div className="bg-white/[0.03] border border-white/5 text-slate-300 rounded-2xl rounded-bl-none p-3.5 text-xs flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
-                  <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
-                  <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
-                </div>
-              </div>
-            )}
-            <div ref={chatEndRef} />
-          </div>
-
-          {/* Input Form */}
-          <form onSubmit={handleSendAiMessage} className="p-4 border-t border-white/5 bg-[#090b11]/50 rounded-b-2xl">
-            <div className="flex items-center gap-2">
-              <input
-                type="text"
-                value={aiChatInput}
-                onChange={(e) => setAiChatInput(e.target.value)}
-                placeholder="Hỏi AI về bookmark..."
-                className="flex-1 bg-white/[0.02] border border-white/10 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
-                disabled={isAiResponding}
-              />
               <button
-                type="submit"
-                disabled={!aiChatInput.trim() || isAiResponding}
-                className="p-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white rounded-xl transition-all cursor-pointer flex items-center justify-center"
+                onClick={() => setAiChatOpen(false)}
+                className="p-1.5 hover:bg-white/5 rounded-lg text-slate-400 hover:text-white transition-colors cursor-pointer"
               >
-                <Send className="w-4 h-4" />
+                <X className="w-4 h-4" />
               </button>
             </div>
-          </form>
-        </div>
-      )}
+
+            {/* Chat Messages */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              {aiChatMessages.map((msg, idx) => (
+                <div
+                  key={idx}
+                  className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                >
+                  <div
+                    className={`max-w-[85%] rounded-2xl p-3.5 text-xs leading-relaxed whitespace-pre-line ${
+                      msg.sender === 'user'
+                        ? 'bg-blue-600 text-white rounded-br-none shadow-[0_0_15px_rgba(59,130,246,0.2)]'
+                        : 'bg-white/[0.03] border border-white/5 text-slate-300 rounded-bl-none'
+                    }`}
+                  >
+                    {msg.text}
+                  </div>
+                </div>
+              ))}
+              {isAiResponding && (
+                <div className="flex justify-start">
+                  <div className="bg-white/[0.03] border border-white/5 text-slate-300 rounded-2xl rounded-bl-none p-3.5 text-xs flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                    <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                    <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                  </div>
+                </div>
+              )}
+              <div ref={chatEndRef} />
+            </div>
+
+            {/* Input Form */}
+            <form onSubmit={handleSendAiMessage} className="p-4 border-t border-white/5 bg-[#090b11]/50 rounded-b-2xl">
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={aiChatInput}
+                  onChange={(e) => setAiChatInput(e.target.value)}
+                  placeholder="Hỏi AI về bookmark..."
+                  className="flex-1 bg-white/[0.02] border border-white/10 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
+                  disabled={isAiResponding}
+                />
+                <button
+                  type="submit"
+                  disabled={!aiChatInput.trim() || isAiResponding}
+                  className="p-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white rounded-xl transition-all cursor-pointer flex items-center justify-center"
+                >
+                  <Send className="w-4 h-4" />
+                </button>
+              </div>
+            </form>
+          </div>
+        )
+      })()}
 
       {collectionModalOpen && (
         <CollectionModal 
@@ -466,6 +503,11 @@ export function DashboardPage({ onBackHome, user, onLogout, sharedCollectionId }
           collections={collections}
           activeCollectionId={linkEditor.collectionId || activeCollectionId}
           initialValues={linkEditor.link ? { ...linkEditor.link, tags: linkEditor.link.tags.join(', ') } : undefined}
+          user={currentUser}
+          onUpgrade={() => {
+            setLinkEditor(null)
+            setPaymentModalOpen(true)
+          }}
           onClose={() => setLinkEditor(null)}
           onSave={(link) => {
             const targetColId = link.collectionId || linkEditor.collectionId || activeCollectionId
