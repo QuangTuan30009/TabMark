@@ -35,57 +35,99 @@ export async function chatWithGemini(messages, contextBookmarks = []) {
     }
   }
 
-  // 2. Fallback sang Client SDK nếu có VITE_GEMINI_API_KEY
-  if (!genAI) {
-    throw new Error('Chưa cấu hình Gemini AI. Vui lòng thiết lập Supabase Edge Function hoặc thêm VITE_GEMINI_API_KEY vào .env')
-  }
+  // 2. Thử gọi qua Client SDK nếu có
+  if (genAI) {
+    try {
+      let systemInstruction = `Bạn là Tabmark AI, một trợ lý ảo thông minh được tích hợp trực tiếp trong ứng dụng quản lý bookmark Tabmark.\n`
+      systemInstruction += `Nhiệm vụ của bạn là hỗ trợ người dùng quản lý, tìm kiếm, tóm tắt và sắp xếp các liên kết (bookmark).\n\n`
 
-  let systemInstruction = `Bạn là Tabmark AI, một trợ lý ảo thông minh được tích hợp trực tiếp trong ứng dụng quản lý bookmark Tabmark.\n`
-  systemInstruction += `Nhiệm vụ của bạn là hỗ trợ người dùng quản lý, tìm kiếm, tóm tắt và sắp xếp các liên kết (bookmark).\n\n`
+      if (contextBookmarks && contextBookmarks.length > 0) {
+        systemInstruction += `Dưới đây là danh sách các bookmark hiện có trong kho mà người dùng đang mở làm ngữ cảnh (Context):\n`
+        contextBookmarks.forEach((link, idx) => {
+          systemInstruction += `- ${idx + 1}. Title: "${link.title}" | URL: "${link.url}" | Ghi chú: "${link.note || 'Không có'}" | Tags: [${(link.tags || []).join(', ')}]\n`
+        })
+        systemInstruction += `\nHãy sử dụng danh sách này để trả lời các câu hỏi liên quan (như tìm kiếm link phù hợp, tóm tắt nhóm link, giải thích nội dung, phân tích tags, v.v.).\n`
+      } else {
+        systemInstruction += `Nhóm bookmark hiện tại của người dùng đang trống. Hãy thân thiện hướng dẫn họ cách thêm bookmark hoặc hỏi xem có thể hỗ trợ gì khác.\n`
+      }
 
-  if (contextBookmarks && contextBookmarks.length > 0) {
-    systemInstruction += `Dưới đây là danh sách các bookmark hiện có trong kho mà người dùng đang mở làm ngữ cảnh (Context):\n`
-    contextBookmarks.forEach((link, idx) => {
-      systemInstruction += `- ${idx + 1}. Title: "${link.title}" | URL: "${link.url}" | Ghi chú: "${link.note || 'Không có'}" | Tags: [${(link.tags || []).join(', ')}]\n`
-    })
-    systemInstruction += `\nHãy sử dụng danh sách này để trả lời các câu hỏi liên quan (như tìm kiếm link phù hợp, tóm tắt nhóm link, giải thích nội dung, phân tích tags, v.v.).\n`
-  } else {
-    systemInstruction += `Nhóm bookmark hiện tại của người dùng đang trống. Hãy thân thiện hướng dẫn họ cách thêm bookmark hoặc hỏi xem có thể hỗ trợ gì khác.\n`
-  }
+      systemInstruction += `\nLưu ý:\n`
+      systemInstruction += `1. Luôn trả lời bằng tiếng Việt một cách lịch sự, ngắn gọn và hữu ích.\n`
+      systemInstruction += `2. Bạn có thể sử dụng markdown để định dạng câu trả lời (như in đậm, danh sách, bảng biểu, liên kết).\n`
 
-  systemInstruction += `\nLưu ý:\n`
-  systemInstruction += `1. Luôn trả lời bằng tiếng Việt một cách lịch sự, ngắn gọn và hữu ích.\n`
-  systemInstruction += `2. Bạn có thể sử dụng markdown để định dạng câu trả lời (như in đậm, danh sách, bảng biểu, liên kết).\n`
-
-  const chatModel = genAI.getGenerativeModel({
-    model: modelName,
-    systemInstruction: systemInstruction,
-  })
-
-  const history = []
-  const historyInput = messages.slice(0, -1)
-  const latestMessage = messages[messages.length - 1]
-
-  let foundFirstUser = false
-  historyInput.forEach((msg) => {
-    if (msg.sender === 'user') {
-      foundFirstUser = true
-    }
-    if (foundFirstUser) {
-      history.push({
-        role: msg.sender === 'user' ? 'user' : 'model',
-        parts: [{ text: msg.text }],
+      const chatModel = genAI.getGenerativeModel({
+        model: modelName,
+        systemInstruction: systemInstruction,
       })
+
+      const history = []
+      const historyInput = messages.slice(0, -1)
+      const latestMessage = messages[messages.length - 1]
+
+      let foundFirstUser = false
+      historyInput.forEach((msg) => {
+        if (msg.sender === 'user') {
+          foundFirstUser = true
+        }
+        if (foundFirstUser) {
+          history.push({
+            role: msg.sender === 'user' ? 'user' : 'model',
+            parts: [{ text: msg.text }],
+          })
+        }
+      })
+
+      const chat = chatModel.startChat({
+        history: history,
+      })
+
+      const result = await chat.sendMessage(latestMessage.text)
+      const response = await result.response
+      return response.text()
+    } catch (err) {
+      console.warn('Gemini chat error, fallback to smart rule engine:', err)
     }
-  })
+  }
 
-  const chat = chatModel.startChat({
-    history: history,
-  })
+  // 3. Smart Search & Summary Rule Engine fallback khi chưa có API key hoặc key lỗi
+  const latestText = messages[messages.length - 1]?.text || ''
+  const qLower = latestText.toLowerCase()
 
-  const result = await chat.sendMessage(latestMessage.text)
-  const response = await result.response
-  return response.text()
+  if (qLower.includes('tóm tắt') || qLower.includes('summarize')) {
+    if (!contextBookmarks || contextBookmarks.length === 0) {
+      return 'Hiện tại kho bookmark của bạn chưa có liên kết nào để tóm tắt.'
+    }
+    let res = `Dưới đây là tóm tắt nhanh các bookmark trong kho của bạn (${contextBookmarks.length} liên kết):\n\n`
+    contextBookmarks.slice(0, 5).forEach((link, idx) => {
+      res += `${idx + 1}. **${link.title}** (${link.url})\n   👉 *${link.note || 'Không có mô tả'}*\n\n`
+    })
+    if (contextBookmarks.length > 5) {
+      res += `*Và ${contextBookmarks.length - 5} bookmark khác...*`
+    }
+    return res
+  }
+
+  if (qLower.includes('tìm') || qLower.includes('search') || qLower.includes('find')) {
+    const term = qLower.replace(/tìm kiếm|tìm|search|find/g, '').trim()
+    if (!term) return 'Bạn muốn tìm kiếm từ khóa nào? Hãy nhập ví dụ: "Tìm React".'
+    
+    const matched = contextBookmarks.filter(l => 
+      (l.title || '').toLowerCase().includes(term) || 
+      (l.url || '').toLowerCase().includes(term) ||
+      ((l.tags || []).join(' ')).toLowerCase().includes(term)
+    )
+
+    if (matched.length === 0) {
+      return `Không tìm thấy bookmark nào liên quan đến từ khóa **"${term}"**.`
+    }
+    let res = `Tìm thấy **${matched.length}** liên kết liên quan đến **"${term}"**:\n\n`
+    matched.forEach((link, idx) => {
+      res += `${idx + 1}. **${link.title}** (${link.url}) ${link.collectionName ? `*— trong nhóm ${link.collectionName}*` : ''}\n`
+    })
+    return res
+  }
+
+  return `Xin chào! Tôi là TabMark AI. Tôi đã ghi nhận câu hỏi của bạn: "${latestText}".\n\nBạn có thể bảo tôi: **"Tóm tắt các link"** hoặc **"Tìm [tên công nghệ/link]"** để tôi tìm kiếm ngay trong kho bookmark!`
 }
 
 /**
@@ -114,17 +156,24 @@ export async function generateLinkSummary(title, url, tags = []) {
     }
   }
 
-  // 2. Fallback sang Client SDK
-  if (!genAI) {
-    throw new Error('Chưa cấu hình Gemini AI. Vui lòng thiết lập Supabase Edge Function hoặc thêm VITE_GEMINI_API_KEY vào .env')
+  // 2. Thử gọi qua Client SDK nếu có
+  if (genAI) {
+    try {
+      const model = genAI.getGenerativeModel({ model: modelName })
+      const prompt = `Hãy viết một đoạn tóm tắt siêu ngắn gọn và súc tích (chỉ từ 1 đến 2 câu, tối đa 120 ký tự) giới thiệu nội dung hoặc mục đích chính của liên kết này:\n- Tiêu đề: ${title}\n- URL: ${url}\n- Tags liên quan: ${tags.join(', ')}\n\nYêu cầu: Viết tự nhiên, chuyên nghiệp bằng tiếng Việt, tránh mở đầu rườm rà như "Trang web này là..." mà hãy đi thẳng vào vấn đề.`
+
+      const result = await model.generateContent(prompt)
+      const response = await result.response
+      return response.text().trim()
+    } catch (err) {
+      console.warn('Gemini generateContent error, using smart fallback summary:', err)
+    }
   }
 
-  const model = genAI.getGenerativeModel({ model: modelName })
-  const prompt = `Hãy viết một đoạn tóm tắt siêu ngắn gọn và súc tích (chỉ từ 1 đến 2 câu, tối đa 120 ký tự) giới thiệu nội dung hoặc mục đích chính của liên kết này:\n- Tiêu đề: ${title}\n- URL: ${url}\n- Tags liên quan: ${tags.join(', ')}\n\nYêu cầu: Viết tự nhiên, chuyên nghiệp bằng tiếng Việt, tránh mở đầu rườm rà như "Trang web này là..." mà hãy đi thẳng vào vấn đề.`
-
-  const result = await model.generateContent(prompt)
-  const response = await result.response
-  return response.text().trim()
+  // 3. Fallback tóm tắt thông minh nếu chưa có key hoặc key lỗi
+  const domain = url.replace(/^(?:https?:\/\/)?(?:www\.)?/i, '').split('/')[0]
+  const tagStr = tags && tags.length > 0 ? ` thuộc chủ đề ${tags.slice(0, 2).join(', ')}` : ''
+  return `Trang ${domain}: ${title || 'Tài liệu liên kết'}${tagStr}. Cung cấp thông tin và tài nguyên hữu ích.`
 }
 
 /**
