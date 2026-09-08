@@ -7,53 +7,59 @@ export const PAYMENT_CONFIG = {
   accountNo: import.meta.env.VITE_BANK_ACCOUNT_NO || '0913813880', // Số tài khoản nhận tiền của bạn
   accountName: import.meta.env.VITE_BANK_ACCOUNT_NAME || 'TA QUANG TUAN', // Tên chủ tài khoản (viết hoa không dấu)
   
-  // Danh sách các gói thanh toán
+  // Danh sách các gói thanh toán chuẩn EXE101
   plans: [
     {
-      id: 'student_early',
-      name: 'Sinh Viên Early-Bird',
-      price: 29000,
-      formattedPrice: '29.000 đ',
-      period: 'Vĩnh viễn (Lifetime)',
-      popular: true,
-      badge: 'Khuyên Dùng ⭐',
-      description: 'Dành riêng cho sinh viên & người dùng trải nghiệm sớm',
-      features: [
-        'Mở khóa toàn bộ tính năng AI Summary',
-        'Không giới hạn số lượng Bookmark & Board',
-        'Đồng bộ đám mây Supabase siêu tốc',
-        'Huy hiệu PRO Vàng Kim chính thức',
-        'Hỗ trợ ưu tiên 24/7'
-      ]
-    },
-    {
-      id: 'pro_monthly',
-      name: 'Gói Pro Tháng',
-      price: 19000,
-      formattedPrice: '19.000 đ',
-      period: '/ 1 tháng',
-      popular: false,
-      badge: 'Tiết kiệm',
-      description: 'Linh hoạt theo từng tháng học tập & làm việc',
-      features: [
-        'Mọi tính năng của bản Pro',
-        'Không giới hạn AI Chat & Tóm tắt',
-        'Chia sẻ nhóm Bookmark không giới hạn'
-      ]
-    },
-    {
-      id: 'ai_power',
-      name: 'AI Power 6 Tháng',
+      id: 'starter',
+      name: 'Gói Starter (Cá nhân)',
       price: 69000,
       formattedPrice: '69.000 đ',
-      period: '/ 6 tháng',
+      period: '/ tháng',
       popular: false,
-      badge: 'Hot Deal 🔥',
-      description: 'Dành cho dân nghiên cứu, lập trình viên & Power User',
+      badge: 'Cơ bản',
+      description: 'Tối ưu cho sinh viên & người đi làm quản lý cá nhân',
       features: [
-        'Toàn bộ tính năng Pro',
-        'Ưu tiên hàng đợi xử lý AI tốc độ cao',
-        'Tính năng phân loại tự động nâng cao'
+        'Lưu trữ không giới hạn Bookmark & Board',
+        '50 lượt gọi AI Summary & Chat mỗi ngày',
+        'Tiện ích Extension 1-Click đầy đủ',
+        'Đồng bộ Cloud thời gian thực',
+        'Hỗ trợ kỹ thuật tiêu chuẩn'
+      ]
+    },
+    {
+      id: 'pro',
+      name: 'Gói PRO (Chuyên nghiệp)',
+      price: 149000,
+      formattedPrice: '149.000 đ',
+      period: '/ tháng',
+      popular: true,
+      badge: 'Bán Chạy Nhất ⭐',
+      description: 'Dành cho Freelancer, Lập trình viên & Nhóm cộng tác',
+      features: [
+        'Toàn bộ quyền lợi của gói Starter',
+        'KHÔNG GIỚI HẠN lượt gọi AI Summary & Chat',
+        'AI Auto-Tagging & Tự động phân loại',
+        'Chia sẻ Board quyền Chỉnh sửa (Edit mode)',
+        'Xuất dữ liệu chuẩn JSON & HTML Chrome',
+        'Huy hiệu PRO Vàng Kim chính thức'
+      ]
+    },
+    {
+      id: 'business',
+      name: 'Gói Business (Doanh nghiệp)',
+      price: 299000,
+      formattedPrice: '299.000 đ',
+      period: '/ tháng',
+      popular: false,
+      badge: 'Cao Cấp 👑',
+      description: 'Dành cho Agency, Doanh nghiệp & Nhóm nghiên cứu R&D',
+      features: [
+        'Toàn bộ quyền lợi của gói PRO',
+        'Cộng tác nhóm 5 - 10 thành viên',
+        'Tích hợp Gemini API chuyên sâu',
+        'Tự động sao lưu dữ liệu doanh nghiệp',
+        'Phân quyền Admin / Editor / Viewer',
+        'Hỗ trợ kỹ thuật ưu tiên 24/7'
       ]
     }
   ]
