@@ -74,10 +74,28 @@ export function DashboardPage({ onBackHome, user, onLogout, sharedCollectionId }
   const [paymentModalOpen, setPaymentModalOpen] = useState(false)
   const [settingsModalOpen, setSettingsModalOpen] = useState(false)
   const [linkEditor, setLinkEditor] = useState(null)
-  const [currentUser, setCurrentUser] = useState(user)
+  const [currentUser, setCurrentUser] = useState(() => {
+    if (!user) return user
+    const userId = user.id || 'mock'
+    const storedPlan = localStorage.getItem(`tabmark_user_plan_${userId}`)
+    if (storedPlan) {
+      return { ...user, plan: storedPlan, is_pro: true }
+    }
+    return user
+  })
 
   useEffect(() => {
-    setCurrentUser(user)
+    if (!user) {
+      setCurrentUser(null)
+      return
+    }
+    const userId = user.id || 'mock'
+    const storedPlan = localStorage.getItem(`tabmark_user_plan_${userId}`)
+    if (storedPlan) {
+      setCurrentUser({ ...user, plan: user.plan || storedPlan, is_pro: user.is_pro || true })
+    } else {
+      setCurrentUser(user)
+    }
   }, [user])
 
   // AI Chat states
@@ -522,6 +540,18 @@ export function DashboardPage({ onBackHome, user, onLogout, sharedCollectionId }
           onClose={() => setPaymentModalOpen(false)}
           user={currentUser}
           onUpgradeSuccess={(plan) => {
+            const userId = currentUser?.id || 'mock'
+            try {
+              localStorage.setItem(`tabmark_user_plan_${userId}`, plan.id)
+              localStorage.setItem(`tabmark_is_pro_${userId}`, 'true')
+              const currentMock = localStorage.getItem('tabmark_mock_user')
+              if (currentMock) {
+                const parsed = JSON.parse(currentMock)
+                localStorage.setItem('tabmark_mock_user', JSON.stringify({ ...parsed, is_pro: true, plan: plan.id }))
+              }
+            } catch (e) {
+              console.warn('Lỗi lưu gói nâng cấp vào localStorage:', e)
+            }
             setCurrentUser(prev => ({ ...prev, is_pro: true, plan: plan.id }))
           }}
         />

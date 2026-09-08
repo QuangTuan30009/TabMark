@@ -28,11 +28,16 @@ export const PLAN_AI_LIMITS = {
  * Lấy mã gói hiện tại của user (mặc định 'free')
  */
 export function getUserPlanKey(user) {
-  if (!user) return 'free'
-  const plan = (user.plan || '').toLowerCase()
-  if (plan.includes('business')) return 'business'
-  if (plan.includes('pro') || user.is_pro) return 'pro'
-  if (plan.includes('starter')) return 'starter'
+  const userId = user?.id || 'mock'
+  let storedPlan = ''
+  try {
+    storedPlan = localStorage.getItem(`tabmark_user_plan_${userId}`) || ''
+  } catch (e) {}
+
+  const plan = (user?.plan || storedPlan || '').toLowerCase()
+  if (plan.includes('business') || storedPlan.includes('business')) return 'business'
+  if (plan.includes('pro') || user?.is_pro || storedPlan.includes('pro')) return 'pro'
+  if (plan.includes('starter') || storedPlan.includes('starter')) return 'starter'
   return 'free'
 }
 
