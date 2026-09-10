@@ -1,4 +1,3 @@
-import { useState, useEffect, useMemo } from 'react'
 import {
   Users,
   DollarSign,
@@ -19,7 +18,12 @@ import {
   Server,
   Check,
   X,
-  AlertCircle
+  AlertCircle,
+  Eye,
+  Filter,
+  Calendar,
+  CreditCard,
+  BarChart3
 } from 'lucide-react'
 import Swal from 'sweetalert2'
 import {
@@ -43,6 +47,13 @@ export function AdminPage({ user, onBack }) {
   const [searchQuery, setSearchQuery] = useState('')
   const [planFilter, setPlanFilter] = useState('all')
   const [actionLoadingId, setActionLoadingId] = useState(null)
+
+  // Bộ lọc & tìm kiếm ở Tab Doanh Thu
+  const [txSearchQuery, setTxSearchQuery] = useState('')
+  const [txStatusFilter, setTxStatusFilter] = useState('all') // 'all' | 'pending' | 'completed' | 'failed'
+
+  // Modal chi tiết người dùng
+  const [selectedUserDetail, setSelectedUserDetail] = useState(null)
 
   // Tải dữ liệu thực tế từ Database
   async function loadAdminData() {
@@ -75,6 +86,62 @@ export function AdminPage({ user, onBack }) {
   const pendingTransactions = useMemo(() => {
     return transactions.filter(t => t.status === 'pending')
   }, [transactions])
+
+  // Lọc giao dịch theo tìm kiếm và trạng thái
+  const filteredTransactions = useMemo(() => {
+    return transactions.filter(t => {
+      const code = (t.transaction_code || t.transactionCode || '').toLowerCase()
+      const email = (t.email || '').toLowerCase()
+      const matchSearch = code.includes(txSearchQuery.toLowerCase()) || email.includes(txSearchQuery.toLowerCase())
+      
+      if (txStatusFilter === 'all') return matchSearch
+      const status = (t.status || '').toLowerCase()
+      if (txStatusFilter === 'completed') {
+        return matchSearch && (status === 'completed' || status === 'success')
+      }
+      if (txStatusFilter === 'failed') {
+        return matchSearch && (status === 'failed' || status === 'rejected')
+      }
+      return matchSearch && status === txStatusFilter
+    })
+  }, [transactions, txSearchQuery, txStatusFilter])
+
+  // Biểu đồ Doanh thu 7 ngày gần nhất
+  const revenueTrend7Days = useMemo(() => {
+    const days = []
+    const now = new Date()
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(now)
+      d.setDate(d.getDate() - i)
+      const dayStr = `${d.getDate()}/${d.getMonth() + 1}`
+      const dateIsoPrefix = d.toISOString().split('T')[0]
+      
+      const dayRevenue = transactions
+        .filter(t => {
+          const tDate = (t.created_at || '').split('T')[0]
+          return tDate === dateIsoPrefix && (t.status === 'completed' || t.status === 'success')
+        })
+        .reduce((sum, t) => sum + (Number(t.amount) || 0), 0)
+
+      days.push({
+        label: dayStr,
+        dayOfWeek: ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'][d.getDay()],
+        revenue: dayRevenue,
+      })
+    }
+    const maxRev = Math.max(...days.map(d => d.revenue), 1)
+    const totalWeek = days.reduce((sum, d) => sum + d.revenue, 0)
+    return { days, maxRev, totalWeek }
+  }, [transactions])
+
+  // Giao dịch riêng của user đang được chọn xem chi tiết
+  const selectedUserTransactions = useMemo(() => {
+    if (!selectedUserDetail) return []
+    return transactions.filter(t => 
+      (selectedUserDetail.id && (t.user_id === selectedUserDetail.id || t.userId === selectedUserDetail.id)) ||
+      (selectedUserDetail.email && (t.email || '').toLowerCase() === selectedUserDetail.email.toLowerCase())
+    )
+  }, [selectedUserDetail, transactions])
 
   // Lọc danh sách user
   const filteredUsers = useMemo(() => {
@@ -402,24 +469,73 @@ export function AdminPage({ user, onBack }) {
             {/* Plan Distribution & Data Load */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2 p-6 rounded-3xl bg-white/[0.02] border border-white/[0.08] space-y-5">
-                <h3 className="text-base font-bold text-white">Phân Bổ Người Dùng Theo Gói Thực Tế</h3>
+                <div className="flex items-center justify-between">
+                  <h3 className="text-base font-bold text-white">Phân Bổ Người Dùng Theo Gói Thực Tế</h3>
+                  <span className="text-xs text-slate-400 font-mono">Tổng {overview.totalUsers} tài khoản</span>
+                </div>
+
+                {/* Multi-segment Progress Bar */}
+                <div className="space-y-2">
+                  <div className="h-3 w-full rounded-full bg-white/[0.05] overflow-hidden flex p-0.5 gap-0.5">
+                    {overview.planBreakdown.free > 0 && (
+                      <div
+                        style={{ width: `${(overview.planBreakdown.free / overview.totalUsers) * 100}%` }}
+                        className="h-full bg-slate-500 rounded-full transition-all"
+                        title={`Free: ${overview.planBreakdown.free}`}
+                      />
+                    )}
+                    {overview.planBreakdown.starter > 0 && (
+                      <div
+                        style={{ width: `${(overview.planBreakdown.starter / overview.totalUsers) * 100}%` }}
+                        className="h-full bg-blue-500 rounded-full transition-all"
+                        title={`Starter: ${overview.planBreakdown.starter}`}
+                      />
+                    )}
+                    {overview.planBreakdown.pro > 0 && (
+                      <div
+                        style={{ width: `${(overview.planBreakdown.pro / overview.totalUsers) * 100}%` }}
+                        className="h-full bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full transition-all shadow-[0_0_10px_rgba(168,85,247,0.5)]"
+                        title={`Pro: ${overview.planBreakdown.pro}`}
+                      />
+                    )}
+                    {overview.planBreakdown.business > 0 && (
+                      <div
+                        style={{ width: `${(overview.planBreakdown.business / overview.totalUsers) * 100}%` }}
+                        className="h-full bg-gradient-to-r from-amber-400 to-orange-500 rounded-full transition-all shadow-[0_0_10px_rgba(251,191,36,0.5)]"
+                        title={`Business: ${overview.planBreakdown.business}`}
+                      />
+                    )}
+                  </div>
+                </div>
 
                 <div className="space-y-3.5">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-slate-300">Gói Miễn Phí (Free 0đ)</span>
-                    <span className="font-bold text-white font-mono">{overview.planBreakdown.free} users</span>
+                    <span className="text-slate-300 flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-slate-500" />
+                      Gói Miễn Phí (Free 0đ)
+                    </span>
+                    <span className="font-bold text-white font-mono">{overview.planBreakdown.free} users ({((overview.planBreakdown.free / overview.totalUsers) * 100).toFixed(0)}%)</span>
                   </div>
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-blue-400">Gói Starter (69K/tháng)</span>
-                    <span className="font-bold text-blue-400 font-mono">{overview.planBreakdown.starter} users</span>
+                    <span className="text-blue-400 flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-blue-500" />
+                      Gói Starter (69K/tháng)
+                    </span>
+                    <span className="font-bold text-blue-400 font-mono">{overview.planBreakdown.starter} users ({((overview.planBreakdown.starter / overview.totalUsers) * 100).toFixed(0)}%)</span>
                   </div>
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-purple-400">Gói Pro (149K/tháng) ⭐ Bán chạy nhất</span>
-                    <span className="font-bold text-purple-400 font-mono">{overview.planBreakdown.pro} users</span>
+                    <span className="text-purple-400 flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-purple-500" />
+                      Gói Pro (149K/tháng) ⭐ Bán chạy nhất
+                    </span>
+                    <span className="font-bold text-purple-400 font-mono">{overview.planBreakdown.pro} users ({((overview.planBreakdown.pro / overview.totalUsers) * 100).toFixed(0)}%)</span>
                   </div>
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-amber-400">Gói Business (299K/tháng)</span>
-                    <span className="font-bold text-amber-400 font-mono">{overview.planBreakdown.business} users</span>
+                    <span className="text-amber-400 flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-amber-400" />
+                      Gói Business (299K/tháng)
+                    </span>
+                    <span className="font-bold text-amber-400 font-mono">{overview.planBreakdown.business} users ({((overview.planBreakdown.business / overview.totalUsers) * 100).toFixed(0)}%)</span>
                   </div>
                 </div>
               </div>
@@ -437,6 +553,58 @@ export function AdminPage({ user, onBack }) {
                     <p className="text-2xl font-bold text-white">{overview.totalCollections}</p>
                     <p className="text-[10px] text-slate-400">Nhóm / Board</p>
                   </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 7-Day Revenue Trend Chart */}
+            <div className="p-6 rounded-3xl bg-white/[0.02] border border-white/[0.08] space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div>
+                  <h3 className="text-base font-bold text-white flex items-center gap-2">
+                    <BarChart3 className="w-4 h-4 text-emerald-400" />
+                    <span>Xu Hướng Doanh Thu 7 Ngày Gần Nhất</span>
+                  </h3>
+                  <p className="text-xs text-slate-400">Doanh số thực tế phát sinh theo từng ngày qua VietQR</p>
+                </div>
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-400 font-bold">
+                  <span>Tổng tuần này: {formatVND(revenueTrend7Days.totalWeek)}</span>
+                </div>
+              </div>
+
+              {/* Bar Chart Visualization */}
+              <div className="pt-4 pb-2">
+                <div className="grid grid-cols-7 gap-2 sm:gap-4 items-end h-40">
+                  {revenueTrend7Days.days.map((d, i) => {
+                    const heightPercent = revenueTrend7Days.maxRev > 0
+                      ? Math.max((d.revenue / revenueTrend7Days.maxRev) * 100, 8)
+                      : 8
+                    const isPeak = d.revenue === revenueTrend7Days.maxRev && d.revenue > 0
+
+                    return (
+                      <div key={i} className="flex flex-col items-center gap-2 h-full justify-end group">
+                        <div className="text-[10px] text-slate-400 font-mono opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                          {formatVND(d.revenue)}
+                        </div>
+                        <div className="w-full max-w-[48px] bg-white/[0.04] rounded-xl overflow-hidden flex flex-col justify-end p-1 relative h-28">
+                          <div
+                            style={{ height: `${heightPercent}%` }}
+                            className={`w-full rounded-lg transition-all duration-500 ${
+                              isPeak
+                                ? 'bg-gradient-to-t from-emerald-500 to-teal-400 shadow-[0_0_15px_rgba(16,185,129,0.4)]'
+                                : d.revenue > 0
+                                ? 'bg-gradient-to-t from-blue-600 to-cyan-400'
+                                : 'bg-white/10'
+                            }`}
+                          />
+                        </div>
+                        <div className="text-center">
+                          <p className="text-[11px] font-bold text-slate-300">{d.dayOfWeek}</p>
+                          <p className="text-[9px] text-slate-500">{d.label}</p>
+                        </div>
+                      </div>
+                    )
+                  })}
                 </div>
               </div>
             </div>
@@ -531,17 +699,92 @@ export function AdminPage({ user, onBack }) {
             )}
 
             {/* All Transactions History */}
-            <div className="p-6 rounded-3xl bg-white/[0.02] border border-white/[0.08] space-y-4">
-              <div className="flex items-center justify-between">
+            <div className="p-6 rounded-3xl bg-white/[0.02] border border-white/[0.08] space-y-5">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
-                  <h3 className="text-base font-bold text-white">Toàn Bộ Lịch Sử Giao Dịch</h3>
-                  <p className="text-xs text-slate-400 mt-0.5">Tổng số giao dịch: {transactions.length}</p>
+                  <h3 className="text-base font-bold text-white flex items-center gap-2">
+                    <CreditCard className="w-4 h-4 text-cyan-400" />
+                    <span>Lịch Sử Giao Dịch VietQR</span>
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-0.5">Tìm kiếm & Lọc trạng thái đối soát ngân hàng</p>
+                </div>
+
+                {/* Search Bar for Transactions */}
+                <div className="relative w-full sm:w-72">
+                  <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  <input
+                    type="text"
+                    value={txSearchQuery}
+                    onChange={(e) => setTxSearchQuery(e.target.value)}
+                    placeholder="Mã GD hoặc email..."
+                    className="w-full pl-9 pr-8 py-1.5 bg-white/[0.04] border border-white/10 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-all"
+                  />
+                  {txSearchQuery && (
+                    <button
+                      onClick={() => setTxSearchQuery('')}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  )}
                 </div>
               </div>
 
-              {transactions.length === 0 ? (
+              {/* Status Filter Pills */}
+              <div className="flex items-center gap-2 overflow-x-auto pb-1">
+                <button
+                  onClick={() => setTxStatusFilter('all')}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
+                    txStatusFilter === 'all'
+                      ? 'bg-blue-600 text-white shadow-md'
+                      : 'bg-white/[0.04] text-slate-400 hover:text-white'
+                  }`}
+                >
+                  Tất cả ({transactions.length})
+                </button>
+
+                <button
+                  onClick={() => setTxStatusFilter('pending')}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
+                    txStatusFilter === 'pending'
+                      ? 'bg-amber-500 text-black font-bold shadow-md'
+                      : 'bg-white/[0.04] text-amber-300 hover:bg-amber-500/10'
+                  }`}
+                >
+                  <Clock className="w-3 h-3" />
+                  <span>Chờ duyệt ({transactions.filter(t => t.status === 'pending').length})</span>
+                </button>
+
+                <button
+                  onClick={() => setTxStatusFilter('completed')}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
+                    txStatusFilter === 'completed'
+                      ? 'bg-emerald-600 text-white font-bold shadow-md'
+                      : 'bg-white/[0.04] text-emerald-400 hover:bg-emerald-500/10'
+                  }`}
+                >
+                  <CheckCircle2 className="w-3 h-3" />
+                  <span>Thành công ({transactions.filter(t => t.status === 'completed' || t.status === 'success').length})</span>
+                </button>
+
+                <button
+                  onClick={() => setTxStatusFilter('failed')}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
+                    txStatusFilter === 'failed'
+                      ? 'bg-rose-600 text-white font-bold shadow-md'
+                      : 'bg-white/[0.04] text-rose-400 hover:bg-rose-500/10'
+                  }`}
+                >
+                  <XCircle className="w-3 h-3" />
+                  <span>Từ chối ({transactions.filter(t => t.status === 'failed' || t.status === 'rejected').length})</span>
+                </button>
+              </div>
+
+              {filteredTransactions.length === 0 ? (
                 <div className="py-12 text-center text-slate-500 text-xs">
-                  Chưa có giao dịch thanh toán nào được ghi nhận.
+                  {transactions.length === 0
+                    ? 'Chưa có giao dịch thanh toán nào được ghi nhận.'
+                    : 'Không tìm thấy giao dịch nào phù hợp với bộ lọc tìm kiếm.'}
                 </div>
               ) : (
                 <div className="overflow-x-auto">
@@ -557,13 +800,13 @@ export function AdminPage({ user, onBack }) {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-white/[0.04]">
-                      {transactions.map((tx) => (
+                      {filteredTransactions.map((tx) => (
                         <tr key={tx.id} className="hover:bg-white/[0.02] transition-colors">
-                          <td className="py-3.5 px-3 font-mono text-cyan-400 font-semibold">{tx.transaction_code || tx.id}</td>
+                          <td className="py-3.5 px-3 font-mono text-cyan-400 font-semibold">{tx.transaction_code || tx.transactionCode || tx.id}</td>
                           <td className="py-3.5 px-3 text-white font-medium">{tx.email}</td>
                           <td className="py-3.5 px-3">
                             <span className="px-2.5 py-0.5 rounded-full font-bold text-[10px] bg-purple-500/20 text-purple-300 border border-purple-500/30">
-                              {tx.plan_name || 'Gói Pro'}
+                              {tx.plan_name || tx.planName || 'Gói Pro'}
                             </span>
                           </td>
                           <td className="py-3.5 px-3 font-extrabold text-white">{formatVND(tx.amount)}</td>
@@ -687,6 +930,14 @@ export function AdminPage({ user, onBack }) {
 
                           <td className="py-3.5 px-3 text-right">
                             <div className="flex items-center justify-end gap-1.5">
+                              <button
+                                onClick={() => setSelectedUserDetail(u)}
+                                className="p-1.5 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/20 transition-colors cursor-pointer"
+                                title="Xem hồ sơ & Lịch sử thanh toán"
+                              >
+                                <Eye className="w-3.5 h-3.5" />
+                              </button>
+
                               <select
                                 value={userPlan}
                                 onChange={(e) => handleAdminChangePlan(u, e.target.value)}
@@ -719,6 +970,137 @@ export function AdminPage({ user, onBack }) {
         )}
 
       </main>
+
+      {/* ── USER DETAIL MODAL (FEATURE 4) ── */}
+      {selectedUserDetail && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
+          <div className="relative w-full max-w-xl overflow-hidden rounded-3xl border border-white/10 bg-[#0c101a] text-white shadow-[0_0_60px_rgba(59,130,246,0.2)]">
+            <div className="h-1.5 w-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500" />
+            
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-white/5 px-6 py-5">
+              <div className="flex items-center gap-3">
+                <img
+                  src={selectedUserDetail.avatar_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150'}
+                  alt=""
+                  className="w-12 h-12 rounded-2xl object-cover border border-white/10 shadow-md"
+                />
+                <div>
+                  <h3 className="text-base font-bold text-white flex items-center gap-2">
+                    {selectedUserDetail.full_name || 'Người dùng TabMark'}
+                    {selectedUserDetail.role === 'Super Admin' && (
+                      <span className="text-[9px] px-1.5 py-0.2 rounded bg-red-500/20 text-red-300 border border-red-500/30">
+                        Admin
+                      </span>
+                    )}
+                  </h3>
+                  <p className="text-xs text-slate-400 font-mono">{selectedUserDetail.email}</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setSelectedUserDetail(null)}
+                className="rounded-xl p-2 text-slate-400 hover:bg-white/5 hover:text-white transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 space-y-5 max-h-[75vh] overflow-y-auto">
+              {/* 3 Summary Stats Cards */}
+              <div className="grid grid-cols-3 gap-3">
+                <div className="p-3 rounded-2xl bg-white/[0.02] border border-white/5">
+                  <p className="text-[10px] text-slate-400">Gói hiện tại</p>
+                  <p className="text-xs font-bold text-purple-300 uppercase mt-1">{selectedUserDetail.plan || 'Free'}</p>
+                </div>
+                <div className="p-3 rounded-2xl bg-white/[0.02] border border-white/5">
+                  <p className="text-[10px] text-slate-400">Tổng GD VietQR</p>
+                  <p className="text-xs font-bold text-emerald-400 mt-1">{selectedUserTransactions.length} GD</p>
+                </div>
+                <div className="p-3 rounded-2xl bg-white/[0.02] border border-white/5">
+                  <p className="text-[10px] text-slate-400">Ngày tham gia</p>
+                  <p className="text-xs font-bold text-white mt-1">{new Date(selectedUserDetail.created_at).toLocaleDateString('vi-VN')}</p>
+                </div>
+              </div>
+
+              {/* Lịch sử giao dịch của user này */}
+              <div className="space-y-2">
+                <h4 className="text-xs font-bold text-white flex items-center gap-1.5">
+                  <CreditCard className="w-3.5 h-3.5 text-blue-400" />
+                  <span>Lịch Sử Giao Dịch Chuyển Khoản ({selectedUserTransactions.length})</span>
+                </h4>
+
+                {selectedUserTransactions.length === 0 ? (
+                  <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5 text-center text-xs text-slate-500">
+                    Người dùng này chưa phát sinh giao dịch chuyển khoản VietQR nào.
+                  </div>
+                ) : (
+                  <div className="space-y-2 max-h-48 overflow-y-auto">
+                    {selectedUserTransactions.map((tx) => (
+                      <div key={tx.id} className="p-3 rounded-xl bg-white/[0.02] border border-white/5 flex items-center justify-between text-xs">
+                        <div>
+                          <p className="font-mono font-bold text-cyan-300 text-[11px]">{tx.transaction_code || tx.transactionCode}</p>
+                          <p className="text-[10px] text-slate-400">{new Date(tx.created_at).toLocaleString('vi-VN')}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-extrabold text-emerald-400">{formatVND(tx.amount)}</p>
+                          <span className={`text-[9px] font-bold px-1.5 py-0.2 rounded-full ${
+                            tx.status === 'completed' || tx.status === 'success'
+                              ? 'bg-emerald-500/20 text-emerald-300'
+                              : tx.status === 'pending'
+                              ? 'bg-amber-500/20 text-amber-300'
+                              : 'bg-rose-500/20 text-rose-300'
+                          }`}>
+                            {tx.status === 'completed' || tx.status === 'success' ? 'Thành công' : tx.status === 'pending' ? 'Chờ duyệt' : 'Từ chối'}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Quick Actions */}
+              <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5 space-y-2">
+                <h4 className="text-xs font-bold text-slate-300">Tác Vụ Quản Trị Cho Tài Khoản</h4>
+                <div className="flex flex-wrap items-center gap-2">
+                  <select
+                    value={(selectedUserDetail.plan || 'free').toLowerCase()}
+                    onChange={(e) => {
+                      handleAdminChangePlan(selectedUserDetail, e.target.value)
+                      setSelectedUserDetail(prev => ({ ...prev, plan: e.target.value }))
+                    }}
+                    className="bg-white/[0.06] border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 cursor-pointer"
+                  >
+                    <option value="free" className="bg-[#0b0f19] text-white">Gói Free (0đ)</option>
+                    <option value="starter" className="bg-[#0b0f19] text-white">Gói Starter (69K)</option>
+                    <option value="pro" className="bg-[#0b0f19] text-white">Gói Pro (149K)</option>
+                    <option value="business" className="bg-[#0b0f19] text-white">Gói Business (299K)</option>
+                  </select>
+
+                  <button
+                    onClick={() => handleAdminResetQuota(selectedUserDetail)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 border border-purple-500/30 text-xs font-semibold transition-colors cursor-pointer"
+                  >
+                    <RefreshCw className="w-3.5 h-3.5" />
+                    <span>Reset Quota AI</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="flex items-center justify-end px-6 py-4 border-t border-white/5 bg-white/[0.01]">
+              <button
+                onClick={() => setSelectedUserDetail(null)}
+                className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-bold text-slate-300 hover:text-white transition-colors cursor-pointer"
+              >
+                Đóng
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
