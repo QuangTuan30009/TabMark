@@ -15,8 +15,10 @@ import {
   BarChart2,
   Folder,
   Plus,
-  ChevronRight
+  ChevronRight,
+  Shield
 } from 'lucide-react'
+import { isAdminUser } from '@/lib/adminApi'
 
 // Helper to match collection name with mockup icons
 function getCollectionIcon(name) {
@@ -150,13 +152,36 @@ export default function Sidebar({
         </button>
 
         <button
-          onClick={onOpenPayment}
-          className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-white/[0.02] transition-all"
+          onClick={() => {
+            if (isAdminUser(user)) {
+              window.location.hash = '#admin'
+              window.dispatchEvent(new Event('popstate'))
+            } else {
+              onOpenPayment()
+            }
+          }}
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-white/[0.02] transition-all cursor-pointer"
         >
           <BarChart2 className="w-4 h-4" />
           <span>Analytics</span>
           <span className="ml-auto text-[9px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold">PRO</span>
         </button>
+
+        {isAdminUser(user) && (
+          <button
+            onClick={() => {
+              window.location.hash = '#admin'
+              window.dispatchEvent(new Event('popstate'))
+            }}
+            className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-purple-600/20 to-blue-600/20 text-purple-300 hover:text-white border border-purple-500/30 hover:border-purple-500/60 shadow-[0_0_15px_rgba(168,85,247,0.15)] transition-all cursor-pointer group"
+          >
+            <Shield className="w-4 h-4 text-purple-400 group-hover:scale-110 transition-transform" />
+            <span>Quản Trị Admin</span>
+            <span className="ml-auto text-[9px] px-1.5 py-0.2 rounded bg-purple-500/40 text-white font-black">
+              EXE101
+            </span>
+          </button>
+        )}
       </div>
 
       {/* Search Input for Collections */}

@@ -4,11 +4,14 @@ import LandingPage from '@/pages/LandingPage'
 import WelcomeScreen from '@/pages/WelcomeScreen'
 import AuthScreen from '@/pages/AuthScreen'
 import { DashboardPage } from '@/pages/dashboard-page'
+import { AdminPage } from '@/pages/admin-page'
 import { supabase } from '@/lib/supabaseClient'
+import { isAdminUser } from '@/lib/adminApi'
 
 export default function App() {
   const [page, setPage] = useState(() => {
     const hash = window.location.hash;
+    if (hash === '#admin') return 'admin';
     if (hash === '#dashboard') return 'dashboard';
     if (hash === '#login') return 'login';
     if (hash.startsWith('#shared/')) return 'shared';
@@ -82,7 +85,9 @@ export default function App() {
   useEffect(() => {
     function handlePopState() {
       const hash = window.location.hash
-      if (hash === '#dashboard') {
+      if (hash === '#admin') {
+        setPage('admin')
+      } else if (hash === '#dashboard') {
         setPage('dashboard')
       } else if (hash === '#login') {
         setPage('login')
@@ -125,6 +130,8 @@ export default function App() {
     // Nếu đang ở link share, giữ nguyên link share
     if (window.location.hash.startsWith('#shared/')) {
       setPage('shared')
+    } else if (window.location.hash === '#admin') {
+      setPage('admin')
     } else {
       window.history.pushState(null, '', '#dashboard')
       setPage('dashboard')
@@ -146,7 +153,12 @@ export default function App() {
     <>
       {showWelcome && !user && <WelcomeScreen onComplete={() => setShowWelcome(false)} />}
       
-      {page === 'login' ? (
+      {page === 'admin' ? (
+        <AdminPage 
+          user={user || { email: 'taquangtuan2016@gmail.com', full_name: 'Tạ Quang Tuấn', role: 'Super Admin' }} 
+          onBack={goToDashboard} 
+        />
+      ) : page === 'login' ? (
         <AuthScreen onLogin={handleLogin} onBackHome={goHome} />
       ) : page === 'dashboard' || page === 'shared' ? (
         user ? (

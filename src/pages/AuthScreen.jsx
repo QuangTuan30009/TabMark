@@ -294,6 +294,30 @@ export default function AuthScreen({ onLogin, onBackHome }) {
             </button>
           </p>
 
+          {/* Quick Admin Demo Button */}
+          <div className="pt-3 mt-1 border-t border-white/[0.08] text-center">
+            <button
+              type="button"
+              onClick={() => {
+                setEmail('taquangtuan2016@gmail.com')
+                setPassword('tuan123')
+                onLogin({
+                  id: 'usr-admin',
+                  email: 'taquangtuan2016@gmail.com',
+                  full_name: 'Tạ Quang Tuấn (Admin)',
+                  role: 'Super Admin',
+                  is_admin: true,
+                  is_pro: true,
+                  plan: 'pro',
+                  isMock: true,
+                })
+              }}
+              className="text-xs text-purple-400 hover:text-purple-300 font-semibold transition-colors cursor-pointer flex items-center justify-center gap-1.5 mx-auto py-1"
+            >
+              <span>🛡️ Đăng nhập nhanh Admin (taquangtuan2016)</span>
+            </button>
+          </div>
+
           {/* Back to home */}
           <button
             type="button"
