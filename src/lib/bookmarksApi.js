@@ -231,22 +231,35 @@ export async function upgradeUserToPro(userId, plan = 'pro') {
 }
 
 export async function recordTransaction({ userId, email, planId, planName, amount, transactionCode, status = 'pending' }) {
-  if (!isSupabaseConfigured || !userId) return null
+  if (!isSupabaseConfigured) return null
+  
+  // Kiểm tra userId có phải là UUID hợp lệ của Postgres hay không
+  const isUUID = userId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId)
+
+  const payload = {
+    email: email || '',
+    plan_id: planId,
+    plan_name: planName,
+    amount: amount,
+    transaction_code: transactionCode,
+    status: status,
+    payment_method: 'vietqr',
+  }
+
+  if (isUUID) {
+    payload.user_id = userId
+  }
+
   const { data, error } = await supabase
     .from('transactions')
-    .insert({
-      user_id: userId,
-      email: email || '',
-      plan_id: planId,
-      plan_name: planName,
-      amount: amount,
-      transaction_code: transactionCode,
-      status: status,
-      payment_method: 'vietqr',
-    })
+    .insert(payload)
     .select()
-    .single()
-  if (error) throw error
+    .maybeSingle()
+
+  if (error) {
+    console.warn('Supabase recordTransaction notice:', error.message)
+    throw error
+  }
   return data
 }
 

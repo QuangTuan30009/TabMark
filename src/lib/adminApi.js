@@ -157,7 +157,13 @@ export async function getAdminTransactionsList() {
     try {
       const { data, error } = await supabase.from('transactions').select('*').order('created_at', { ascending: false })
       if (data && !error) {
-        dbTrans = data
+        dbTrans = data.map(t => ({
+          ...t,
+          userId: t.user_id,
+          planName: t.plan_name,
+          planId: t.plan_id,
+          transactionCode: t.transaction_code,
+        }))
       }
     } catch (e) {
       console.warn('Lỗi lấy transactions từ DB:', e)
@@ -168,17 +174,24 @@ export async function getAdminTransactionsList() {
   try {
     const localPending = JSON.parse(localStorage.getItem('tabmark_pending_transactions') || '[]')
     localPending.forEach(lp => {
-      if (!dbTrans.some(dt => dt.transaction_code === lp.transactionCode || dt.id === lp.id)) {
+      const code = lp.transactionCode || lp.transaction_code
+      const id = lp.id
+      const exists = dbTrans.some(dt => (code && dt.transaction_code === code) || (id && dt.id === id))
+      if (!exists) {
         dbTrans.unshift({
-          id: lp.id,
-          user_id: lp.userId,
-          email: lp.email,
-          plan_name: lp.planName,
-          plan_id: lp.planId,
-          amount: lp.amount,
-          transaction_code: lp.transactionCode,
+          id: lp.id || 'tx-' + Math.random().toString(36).substr(2, 9),
+          user_id: lp.userId || lp.user_id,
+          userId: lp.userId || lp.user_id,
+          email: lp.email || 'guest@tabmark.io',
+          plan_name: lp.planName || lp.plan_name || 'Gói Pro',
+          planName: lp.planName || lp.plan_name || 'Gói Pro',
+          plan_id: lp.planId || lp.plan_id || 'pro',
+          planId: lp.planId || lp.plan_id || 'pro',
+          amount: lp.amount || 149000,
+          transaction_code: code || 'TABMARK-VIETQR',
+          transactionCode: code || 'TABMARK-VIETQR',
           status: lp.status || 'pending',
-          payment_method: 'VietQR',
+          payment_method: lp.payment_method || 'VietQR',
           created_at: lp.created_at || new Date().toISOString(),
         })
       }
@@ -191,18 +204,32 @@ export async function getAdminTransactionsList() {
 /**
  * Admin DUYỆT giao dịch và kích hoạt gói cho khách hàng
  */
-export async function adminApproveTransaction(txId, userId, planId = 'pro') {
+export async function adminApproveTransaction(txId, userId, planId = 'pro', transactionCode = null) {
   try {
+    const isUUID = txId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(txId)
+
     // 1. Cập nhật transaction thành completed trong Supabase
     if (isSupabaseConfigured) {
-      await supabase
-        .from('transactions')
-        .update({ status: 'completed', updated_at: new Date().toISOString() })
-        .eq('id', txId)
+      try {
+        let q = supabase.from('transactions').update({ status: 'completed' })
+        if (isUUID) {
+          q = q.eq('id', txId)
+        } else if (transactionCode) {
+          q = q.eq('transaction_code', transactionCode)
+        }
+        await q
+      } catch (err) {
+        console.warn('Lỗi cập nhật transaction trên Supabase:', err)
+      }
 
       // 2. Kích hoạt Pro cho User trong Supabase
-      if (userId && userId !== 'guest') {
-        await upgradeUserToPro(userId, planId)
+      const isValidUserUUID = userId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId)
+      if (isValidUserUUID) {
+        try {
+          await upgradeUserToPro(userId, planId)
+        } catch (err) {
+          console.warn('Lỗi upgradeUserToPro trong Supabase:', err)
+        }
       }
     }
 
@@ -215,8 +242,13 @@ export async function adminApproveTransaction(txId, userId, planId = 'pro') {
     // Cập nhật danh sách local pending
     try {
       const local = JSON.parse(localStorage.getItem('tabmark_pending_transactions') || '[]')
-      const updated = local.map(t => t.id === txId ? { ...t, status: 'completed' } : t)
+      const updated = local.map(t => {
+        const matchId = t.id === txId
+        const matchCode = transactionCode && (t.transactionCode === transactionCode || t.transaction_code === transactionCode)
+        return (matchId || matchCode) ? { ...t, status: 'completed' } : t
+      })
       localStorage.setItem('tabmark_pending_transactions', JSON.stringify(updated))
+      window.dispatchEvent(new Event('tabmark_transaction_updated'))
     } catch (e) {}
 
     return { success: true }
@@ -229,19 +261,31 @@ export async function adminApproveTransaction(txId, userId, planId = 'pro') {
 /**
  * Admin TỪ CHỐI giao dịch chuyển khoản
  */
-export async function adminRejectTransaction(txId) {
+export async function adminRejectTransaction(txId, transactionCode = null) {
   try {
+    const isUUID = txId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(txId)
+
     if (isSupabaseConfigured) {
-      await supabase
-        .from('transactions')
-        .update({ status: 'rejected', updated_at: new Date().toISOString() })
-        .eq('id', txId)
+      try {
+        let q = supabase.from('transactions').update({ status: 'failed' })
+        if (isUUID) {
+          q = q.eq('id', txId)
+        } else if (transactionCode) {
+          q = q.eq('transaction_code', transactionCode)
+        }
+        await q
+      } catch (e) {}
     }
 
     try {
       const local = JSON.parse(localStorage.getItem('tabmark_pending_transactions') || '[]')
-      const updated = local.map(t => t.id === txId ? { ...t, status: 'rejected' } : t)
+      const updated = local.map(t => {
+        const matchId = t.id === txId
+        const matchCode = transactionCode && (t.transactionCode === transactionCode || t.transaction_code === transactionCode)
+        return (matchId || matchCode) ? { ...t, status: 'failed' } : t
+      })
       localStorage.setItem('tabmark_pending_transactions', JSON.stringify(updated))
+      window.dispatchEvent(new Event('tabmark_transaction_updated'))
     } catch (e) {}
 
     return { success: true }

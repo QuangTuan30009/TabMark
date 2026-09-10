@@ -66,6 +66,9 @@ export function AdminPage({ user, onBack }) {
 
   useEffect(() => {
     loadAdminData()
+    const handleTxUpdate = () => loadAdminData()
+    window.addEventListener('tabmark_transaction_updated', handleTxUpdate)
+    return () => window.removeEventListener('tabmark_transaction_updated', handleTxUpdate)
   }, [])
 
   // Giao dịch đang chờ duyệt
@@ -92,7 +95,7 @@ export function AdminPage({ user, onBack }) {
       html: `
         <div style="text-align: left; font-size: 13px; color: #cbd5e1; line-height: 1.6;">
           <p>Bạn đã kiểm tra sao kê tài khoản ngân hàng và nhận được <b>${formatVND(tx.amount || 149000)}</b> từ <b>${tx.email}</b>?</p>
-          <p style="margin-top: 8px; color: #38bdf8;">Hệ thống sẽ lập tức kích hoạt <b>${tx.plan_name || 'Gói Pro'}</b> cho tài khoản này.</p>
+          <p style="margin-top: 8px; color: #38bdf8;">Hệ thống sẽ lập tức kích hoạt <b>${tx.plan_name || tx.planName || 'Gói Pro'}</b> cho tài khoản này.</p>
         </div>
       `,
       icon: 'question',
@@ -107,13 +110,18 @@ export function AdminPage({ user, onBack }) {
 
     if (confirm.isConfirmed) {
       setActionLoadingId(tx.id)
-      const res = await adminApproveTransaction(tx.id, tx.user_id, tx.plan_id || 'pro')
+      const res = await adminApproveTransaction(
+        tx.id,
+        tx.user_id || tx.userId,
+        tx.plan_id || tx.planId || 'pro',
+        tx.transaction_code || tx.transactionCode
+      )
       setActionLoadingId(null)
 
       if (res.success) {
         Swal.fire({
           title: 'Đã kích hoạt gói thành công!',
-          text: `Gói ${tx.plan_name} đã được cấp cho ${tx.email}.`,
+          text: `Gói ${tx.plan_name || tx.planName || 'Pro'} đã được cấp cho ${tx.email}.`,
           icon: 'success',
           timer: 2000,
           showConfirmButton: false,
@@ -131,7 +139,7 @@ export function AdminPage({ user, onBack }) {
   async function handleReject(tx) {
     const confirm = await Swal.fire({
       title: 'Từ chối giao dịch?',
-      text: `Giao dịch ${tx.transaction_code} của ${tx.email} sẽ bị đánh dấu là Không hợp lệ.`,
+      text: `Giao dịch ${tx.transaction_code || tx.transactionCode} của ${tx.email} sẽ bị đánh dấu là Không hợp lệ.`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonText: 'Từ chối',
@@ -144,7 +152,7 @@ export function AdminPage({ user, onBack }) {
 
     if (confirm.isConfirmed) {
       setActionLoadingId(tx.id)
-      await adminRejectTransaction(tx.id)
+      await adminRejectTransaction(tx.id, tx.transaction_code || tx.transactionCode)
       setActionLoadingId(null)
       Swal.fire({
         title: 'Đã từ chối giao dịch',
@@ -440,7 +448,7 @@ export function AdminPage({ user, onBack }) {
           <div className="space-y-6 animate-fade-in-up">
             
             {/* Pending Transactions Section */}
-            {pendingTransactions.length > 0 && (
+            {pendingTransactions.length > 0 ? (
               <div className="p-6 rounded-3xl bg-amber-500/10 border-2 border-amber-500/30 space-y-4 shadow-xl">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
@@ -467,9 +475,9 @@ export function AdminPage({ user, onBack }) {
                     <tbody className="divide-y divide-amber-500/10">
                       {pendingTransactions.map((tx) => (
                         <tr key={tx.id} className="hover:bg-amber-500/5 transition-colors">
-                          <td className="py-3 px-3 font-mono font-bold text-cyan-300">{tx.transaction_code}</td>
+                          <td className="py-3 px-3 font-mono font-bold text-cyan-300">{tx.transaction_code || tx.transactionCode}</td>
                           <td className="py-3 px-3 text-white font-medium">{tx.email}</td>
-                          <td className="py-3 px-3 font-bold text-purple-300">{tx.plan_name}</td>
+                          <td className="py-3 px-3 font-bold text-purple-300">{tx.plan_name || tx.planName || 'Gói Pro'}</td>
                           <td className="py-3 px-3 font-extrabold text-emerald-400">{formatVND(tx.amount)}</td>
                           <td className="py-3 px-3 text-slate-400 text-[11px]">{new Date(tx.created_at).toLocaleString('vi-VN')}</td>
                           <td className="py-3 px-3 text-right">
@@ -496,6 +504,27 @@ export function AdminPage({ user, onBack }) {
                       ))}
                     </tbody>
                   </table>
+                </div>
+              </div>
+            ) : (
+              <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/[0.08] flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
+                    <CheckCircle2 className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-white">Hiện không có giao dịch nào đang chờ duyệt</h3>
+                    <p className="text-xs text-slate-400">Tất cả giao dịch VietQR đã được đối soát hoặc chưa có yêu cầu chuyển khoản mới.</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                  <button
+                    onClick={loadAdminData}
+                    className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-xs font-semibold text-slate-300 hover:text-white transition-colors cursor-pointer"
+                  >
+                    <RefreshCw className="w-3.5 h-3.5" />
+                    <span>Làm mới</span>
+                  </button>
                 </div>
               </div>
             )}

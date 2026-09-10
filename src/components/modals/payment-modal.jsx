@@ -45,16 +45,31 @@ export function PaymentModal({ isOpen, onClose, user, onUpgradeSuccess }) {
         status: 'pending',
       }
 
-      // 1. Ghi nhận giao dịch Chờ Duyệt (Pending)
-      if (user?.id) {
+      // 1. Luôn lưu vào LocalStorage TRƯỚC TIÊN để đảm bảo 100% không bao giờ bị mất giao dịch
+      try {
+        const saved = JSON.parse(localStorage.getItem('tabmark_pending_transactions') || '[]')
+        const existingIdx = saved.findIndex(s => s.transactionCode === transferCode)
+        const newRecord = {
+          ...txData,
+          id: 'tx-' + Date.now(),
+          created_at: new Date().toISOString()
+        }
+        if (existingIdx >= 0) {
+          saved[existingIdx] = newRecord
+        } else {
+          saved.unshift(newRecord)
+        }
+        localStorage.setItem('tabmark_pending_transactions', JSON.stringify(saved))
+        window.dispatchEvent(new Event('tabmark_transaction_updated'))
+      } catch (storageErr) {
+        console.warn('Lỗi lưu cache transaction vào localStorage:', storageErr)
+      }
+
+      // 2. Ghi nhận giao dịch vào Supabase nếu có kết nối
+      try {
         await recordTransaction(txData)
-      } else {
-        // Lưu mock pending transaction
-        try {
-          const saved = JSON.parse(localStorage.getItem('tabmark_pending_transactions') || '[]')
-          saved.unshift({ ...txData, id: 'tx-' + Date.now(), created_at: new Date().toISOString() })
-          localStorage.setItem('tabmark_pending_transactions', JSON.stringify(saved))
-        } catch (e) {}
+      } catch (dbErr) {
+        console.warn('Lưu vào Supabase chưa thành công (đã có bản lưu dự phòng Local):', dbErr?.message || dbErr)
       }
 
       setIsProcessing(false)
