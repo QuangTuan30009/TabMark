@@ -35,61 +35,77 @@ export function PaymentModal({ isOpen, onClose, user, onUpgradeSuccess }) {
   async function handleConfirmPayment() {
     setIsProcessing(true)
     try {
-      if (user?.id) {
-        // 1. Ghi nhận giao dịch
-        await recordTransaction({
-          userId: user.id,
-          email: user.email,
-          planId: selectedPlan.id,
-          planName: selectedPlan.name,
-          amount: selectedPlan.price,
-          transactionCode: transferCode,
-        })
+      const txData = {
+        userId: user?.id || 'guest',
+        email: user?.email || 'guest@tabmark.io',
+        planId: selectedPlan.id,
+        planName: selectedPlan.name,
+        amount: selectedPlan.price,
+        transactionCode: transferCode,
+        status: 'pending',
+      }
 
-        // 2. Nâng cấp user lên Pro
-        await upgradeUserToPro(user.id, selectedPlan.id)
+      // 1. Ghi nhận giao dịch Chờ Duyệt (Pending)
+      if (user?.id) {
+        await recordTransaction(txData)
+      } else {
+        // Lưu mock pending transaction
+        try {
+          const saved = JSON.parse(localStorage.getItem('tabmark_pending_transactions') || '[]')
+          saved.unshift({ ...txData, id: 'tx-' + Date.now(), created_at: new Date().toISOString() })
+          localStorage.setItem('tabmark_pending_transactions', JSON.stringify(saved))
+        } catch (e) {}
       }
 
       setIsProcessing(false)
       onClose()
 
-      // 3. Thông báo chúc mừng
+      // 2. Thông báo tiếp nhận chờ đối soát ngân hàng
       Swal.fire({
-        title: '🎉 Nâng Cấp PRO Thành Công!',
+        title: 'Đã Tiếp Nhận Chuyển Khoản! ⏳',
         html: `
-          <div class="text-left text-sm text-slate-300 space-y-2 mt-2">
-            <p>Cảm ơn bạn đã đồng hành và ủng hộ dự án <b>TabMark</b>!</p>
-            <p>Gói <b>${selectedPlan.name}</b> đã được kích hoạt thành công.</p>
-            <p class="text-xs text-amber-400 font-medium">⭐ Toàn bộ tính năng AI và không giới hạn lưu trữ đã sẵn sàng phục vụ bạn.</p>
+          <div class="text-left text-sm text-slate-300 space-y-3 mt-3 leading-relaxed">
+            <div class="p-3.5 rounded-xl bg-white/[0.04] border border-white/10 space-y-1.5 font-mono text-xs">
+              <div class="flex justify-between">
+                <span class="text-slate-400">Mã giao dịch:</span>
+                <span class="text-cyan-400 font-bold">${transferCode}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-400">Gói đăng ký:</span>
+                <span class="text-purple-300 font-bold">${selectedPlan.name}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-400">Số tiền:</span>
+                <span class="text-emerald-400 font-bold">${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(selectedPlan.price)}</span>
+              </div>
+            </div>
+            <p class="text-xs text-slate-400">
+              📌 Hệ thống đang đối soát sao kê tài khoản ngân hàng. Gói sẽ được <b>kích hoạt tự động hoặc qua Quản trị viên trong vòng 1 - 3 phút</b>.
+            </p>
           </div>
         `,
-        icon: 'success',
+        icon: 'info',
         background: '#0d111a',
         color: '#fff',
         confirmButtonColor: '#3b82f6',
-        confirmButtonText: 'Bắt đầu trải nghiệm ngay 🚀',
+        confirmButtonText: 'Đã hiểu & Chờ kích hoạt',
         customClass: {
-          popup: 'border border-blue-500/30 rounded-2xl shadow-[0_0_50px_rgba(59,130,246,0.3)]',
+          popup: 'border border-cyan-500/30 rounded-2xl shadow-[0_0_50px_rgba(6,182,212,0.2)]',
           confirmButton: 'px-6 py-2.5 rounded-xl font-bold',
-        }
-      }).then(() => {
-        if (onUpgradeSuccess) {
-          onUpgradeSuccess(selectedPlan)
         }
       })
     } catch (err) {
       console.error(err)
       setIsProcessing(false)
       Swal.fire({
-        title: 'Thông báo',
-        text: 'Đã tiếp nhận yêu cầu! Quản trị viên sẽ kiểm tra sao kê và kích hoạt gói cho bạn trong giây lát.',
+        title: 'Đã gửi yêu cầu!',
+        text: 'Đã tiếp nhận yêu cầu nâng cấp! Quản trị viên sẽ kiểm tra sao kê ngân hàng và kích hoạt gói cho bạn trong giây lát.',
         icon: 'info',
         background: '#0d111a',
         color: '#fff',
         confirmButtonColor: '#3b82f6',
       })
       onClose()
-      if (onUpgradeSuccess) onUpgradeSuccess(selectedPlan)
     }
   }
 

@@ -230,7 +230,7 @@ export async function upgradeUserToPro(userId, plan = 'pro') {
   return data
 }
 
-export async function recordTransaction({ userId, email, planId, planName, amount, transactionCode }) {
+export async function recordTransaction({ userId, email, planId, planName, amount, transactionCode, status = 'pending' }) {
   if (!isSupabaseConfigured || !userId) return null
   const { data, error } = await supabase
     .from('transactions')
@@ -241,7 +241,7 @@ export async function recordTransaction({ userId, email, planId, planName, amoun
       plan_name: planName,
       amount: amount,
       transaction_code: transactionCode,
-      status: 'completed',
+      status: status,
       payment_method: 'vietqr',
     })
     .select()
