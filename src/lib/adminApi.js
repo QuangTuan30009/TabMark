@@ -49,12 +49,12 @@ export async function getAdminOverviewStats() {
         })
       }
 
-      // 2. Đếm links thực tế
-      const { count: lCount } = await supabase.from('links').select('*', { count: 'exact', head: true })
+      // 2. Đếm links thực tế từ bảng bookmark_links
+      const { count: lCount } = await supabase.from('bookmark_links').select('*', { count: 'exact', head: true })
       if (typeof lCount === 'number') realLinksCount = lCount
 
-      // 3. Đếm collections thực tế
-      const { count: cCount } = await supabase.from('collections').select('*', { count: 'exact', head: true })
+      // 3. Đếm collections thực tế từ bảng bookmark_collections
+      const { count: cCount } = await supabase.from('bookmark_collections').select('*', { count: 'exact', head: true })
       if (typeof cCount === 'number') realCollectionsCount = cCount
 
       // 4. Lấy transactions thực tế
@@ -75,17 +75,18 @@ export async function getAdminOverviewStats() {
     }
   }
 
-  // Fallback đọc thêm từ local storage nếu có
+  // Fallback đọc thêm từ local storage nếu có (loại bỏ mọi bản ghi demo/thực nghiệm cũ nếu có)
   try {
     const localPending = JSON.parse(localStorage.getItem('tabmark_pending_transactions') || '[]')
     localPending.forEach(t => {
+      if (t.id && String(t.id).startsWith('tx-oc3-')) return
       if (!realTransactions.some(rt => rt.transaction_code === t.transactionCode || rt.id === t.id)) {
         realPendingRevenue += (Number(t.amount) || 0)
       }
     })
   } catch (e) {}
 
-  const totalUsers = Math.max(realUsersCount, 1)
+  const totalUsers = realUsersCount
   const paidUsers = planCount.starter + planCount.pro + planCount.business
   const conversionRate = totalUsers > 0 ? ((paidUsers / totalUsers) * 100).toFixed(1) + '%' : '0.0%'
 
@@ -170,10 +171,11 @@ export async function getAdminTransactionsList() {
     }
   }
 
-  // Đọc thêm pending transactions từ LocalStorage
+  // Đọc thêm pending transactions từ LocalStorage (loại bỏ mọi demo ảo cũ)
   try {
     const localPending = JSON.parse(localStorage.getItem('tabmark_pending_transactions') || '[]')
     localPending.forEach(lp => {
+      if (lp.id && String(lp.id).startsWith('tx-oc3-')) return
       const code = lp.transactionCode || lp.transaction_code
       const id = lp.id
       const exists = dbTrans.some(dt => (code && dt.transaction_code === code) || (id && dt.id === id))

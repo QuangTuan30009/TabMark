@@ -223,6 +223,35 @@ export function AdminPage({ user, onBack }) {
     })
   }, [usersList, searchQuery, planFilter])
 
+  // Lấy thông số thiết bị và môi trường thực tế của máy client
+  const clientInfo = useMemo(() => {
+    if (typeof window === 'undefined' || typeof navigator === 'undefined') {
+      return { os: 'Windows NT (Desktop)', browser: 'Google Chrome', res: '1920 × 1080 px', viewport: '1920 × 940 px', online: 'Trực tuyến (Online)', lang: 'vi-VN' }
+    }
+    const ua = navigator.userAgent || ''
+    let os = 'Windows'
+    if (/Windows NT 10.0/i.test(ua)) os = 'Windows 10 / 11'
+    else if (/Macintosh|Mac OS/i.test(ua)) os = 'macOS (Apple)'
+    else if (/Android/i.test(ua)) os = 'Android Mobile'
+    else if (/iPhone|iPad/i.test(ua)) os = 'iOS (Apple)'
+    else if (/Linux/i.test(ua)) os = 'Linux OS'
+
+    let browser = 'Chrome'
+    if (/Edg/i.test(ua)) browser = 'Microsoft Edge'
+    else if (/Chrome/i.test(ua)) browser = 'Google Chrome'
+    else if (/Firefox/i.test(ua)) browser = 'Mozilla Firefox'
+    else if (/Safari/i.test(ua) && !/Chrome/i.test(ua)) browser = 'Apple Safari'
+
+    return {
+      os,
+      browser,
+      res: `${window.screen?.width || 1920} × ${window.screen?.height || 1080} px`,
+      viewport: `${window.innerWidth} × ${window.innerHeight} px`,
+      online: navigator.onLine ? 'Trực tuyến (Connected 24/7)' : 'Ngoại tuyến',
+      lang: navigator.language || 'vi-VN'
+    }
+  }, [])
+
   // 📥 Xuất file Minh Chứng Giao Dịch (Transactions Report) cho Final Report OC3
   function handleExportTransactionsCSV() {
     const headers = [
@@ -289,59 +318,14 @@ export function AdminPage({ user, onBack }) {
     })
   }
 
-  // ⚡ Thêm Khách Hàng Thực Nghiệm (Tạo thêm Paid User để đạt mốc >= 20 cho OC3)
-  async function handleAddDemoPaidUser() {
-    const nextIndex = paidUsersList.length + 1
-    const candidate = usersList.find(u => !paidUsersList.some(p => p.id === u.id || p.email === u.email))
-    const targetEmail = candidate ? candidate.email : `customer.oc3_${nextIndex}@tabmark.io`
-    const targetId = candidate ? candidate.id : `usr-pilot-${Date.now()}`
-    const targetName = candidate ? candidate.full_name : `Khách Hàng Pilot #${nextIndex}`
-
-    const plans = [
-      { id: 'pro', name: 'Gói Pro (149K)', amount: 149000 },
-      { id: 'starter', name: 'Gói Starter (69K)', amount: 69000 },
-      { id: 'business', name: 'Gói Business (299K)', amount: 299000 },
-    ]
-    const chosenPlan = plans[nextIndex % plans.length]
-
-    const newTx = {
-      id: 'tx-oc3-' + Date.now(),
-      userId: targetId,
-      user_id: targetId,
-      email: targetEmail,
-      full_name: targetName,
-      plan_name: chosenPlan.name,
-      planName: chosenPlan.name,
-      plan_id: chosenPlan.id,
-      planId: chosenPlan.id,
-      amount: chosenPlan.amount,
-      transaction_code: `TABMARK OC3 ${Math.floor(1000 + Math.random() * 9000)}`,
-      status: 'completed',
-      payment_method: 'VietQR',
-      created_at: new Date(Date.now() - Math.floor(Math.random() * 7 * 24 * 3600 * 1000)).toISOString(),
-    }
-
-    try {
-      const saved = JSON.parse(localStorage.getItem('tabmark_pending_transactions') || '[]')
-      saved.unshift(newTx)
-      localStorage.setItem('tabmark_pending_transactions', JSON.stringify(saved))
-      if (targetId) {
-        localStorage.setItem(`tabmark_user_plan_${targetId}`, chosenPlan.id)
-        localStorage.setItem(`tabmark_is_pro_${targetId}`, 'true')
-      }
-    } catch (e) {}
-
+  // Làm mới lại dữ liệu thực tế từ Database Supabase
+  async function handleRefreshLiveRealData() {
     await loadAdminData()
     Swal.fire({
-      title: 'Đã Kích Hoạt Paid User Mới! 🎯',
-      html: `
-        <div style="text-align: left; font-size: 13px; color: #cbd5e1; line-height: 1.6;">
-          <p>Đã ghi nhận giao dịch <b>${formatVND(chosenPlan.amount)}</b> cho <b>${targetEmail}</b>.</p>
-          <p style="margin-top: 6px; color: #38bdf8;">Tổng số Paid Users hiện tại: <b>${paidUsersList.length + 1} / 20</b> (Mục tiêu OC3).</p>
-        </div>
-      `,
+      title: 'Đã Đồng Bộ Dữ Liệu Real 100%! 🔄',
+      text: 'Toàn bộ chỉ số đã được tải lại trực tiếp từ các bảng profiles, transactions, bookmark_links và bookmark_collections của Supabase.',
       icon: 'success',
-      timer: 2500,
+      timer: 1800,
       showConfirmButton: false,
       background: '#0d111a',
       color: '#fff',
@@ -1156,12 +1140,12 @@ export function AdminPage({ user, onBack }) {
                   </button>
 
                   <button
-                    onClick={handleAddDemoPaidUser}
-                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/[0.08] hover:bg-white/[0.15] text-amber-300 border border-amber-400/30 text-xs font-bold transition-all cursor-pointer"
-                    title="Kích hoạt thêm khách hàng để đạt chỉ tiêu 20 Paid Users cho OC3"
+                    onClick={handleRefreshLiveRealData}
+                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/[0.08] hover:bg-white/[0.15] text-cyan-300 border border-cyan-400/30 text-xs font-bold transition-all cursor-pointer"
+                    title="Đồng bộ lại toàn bộ dữ liệu thực tế từ Supabase"
                   >
-                    <Zap className="w-3.5 h-3.5" />
-                    <span>+ Thêm Paid User</span>
+                    <RefreshCw className="w-3.5 h-3.5" />
+                    <span>Đồng Bộ Realtime</span>
                   </button>
                 </div>
               </div>
@@ -1189,13 +1173,13 @@ export function AdminPage({ user, onBack }) {
                     <Award className="w-4 h-4 text-amber-400" />
                     <span>Danh Sách Khách Hàng Trả Phí & Giá Trị Vòng Đời (LTV)</span>
                   </h3>
-                  <p className="text-xs text-slate-400 mt-0.5">Tổng số khách hàng trả phí: {paidUsersList.length}</p>
+                  <p className="text-xs text-slate-400 mt-0.5">Tổng số khách hàng trả phí thực tế: {paidUsersList.length}</p>
                 </div>
               </div>
 
               {paidUsersList.length === 0 ? (
                 <div className="py-12 text-center text-slate-500 text-xs">
-                  Chưa có tài khoản nào đăng ký gói trả phí. Bấm nút "+ Thêm Paid User" ở trên để ghi nhận.
+                  Chưa có tài khoản nào được kích hoạt gói trả phí trong database profiles hoặc có giao dịch VietQR đã duyệt.
                 </div>
               ) : (
                 <div className="overflow-x-auto">
@@ -1279,121 +1263,114 @@ export function AdminPage({ user, onBack }) {
         {activeTab === 'analytics' && (
           <div className="space-y-6 animate-fade-in-up">
             
-            {/* Top Stats: Active Users & Traffic */}
+            {/* Top Stats: 100% Real Data from Supabase */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
               <div className="p-5 rounded-3xl bg-white/[0.02] border border-white/[0.08] space-y-2">
-                <span className="text-xs text-slate-400 font-semibold">Active Users (Hôm nay)</span>
-                <p className="text-3xl font-black text-white">{Math.max(overview?.totalUsers || 9, 12)}</p>
-                <p className="text-[11px] text-emerald-400 font-medium">Người dùng truy cập trong 24h</p>
+                <span className="text-xs text-slate-400 font-semibold">Tài Khoản Thật (Supabase)</span>
+                <p className="text-3xl font-black text-white">{overview?.totalUsers || 0}</p>
+                <p className="text-[11px] text-emerald-400 font-medium">Bảng profiles (Đồng bộ auth.users)</p>
               </div>
 
               <div className="p-5 rounded-3xl bg-white/[0.02] border border-white/[0.08] space-y-2">
-                <span className="text-xs text-slate-400 font-semibold">Tổng Lượt Truy Cập (Visits)</span>
-                <p className="text-3xl font-black text-cyan-400">1,480</p>
-                <p className="text-[11px] text-slate-400 font-medium">+24.5% so với tuần trước</p>
+                <span className="text-xs text-slate-400 font-semibold">Bookmarks Lưu Trữ Thực Tế</span>
+                <p className="text-3xl font-black text-cyan-400">{overview?.totalLinks || 0}</p>
+                <p className="text-[11px] text-cyan-300 font-medium">Bảng bookmark_links</p>
               </div>
 
               <div className="p-5 rounded-3xl bg-white/[0.02] border border-white/[0.08] space-y-2">
-                <span className="text-xs text-slate-400 font-semibold">Lượt Đăng Ký Mới (Signups)</span>
-                <p className="text-3xl font-black text-purple-400">{overview?.totalUsers || 9}</p>
-                <p className="text-[11px] text-purple-300 font-medium">100% tài khoản thật</p>
+                <span className="text-xs text-slate-400 font-semibold">Bộ Sưu Tập / Boards Kanban</span>
+                <p className="text-3xl font-black text-purple-400">{overview?.totalCollections || 0}</p>
+                <p className="text-[11px] text-purple-300 font-medium">Bảng bookmark_collections</p>
               </div>
 
               <div className="p-5 rounded-3xl bg-white/[0.02] border border-white/[0.08] space-y-2">
-                <span className="text-xs text-slate-400 font-semibold">Thời Gian Truy Cập TB</span>
-                <p className="text-3xl font-black text-amber-400">4m 32s</p>
-                <p className="text-[11px] text-slate-400 font-medium">Tương tác Kanban & Bookmark</p>
+                <span className="text-xs text-slate-400 font-semibold">Tổng Giao Dịch VietQR</span>
+                <p className="text-3xl font-black text-amber-400">{transactions.length}</p>
+                <p className="text-[11px] text-amber-300 font-medium">Bảng transactions ({transactions.filter(t => t.status === 'completed' || t.status === 'success').length} Đã duyệt)</p>
               </div>
             </div>
 
-            {/* Devices & Browsers Tracking */}
+            {/* Live Client Environment & Supabase Source Mapping */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               
-              {/* Thiết Bị Sử Dụng */}
+              {/* Telemetry Thiết Bị Client Thực Tế */}
               <div className="p-6 rounded-3xl bg-white/[0.02] border border-white/[0.08] space-y-4">
                 <h3 className="text-base font-bold text-white flex items-center gap-2">
                   <Laptop className="w-4 h-4 text-blue-400" />
-                  <span>Phân Phối Thiết Bị & Hệ Điều Hành</span>
+                  <span>Giám Sát Môi Trường Client Thực Tế (Live Telemetry)</span>
                 </h3>
+                <p className="text-xs text-slate-400">Thông số trích xuất tự động qua Web API của trình duyệt đang kết nối</p>
 
-                <div className="space-y-3">
-                  <div>
-                    <div className="flex justify-between text-xs mb-1">
-                      <span className="text-slate-300 flex items-center gap-2">
-                        <Laptop className="w-3.5 h-3.5 text-blue-400" />
-                        Máy tính để bàn / Laptop (Windows & Mac)
-                      </span>
-                      <span className="font-bold text-white font-mono">76%</span>
-                    </div>
-                    <div className="h-2 w-full rounded-full bg-white/5 overflow-hidden">
-                      <div className="h-full bg-blue-500 rounded-full" style={{ width: '76%' }} />
-                    </div>
+                <div className="space-y-3 pt-1">
+                  <div className="flex items-center justify-between p-3 rounded-2xl bg-white/[0.03] border border-white/5">
+                    <span className="text-xs text-slate-400">Hệ điều hành thiết bị:</span>
+                    <span className="text-xs font-bold text-white font-mono">{clientInfo.os}</span>
                   </div>
 
-                  <div>
-                    <div className="flex justify-between text-xs mb-1">
-                      <span className="text-slate-300 flex items-center gap-2">
-                        <Smartphone className="w-3.5 h-3.5 text-purple-400" />
-                        Điện thoại thông minh (iOS & Android)
-                      </span>
-                      <span className="font-bold text-white font-mono">21%</span>
-                    </div>
-                    <div className="h-2 w-full rounded-full bg-white/5 overflow-hidden">
-                      <div className="h-full bg-purple-500 rounded-full" style={{ width: '21%' }} />
-                    </div>
+                  <div className="flex items-center justify-between p-3 rounded-2xl bg-white/[0.03] border border-white/5">
+                    <span className="text-xs text-slate-400">Trình duyệt web:</span>
+                    <span className="text-xs font-bold text-cyan-300 font-mono">{clientInfo.browser}</span>
                   </div>
 
-                  <div>
-                    <div className="flex justify-between text-xs mb-1">
-                      <span className="text-slate-300 flex items-center gap-2">
-                        <Globe className="w-3.5 h-3.5 text-emerald-400" />
-                        Máy tính bảng / Thiết bị khác
-                      </span>
-                      <span className="font-bold text-white font-mono">3%</span>
-                    </div>
-                    <div className="h-2 w-full rounded-full bg-white/5 overflow-hidden">
-                      <div className="h-full bg-emerald-500 rounded-full" style={{ width: '3%' }} />
-                    </div>
+                  <div className="flex items-center justify-between p-3 rounded-2xl bg-white/[0.03] border border-white/5">
+                    <span className="text-xs text-slate-400">Độ phân giải màn hình:</span>
+                    <span className="text-xs font-bold text-purple-300 font-mono">{clientInfo.res}</span>
+                  </div>
+
+                  <div className="flex items-center justify-between p-3 rounded-2xl bg-white/[0.03] border border-white/5">
+                    <span className="text-xs text-slate-400">Khung nhìn hiển thị (Viewport):</span>
+                    <span className="text-xs font-bold text-emerald-300 font-mono">{clientInfo.viewport}</span>
+                  </div>
+
+                  <div className="flex items-center justify-between p-3 rounded-2xl bg-white/[0.03] border border-white/5">
+                    <span className="text-xs text-slate-400">Trạng thái kết nối mạng:</span>
+                    <span className="text-xs font-bold text-emerald-400 flex items-center gap-1.5 font-mono">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                      {clientInfo.online}
+                    </span>
                   </div>
                 </div>
               </div>
 
-              {/* Nguồn Truy Cập & Extension */}
+              {/* Minh Chứng Nguồn Dữ Liệu Các Bảng Supabase */}
               <div className="p-6 rounded-3xl bg-white/[0.02] border border-white/[0.08] space-y-4">
                 <h3 className="text-base font-bold text-white flex items-center gap-2">
                   <Globe className="w-4 h-4 text-emerald-400" />
-                  <span>Nguồn Lưu Lượng (Traffic Channels)</span>
+                  <span>Nguồn Dữ Liệu Supabase 100% Thực Tế</span>
                 </h3>
+                <p className="text-xs text-slate-400">Toàn bộ bảng và số bản ghi hiện hữu trong cơ sở dữ liệu PostgreSQL</p>
 
-                <div className="space-y-3">
-                  <div>
-                    <div className="flex justify-between text-xs mb-1">
-                      <span className="text-slate-300">Truy cập trực tiếp (Direct URL / Bookmark)</span>
-                      <span className="font-bold text-white font-mono">48%</span>
+                <div className="space-y-3 pt-1">
+                  <div className="p-3 rounded-2xl bg-white/[0.03] border border-white/5 space-y-1">
+                    <div className="flex justify-between text-xs">
+                      <span className="font-mono text-cyan-300 font-bold">public.profiles</span>
+                      <span className="text-white font-mono font-bold">{overview?.totalUsers || 0} tài khoản</span>
                     </div>
-                    <div className="h-2 w-full rounded-full bg-white/5 overflow-hidden">
-                      <div className="h-full bg-emerald-500 rounded-full" style={{ width: '48%' }} />
-                    </div>
+                    <p className="text-[11px] text-slate-400">Chứa thông tin người dùng, gói hiện tại (plan), đặc quyền Pro và vai trò Admin.</p>
                   </div>
 
-                  <div>
-                    <div className="flex justify-between text-xs mb-1">
-                      <span className="text-slate-300">Kênh Mạng Xã Hội (Facebook / Zalo / Groups)</span>
-                      <span className="font-bold text-white font-mono">34%</span>
+                  <div className="p-3 rounded-2xl bg-white/[0.03] border border-white/5 space-y-1">
+                    <div className="flex justify-between text-xs">
+                      <span className="font-mono text-purple-300 font-bold">public.transactions</span>
+                      <span className="text-white font-mono font-bold">{transactions.length} giao dịch</span>
                     </div>
-                    <div className="h-2 w-full rounded-full bg-white/5 overflow-hidden">
-                      <div className="h-full bg-blue-500 rounded-full" style={{ width: '34%' }} />
-                    </div>
+                    <p className="text-[11px] text-slate-400">Chứa lịch sử chuyển khoản VietQR, số tiền, mã GD và trạng thái (completed / pending).</p>
                   </div>
 
-                  <div>
-                    <div className="flex justify-between text-xs mb-1">
-                      <span className="text-slate-300">Giới thiệu từ Sinh viên & Giảng viên (Referral)</span>
-                      <span className="font-bold text-white font-mono">18%</span>
+                  <div className="p-3 rounded-2xl bg-white/[0.03] border border-white/5 space-y-1">
+                    <div className="flex justify-between text-xs">
+                      <span className="font-mono text-emerald-300 font-bold">public.bookmark_links</span>
+                      <span className="text-white font-mono font-bold">{overview?.totalLinks || 0} liên kết</span>
                     </div>
-                    <div className="h-2 w-full rounded-full bg-white/5 overflow-hidden">
-                      <div className="h-full bg-amber-500 rounded-full" style={{ width: '18%' }} />
+                    <p className="text-[11px] text-slate-400">Lưu trữ toàn bộ link, URL, tiêu đề web và thẻ phân loại của người dùng.</p>
+                  </div>
+
+                  <div className="p-3 rounded-2xl bg-white/[0.03] border border-white/5 space-y-1">
+                    <div className="flex justify-between text-xs">
+                      <span className="font-mono text-amber-300 font-bold">public.bookmark_collections</span>
+                      <span className="text-white font-mono font-bold">{overview?.totalCollections || 0} bảng</span>
                     </div>
+                    <p className="text-[11px] text-slate-400">Lưu các bảng Kanban, danh mục bookmark do người dùng tự tạo.</p>
                   </div>
                 </div>
               </div>
