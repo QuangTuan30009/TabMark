@@ -117,7 +117,7 @@ export default function Sidebar({
       <div className="px-4 py-3 flex items-center justify-between">
         <a href="/" className="flex items-center group">
           <img
-            src="/Tabmark-removebg-preview.png"
+            src="/tabmark-logo-white.png"
             alt="TabMark Logo"
             className="h-8 w-auto object-contain transition-transform group-hover:scale-105"
           />

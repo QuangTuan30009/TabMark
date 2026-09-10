@@ -1,15 +1,15 @@
 import { useState, useEffect } from 'react'
-import { Sun, Moon, X, Menu } from 'lucide-react'
+import { X, Menu } from 'lucide-react'
 
 export function Navbar({ onOpenDashboard, onLoginClick }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    // Check localStorage or fallback to initial html class
-    const saved = localStorage.getItem('theme');
-    if (saved) return saved === 'dark';
-    return document.documentElement.classList.contains('dark');
-  });
+
+  useEffect(() => {
+    // Luôn khóa chế độ Dark Mode chuẩn
+    document.documentElement.classList.add('dark');
+    localStorage.setItem('theme', 'dark');
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -28,17 +28,6 @@ export function Navbar({ onOpenDashboard, onLoginClick }) {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-
-  useEffect(() => {
-    const root = document.documentElement;
-    if (isDarkMode) {
-      root.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      root.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-    }
-  }, [isDarkMode]);
 
   const navLinks = [
     { href: "#features", text: "Features" },
@@ -60,7 +49,7 @@ export function Navbar({ onOpenDashboard, onLoginClick }) {
           <div className="flex items-center">
             <a href="#" className="flex items-center group cursor-pointer" onClick={onOpenDashboard}>
               <img 
-                src="tabmark-logo-white.png" 
+                src="/tabmark-logo-white.png" 
                 alt="TabMark Logo" 
                 className="h-9 sm:h-10 w-auto object-contain transition-transform group-hover:scale-105" 
               />
@@ -84,13 +73,6 @@ export function Navbar({ onOpenDashboard, onLoginClick }) {
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center space-x-4">
             <button 
-              onClick={() => setIsDarkMode(!isDarkMode)}
-              className="p-2 text-slate-300 hover:bg-white/10 rounded-full transition-colors focus:outline-none"
-              aria-label="Toggle Dark Mode"
-            >
-              {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-            </button>
-            <button 
               onClick={onLoginClick}
               className="text-sm font-semibold text-slate-300 hover:text-white transition-colors px-3 py-2 cursor-pointer"
             >
@@ -107,14 +89,8 @@ export function Navbar({ onOpenDashboard, onLoginClick }) {
           {/* Mobile Menu Toggle */}
           <div className="md:hidden flex items-center space-x-2">
             <button 
-              onClick={() => setIsDarkMode(!isDarkMode)}
-              className="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors focus:outline-none"
-            >
-              {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-            </button>
-            <button 
               onClick={() => setIsMenuOpen(!isMenuOpen)} 
-              className="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md transition-colors"
+              className="p-2 text-gray-300 hover:bg-white/10 rounded-md transition-colors"
             >
               {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
