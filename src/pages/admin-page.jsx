@@ -114,7 +114,8 @@ export function AdminPage({ user, onBack }) {
         tx.id,
         tx.user_id || tx.userId,
         tx.plan_id || tx.planId || 'pro',
-        tx.transaction_code || tx.transactionCode
+        tx.transaction_code || tx.transactionCode,
+        tx.email
       )
       setActionLoadingId(null)
 

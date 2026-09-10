@@ -204,7 +204,7 @@ export async function getAdminTransactionsList() {
 /**
  * Admin DUYỆT giao dịch và kích hoạt gói cho khách hàng
  */
-export async function adminApproveTransaction(txId, userId, planId = 'pro', transactionCode = null) {
+export async function adminApproveTransaction(txId, userId, planId = 'pro', transactionCode = null, email = null) {
   try {
     const isUUID = txId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(txId)
 
@@ -222,14 +222,19 @@ export async function adminApproveTransaction(txId, userId, planId = 'pro', tran
         console.warn('Lỗi cập nhật transaction trên Supabase:', err)
       }
 
-      // 2. Kích hoạt Pro cho User trong Supabase
+      // 2. Kích hoạt Pro cho User trong Supabase (theo UUID hoặc Email)
       const isValidUserUUID = userId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId)
-      if (isValidUserUUID) {
-        try {
+      try {
+        if (isValidUserUUID) {
           await upgradeUserToPro(userId, planId)
-        } catch (err) {
-          console.warn('Lỗi upgradeUserToPro trong Supabase:', err)
+        } else if (email) {
+          const { data: found } = await supabase.from('profiles').select('id').eq('email', email).maybeSingle()
+          if (found?.id) {
+            await upgradeUserToPro(found.id, planId)
+          }
         }
+      } catch (err) {
+        console.warn('Lỗi upgradeUserToPro trong Supabase:', err)
       }
     }
 

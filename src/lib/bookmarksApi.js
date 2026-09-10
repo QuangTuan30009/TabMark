@@ -189,7 +189,7 @@ export async function getUserProfile(userId) {
       .from('profiles')
       .select('*')
       .eq('id', userId)
-      .single()
+      .maybeSingle()
     if (error) throw error
     return data
   } catch (err) {
@@ -200,34 +200,50 @@ export async function getUserProfile(userId) {
 
 export async function updateUserProfile(userId, updates) {
   if (!isSupabaseConfigured || !userId) return null
-  const { data, error } = await supabase
-    .from('profiles')
-    .update({
-      ...updates,
-      updated_at: new Date().toISOString(),
-    })
-    .eq('id', userId)
-    .select()
-    .single()
-  if (error) throw error
-  return data
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .update({
+        ...updates,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', userId)
+      .select()
+      .maybeSingle()
+    if (error) throw error
+    return data
+  } catch (err) {
+    console.warn('updateUserProfile error:', err.message)
+    return null
+  }
 }
 
 export async function upgradeUserToPro(userId, plan = 'pro') {
   if (!isSupabaseConfigured || !userId) return null
-  const { data, error } = await supabase
-    .from('profiles')
-    .update({
-      is_pro: true,
-      plan: plan,
-      pro_expires_at: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
-      updated_at: new Date().toISOString(),
-    })
-    .eq('id', userId)
-    .select()
-    .single()
-  if (error) throw error
-  return data
+  try {
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId)
+    if (!isUUID) return null
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .update({
+        is_pro: true,
+        plan: plan,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', userId)
+      .select()
+      .maybeSingle()
+
+    if (error) {
+      console.warn('Lỗi Supabase khi upgradeUserToPro:', error.message)
+      return null
+    }
+    return data
+  } catch (err) {
+    console.warn('Lỗi ngoại lệ khi upgradeUserToPro:', err.message)
+    return null
+  }
 }
 
 export async function recordTransaction({ userId, email, planId, planName, amount, transactionCode, status = 'pending' }) {
