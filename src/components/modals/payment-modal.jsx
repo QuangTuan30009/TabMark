@@ -206,14 +206,14 @@ export function PaymentModal({ isOpen, onClose, user, onUpgradeSuccess }) {
               </div>
 
               {/* Next Button */}
-              <div className="flex items-center justify-between pt-4 border-t border-white/5">
-                <div className="flex items-center gap-2 text-xs text-slate-400">
-                  <ShieldCheck className="h-4 w-4 text-emerald-400" />
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-white/5">
+                <div className="flex items-center gap-2 text-xs text-slate-400 text-center sm:text-left">
+                  <ShieldCheck className="h-4 w-4 text-emerald-400 shrink-0" />
                   <span>Kích hoạt tài khoản ngay sau khi thanh toán</span>
                 </div>
                 <button
                   onClick={() => setStep('pay')}
-                  className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 rounded-xl font-bold text-sm text-white shadow-[0_0_20px_rgba(59,130,246,0.4)] transition-all cursor-pointer"
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 rounded-xl font-bold text-sm text-white shadow-[0_0_20px_rgba(59,130,246,0.4)] transition-all cursor-pointer"
                 >
                   <span>Tiếp tục thanh toán</span>
                   <ArrowRight className="h-4 w-4" />

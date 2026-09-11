@@ -81,8 +81,8 @@ export default function KanbanBoard({
   }
 
   return (
-    <div ref={boardRef} className="flex-1 overflow-y-auto overflow-x-hidden scroll-smooth">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-6 w-full auto-rows-min">
+    <div ref={boardRef} className="flex-1 overflow-y-auto overflow-x-auto sm:overflow-x-hidden scroll-smooth">
+      <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 snap-x snap-mandatory sm:snap-none overflow-x-auto sm:overflow-x-visible gap-4 sm:gap-6 p-4 sm:p-6 w-full auto-rows-min pb-6">
         {collections.map((col, index) => {
           const config = colorsConfig[index % colorsConfig.length]
           const isHighlighted = highlightedColumnId === col.id || activeCollectionId === col.id
@@ -94,7 +94,7 @@ export default function KanbanBoard({
             <div
               key={col.id}
               id={`column-${col.id}`}
-              className={`transition-all duration-300 w-full ${
+              className={`transition-all duration-300 w-[86vw] max-w-[340px] shrink-0 snap-center sm:w-full sm:max-w-none sm:shrink ${
                 isDragging ? 'opacity-40 scale-95' : ''
               } ${isDragOver ? 'ring-2 ring-primary/50 rounded-2xl' : ''}`}
               draggable

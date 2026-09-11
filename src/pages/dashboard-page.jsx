@@ -68,6 +68,7 @@ export function DashboardPage({ onBackHome, user, onLogout, sharedCollectionId }
 
   const [highlightedColumnId, setHighlightedColumnId] = useState(null)
   const [query, setQuery] = useState('')
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false)
   const [sidebarSearchQuery, setSidebarSearchQuery] = useState('')
   const [collectionModalOpen, setCollectionModalOpen] = useState(false)
   const [shareModalOpen, setShareModalOpen] = useState(false)
@@ -330,7 +331,15 @@ export function DashboardPage({ onBackHome, user, onLogout, sharedCollectionId }
   const canEditGroup = !isSharedView
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex overflow-hidden">
+    <div className="min-h-screen bg-background text-foreground flex overflow-hidden relative">
+      {/* Mobile Sidebar Backdrop */}
+      {isMobileSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/60 backdrop-blur-xs z-40 lg:hidden transition-opacity"
+          onClick={() => setIsMobileSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar Component */}
       <Sidebar
         collections={collections}
@@ -343,6 +352,8 @@ export function DashboardPage({ onBackHome, user, onLogout, sharedCollectionId }
         onOpenPayment={() => setPaymentModalOpen(true)}
         onSettingsClick={() => setSettingsModalOpen(true)}
         onLogout={onLogout}
+        isOpen={isMobileSidebarOpen}
+        onClose={() => setIsMobileSidebarOpen(false)}
       />
 
       {/* Main Panel */}
@@ -362,17 +373,18 @@ export function DashboardPage({ onBackHome, user, onLogout, sharedCollectionId }
           isSharedView={isSharedView}
           user={currentUser}
           onOpenPayment={() => setPaymentModalOpen(true)}
+          onOpenMobileSidebar={() => setIsMobileSidebarOpen(true)}
         />
 
         {/* Kanban Area */}
         <main className="flex-1 flex flex-col overflow-hidden kanban-board-bg">
           {/* Active Group Description Header */}
-          <div className="px-6 pt-5 pb-1 flex items-center justify-between">
-            <div>
-              <h1 className="text-xl font-bold text-white tracking-wide">{activeCollection?.name ?? 'No group'}</h1>
-              <p className="text-xs text-slate-400 mt-0.5">{activeCollection?.description || 'Thêm link vào bảng Kanban này.'}</p>
+          <div className="px-4 sm:px-6 pt-3.5 sm:pt-5 pb-1 flex items-center justify-between">
+            <div className="min-w-0 pr-2">
+              <h1 className="text-lg sm:text-xl font-bold text-white tracking-wide truncate">{activeCollection?.name ?? 'No group'}</h1>
+              <p className="text-xs text-slate-400 mt-0.5 truncate">{activeCollection?.description || 'Thêm link vào bảng Kanban này.'}</p>
             </div>
-            <div className="text-[10px] font-bold text-slate-500 bg-white/[0.02] border border-white/5 px-3 py-1 rounded-full">
+            <div className="text-[10px] font-bold text-slate-400 bg-white/[0.03] border border-white/10 px-2.5 sm:px-3 py-1 rounded-full shrink-0">
               {totalFilteredLinksCount} links
             </div>
           </div>
@@ -405,10 +417,10 @@ export function DashboardPage({ onBackHome, user, onLogout, sharedCollectionId }
       {!aiChatOpen && (
         <button
           onClick={() => setAiChatOpen(true)}
-          className="fixed bottom-6 right-6 p-4 rounded-full bg-gradient-to-tr from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white shadow-lg shadow-purple-500/20 transition-all duration-300 z-40 flex items-center justify-center scale-100 hover:scale-105 active:scale-95 cursor-pointer"
+          className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 p-3.5 sm:p-4 rounded-full bg-gradient-to-tr from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white shadow-lg shadow-purple-500/20 transition-all duration-300 z-40 flex items-center justify-center scale-100 hover:scale-105 active:scale-95 cursor-pointer"
           title="Mở AI Assistant"
         >
-          <Sparkles className="w-5.5 h-5.5 fill-white/10" />
+          <Sparkles className="w-5 h-5 fill-white/10" />
         </button>
       )}
 
@@ -416,7 +428,7 @@ export function DashboardPage({ onBackHome, user, onLogout, sharedCollectionId }
       {aiChatOpen && (() => {
         const aiQuota = getAiQuota(currentUser)
         return (
-          <div className="fixed bottom-6 right-6 w-96 max-w-[calc(100vw-3rem)] bg-[#0c0f16]/95 backdrop-blur-md border border-white/10 shadow-2xl rounded-2xl flex flex-col h-[520px] max-h-[80vh] z-50 animate-fade-in-up">
+          <div className="fixed bottom-3 right-3 sm:bottom-6 sm:right-6 w-full max-w-[calc(100vw-1.5rem)] sm:w-96 bg-[#0c0f16]/95 backdrop-blur-md border border-white/10 shadow-2xl rounded-2xl flex flex-col h-[75vh] sm:h-[520px] max-h-[85vh] z-50 animate-fade-in-up">
             {/* Header */}
             <div className="p-4 border-b border-white/5 flex items-center justify-between bg-white/[0.01] rounded-t-2xl">
               <div className="flex items-center gap-2.5">
@@ -569,7 +581,7 @@ export function DashboardPage({ onBackHome, user, onLogout, sharedCollectionId }
       )}
 
       {toast && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] flex items-center justify-between gap-4 px-4 py-3 bg-[#10141f]/95 border border-blue-500/30 rounded-xl shadow-2xl glass-card animate-fade-in-up max-w-sm w-full mx-4">
+        <div className="fixed bottom-4 sm:bottom-6 left-4 right-4 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 z-[100] flex items-center justify-between gap-3 px-4 py-3 bg-[#10141f]/95 border border-blue-500/30 rounded-2xl shadow-2xl glass-card animate-fade-in-up max-w-md w-auto sm:w-full">
           <span className="text-xs text-white font-medium">{toast.message}</span>
           <div className="flex items-center gap-2 shrink-0">
             <button

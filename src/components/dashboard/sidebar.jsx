@@ -16,7 +16,8 @@ import {
   Folder,
   Plus,
   ChevronRight,
-  Shield
+  Shield,
+  X
 } from 'lucide-react'
 import { isAdminUser } from '@/lib/adminApi'
 
@@ -42,6 +43,8 @@ export default function Sidebar({
   onSettingsClick,
   onLogout,
   onOpenPayment,
+  isOpen = false,
+  onClose,
 }) {
   const [activeTab, setActiveTab] = useState('dashboard')
 
@@ -60,7 +63,11 @@ export default function Sidebar({
   const displayUsername = user?.email ? `@${user.email.split('@')[0]}` : '@SarahJ'
 
   return (
-    <div className="w-72 bg-[#090d16] border-r border-white/[0.06] flex flex-col h-[calc(100vh-4rem)] md:h-screen shrink-0 text-foreground transition-all duration-300 select-none">
+    <aside
+      className={`fixed inset-y-0 left-0 z-50 w-72 bg-[#090d16] border-r border-white/[0.06] flex flex-col h-full shrink-0 text-foreground transition-transform duration-300 ease-in-out select-none shadow-2xl lg:shadow-none lg:static lg:h-screen lg:translate-x-0 ${
+        isOpen ? 'translate-x-0' : '-translate-x-full'
+      }`}
+    >
       {/* ── USER PROFILE SECTION (Concept 1 Style) ── */}
       <div className="p-4 border-b border-white/[0.05] flex items-center justify-between bg-white/[0.01]">
         <div className="flex items-center gap-3 min-w-0">
@@ -124,6 +131,15 @@ export default function Sidebar({
             className="h-8 w-auto object-contain transition-transform group-hover:scale-105"
           />
         </a>
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="lg:hidden p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+            title="Đóng sidebar"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        )}
       </div>
 
       {/* ── MAIN NAVIGATION LINKS (Concept 1 Style) ── */}
@@ -211,7 +227,10 @@ export default function Sidebar({
           return (
             <button
               key={col.id}
-              onClick={() => onSelectCollection(col.id)}
+              onClick={() => {
+                onSelectCollection(col.id)
+                if (onClose) onClose()
+              }}
               className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs transition-all group ${
                 isActive
                   ? 'bg-white/[0.08] text-white font-bold border border-white/10 shadow-sm'
@@ -273,6 +292,6 @@ export default function Sidebar({
           <ChevronRight className="w-4 h-4 text-cyan-400 group-hover:translate-x-0.5 transition-transform" />
         </button>
       </div>
-    </div>
+    </aside>
   )
 }

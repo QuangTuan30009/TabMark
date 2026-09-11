@@ -30,9 +30,9 @@ export function Navbar({ onOpenDashboard, onLoginClick }) {
   }, []);
 
   const navLinks = [
-    { href: "#features", text: "Features" },
-    { href: "#pricing", text: "Pricing" },
-    { href: "#contact", text: "Contact" }
+    { href: "#features", text: "Tính năng" },
+    { href: "#pricing", text: "Bảng giá" },
+    { href: "#contact", text: "Liên hệ" }
   ];
 
   return (
@@ -71,18 +71,18 @@ export function Navbar({ onOpenDashboard, onLoginClick }) {
           </nav>
 
           {/* Desktop Actions */}
-          <div className="hidden md:flex items-center space-x-4">
+          <div className="hidden md:flex items-center space-x-3">
             <button 
               onClick={onLoginClick}
               className="text-sm font-semibold text-slate-300 hover:text-white transition-colors px-3 py-2 cursor-pointer"
             >
-              Log in
+              Đăng nhập
             </button>
             <button 
               onClick={onOpenDashboard}
-              className="px-5 py-2 text-sm font-semibold text-white bg-white/[0.06] hover:bg-white/[0.12] border border-white/20 hover:border-white/40 rounded-full transition-all cursor-pointer backdrop-blur-md"
+              className="px-5 py-2 text-sm font-bold text-slate-950 bg-gradient-to-r from-cyan-400 via-sky-300 to-blue-500 hover:brightness-110 shadow-[0_0_20px_rgba(6,182,212,0.3)] rounded-full transition-all cursor-pointer transform hover:-translate-y-0.5"
             >
-              Sign up Free
+              Dùng thử miễn phí
             </button>
           </div>
 
@@ -115,12 +115,24 @@ export function Navbar({ onOpenDashboard, onLoginClick }) {
                   {link.text}
                 </a>
               ))}
-              <div className="pt-4 mt-2 border-t border-gray-200 dark:border-gray-700">
+              <div className="pt-3 mt-2 border-t border-white/10 space-y-2">
                 <button 
-                  onClick={onLoginClick}
-                  className="w-full px-4 py-3 text-base font-semibold bg-primary text-primary-foreground rounded-lg transition-all hover:brightness-110 hover:shadow-[0_0_24px_rgba(47,155,255,0.35)]"
+                  onClick={() => {
+                    setIsMenuOpen(false)
+                    onLoginClick()
+                  }}
+                  className="w-full px-4 py-2.5 text-sm font-semibold text-white bg-white/5 border border-white/10 rounded-xl transition-all hover:bg-white/10 cursor-pointer"
                 >
                   Đăng nhập
+                </button>
+                <button 
+                  onClick={() => {
+                    setIsMenuOpen(false)
+                    onOpenDashboard()
+                  }}
+                  className="w-full px-4 py-2.5 text-sm font-bold text-slate-950 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-xl transition-all hover:brightness-110 shadow-[0_0_20px_rgba(6,182,212,0.35)] cursor-pointer"
+                >
+                  Bắt đầu miễn phí
                 </button>
               </div>
             </div>

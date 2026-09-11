@@ -465,30 +465,30 @@ export function AdminPage({ user, onBack }) {
     <div className="min-h-screen bg-[#06080f] text-slate-100 font-sans selection:bg-purple-500/30">
       
       {/* ── TOP NAV BAR ── */}
-      <header className="sticky top-0 z-40 bg-[#0a0d18]/90 backdrop-blur-xl border-b border-white/[0.08] px-4 sm:px-8 py-3.5 flex items-center justify-between">
-        <div className="flex items-center gap-4">
+      <header className="sticky top-0 z-40 bg-[#0a0d18]/90 backdrop-blur-xl border-b border-white/[0.08] px-3 sm:px-8 py-2.5 sm:py-3.5 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2.5">
+        <div className="flex items-center gap-2 sm:gap-4">
           <button
             onClick={onBack}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-xs font-semibold text-slate-300 hover:text-white transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-xs font-semibold text-slate-300 hover:text-white transition-all cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span>Về Dashboard</span>
+            <span className="hidden sm:inline">Về Dashboard</span>
           </button>
 
           <div className="h-4 w-[1px] bg-white/10 hidden sm:block" />
 
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-purple-600 to-blue-600 flex items-center justify-center text-white shadow-lg shadow-purple-500/20">
+          <div className="flex items-center gap-2 sm:gap-2.5">
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-gradient-to-tr from-purple-600 to-blue-600 flex items-center justify-center text-white shadow-lg shadow-purple-500/20 shrink-0">
               <Shield className="w-4 h-4" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-sm font-extrabold text-white tracking-wide">TabMark Admin</h1>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                <h1 className="text-xs sm:text-sm font-extrabold text-white tracking-wide">TabMark Admin</h1>
+                {/* <span className="text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">
                   OC3 Production
-                </span>
+                </span> */}
               </div>
-              <p className="text-[10px] text-slate-400">Hệ thống Quản trị Doanh thu & Minh chứng EXE101</p>
+              <p className="text-[10px] text-slate-400 hidden md:block">Hệ thống Quản trị Doanh thu </p>
             </div>
           </div>
         </div>
@@ -502,7 +502,7 @@ export function AdminPage({ user, onBack }) {
             title="Xuất minh chứng giao dịch ra file CSV cho báo cáo"
           >
             <Download className="w-3.5 h-3.5" />
-            <span>Xuất CSV Minh Chứng</span>
+            <span>Xuất CSV Doanh Thu</span>
           </button>
 
           {pendingTransactions.length > 0 && (
@@ -569,7 +569,7 @@ export function AdminPage({ user, onBack }) {
             }`}
           >
             <UserCheck className="w-3.5 h-3.5" />
-            <span>3. Paid Users & LTV ({paidUsersList.length}/20)</span>
+            <span>3. Paid Users  ({paidUsersList.length}/20)</span>
           </button>
 
           <button
@@ -609,7 +609,7 @@ export function AdminPage({ user, onBack }) {
               {/* Card 1: Paid Users (Mục tiêu OC3 >= 20) */}
               <div className="p-5 rounded-3xl bg-gradient-to-b from-purple-500/10 to-transparent border border-purple-500/20 hover:border-purple-500/40 transition-all relative overflow-hidden">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-purple-300">Paid Users (Mục tiêu OC3)</span>
+                  <span className="text-xs font-semibold text-purple-300">Paid Users</span>
                   <div className="w-9 h-9 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-300">
                     <Target className="w-4 h-4" />
                   </div>
@@ -626,17 +626,17 @@ export function AdminPage({ user, onBack }) {
                       className="h-full bg-gradient-to-r from-purple-500 to-indigo-400 rounded-full"
                     />
                   </div>
-                  <p className="text-[10px] text-purple-300 flex justify-between">
+                  {/* <p className="text-[10px] text-purple-300 flex justify-between">
                     <span>Đạt {((paidUsersList.length / 20) * 100).toFixed(0)}% chỉ tiêu OC3</span>
                     <span>{paidUsersList.length >= 20 ? '✅ Đạt chuẩn' : 'Tiếp tục tích lũy'}</span>
-                  </p>
+                  </p> */}
                 </div>
               </div>
 
               {/* Card 2: Total Revenue */}
               <div className="p-5 rounded-3xl bg-white/[0.02] border border-white/[0.08] hover:border-emerald-500/30 transition-all relative overflow-hidden">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-slate-400">Tổng Doanh Thu (Revenue)</span>
+                  <span className="text-xs font-semibold text-slate-400">Tổng Doanh Thu </span>
                   <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
                     <DollarSign className="w-4 h-4" />
                   </div>
@@ -646,14 +646,14 @@ export function AdminPage({ user, onBack }) {
                 </div>
                 <p className="text-[11px] text-slate-400 mt-2 flex items-center justify-between">
                   <span>{overview.pendingRevenue > 0 ? `⏳ Chờ duyệt: ${formatVND(overview.pendingRevenue)}` : 'Đã đối soát xong'}</span>
-                  <span className="text-emerald-400 font-semibold">+100% Real</span>
+                  {/* <span className="text-emerald-400 font-semibold">+100% Real</span> */}
                 </p>
               </div>
 
               {/* Card 3: MRR Monthly */}
               <div className="p-5 rounded-3xl bg-white/[0.02] border border-white/[0.08] hover:border-blue-500/30 transition-all relative overflow-hidden">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-slate-400">Doanh Thu Tháng (MRR)</span>
+                  <span className="text-xs font-semibold text-slate-400">Doanh Thu Tháng </span>
                   <div className="w-9 h-9 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
                     <TrendingUp className="w-4 h-4" />
                   </div>
@@ -740,7 +740,7 @@ export function AdminPage({ user, onBack }) {
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-purple-400 flex items-center gap-2">
                       <span className="w-2 h-2 rounded-full bg-purple-500" />
-                      Gói Pro (149K/tháng) ⭐ Bán chạy nhất
+                      Gói Pro (149K/tháng) 
                     </span>
                     <span className="font-bold text-purple-400 font-mono">{overview.planBreakdown.pro} users ({((overview.planBreakdown.pro / overview.totalUsers) * 100).toFixed(0)}%)</span>
                   </div>
@@ -768,10 +768,10 @@ export function AdminPage({ user, onBack }) {
                     <p className="text-[10px] text-slate-400">Nhóm / Board</p>
                   </div>
                 </div>
-                <div className="p-3.5 rounded-2xl bg-emerald-500/5 border border-emerald-500/20 text-xs text-slate-300">
+                {/* <div className="p-3.5 rounded-2xl bg-emerald-500/5 border border-emerald-500/20 text-xs text-slate-300">
                   <p className="text-emerald-400 font-bold mb-1">Mục tiêu Khởi nghiệp OC3:</p>
                   <p className="text-[11px] leading-relaxed">Đạt tối thiểu 20 khách hàng trả phí (Paid Users) và có doanh thu thực tế chứng thực nhu cầu thị trường.</p>
-                </div>
+                </div> */}
               </div>
             </div>
 
@@ -926,9 +926,9 @@ export function AdminPage({ user, onBack }) {
                 <div>
                   <h3 className="text-base font-bold text-white flex items-center gap-2">
                     <CreditCard className="w-4 h-4 text-cyan-400" />
-                    <span>Danh Sách Minh Chứng Giao Dịch & Thanh Toán (OC3)</span>
+                    <span>Danh Sách Giao Dịch & Thanh Toán </span>
                   </h3>
-                  <p className="text-xs text-slate-400 mt-0.5">Dữ liệu thực tế phục vụ báo cáo minh chứng doanh thu cuối kỳ</p>
+                  {/* <p className="text-xs text-slate-400 mt-0.5">Dữ liệu thực tế phục vụ báo cáo minh chứng doanh thu cuối kỳ</p> */}
                 </div>
 
                 {/* Action Buttons: Export CSV */}
@@ -938,7 +938,7 @@ export function AdminPage({ user, onBack }) {
                     className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-md cursor-pointer"
                   >
                     <FileSpreadsheet className="w-3.5 h-3.5" />
-                    <span>Xuất Excel / CSV Minh Chứng</span>
+                    <span>Xuất Excel / CSV </span>
                   </button>
                 </div>
               </div>
@@ -1114,13 +1114,13 @@ export function AdminPage({ user, onBack }) {
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold uppercase tracking-wider text-purple-300 bg-purple-500/20 px-3 py-1 rounded-full border border-purple-500/30 flex items-center gap-1.5">
+                    {/* <span className="text-xs font-bold uppercase tracking-wider text-purple-300 bg-purple-500/20 px-3 py-1 rounded-full border border-purple-500/30 flex items-center gap-1.5">
                       <Target className="w-3.5 h-3.5 text-purple-400" />
                       Chỉ Tiêu OC3 EXE101
-                    </span>
-                    <span className="text-xs text-emerald-400 font-bold bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
+                    </span> */}
+                    {/* <span className="text-xs text-emerald-400 font-bold bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
                       Mục tiêu $\ge$ 20 Paid Users
-                    </span>
+                    </span> */}
                   </div>
                   <h2 className="text-xl sm:text-2xl font-black text-white">
                     Hiện có: <span className="text-purple-300">{paidUsersList.length}</span> / 20 Khách Hàng Trả Phí
@@ -1266,27 +1266,27 @@ export function AdminPage({ user, onBack }) {
             {/* Top Stats: 100% Real Data from Supabase */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
               <div className="p-5 rounded-3xl bg-white/[0.02] border border-white/[0.08] space-y-2">
-                <span className="text-xs text-slate-400 font-semibold">Tài Khoản Thật (Supabase)</span>
+                <span className="text-xs text-slate-400 font-semibold">Số Tài Khoản </span>
                 <p className="text-3xl font-black text-white">{overview?.totalUsers || 0}</p>
-                <p className="text-[11px] text-emerald-400 font-medium">Bảng profiles (Đồng bộ auth.users)</p>
+                {/* <p className="text-[11px] text-emerald-400 font-medium">Bảng profiles (Đồng bộ auth.users)</p> */}
               </div>
 
               <div className="p-5 rounded-3xl bg-white/[0.02] border border-white/[0.08] space-y-2">
                 <span className="text-xs text-slate-400 font-semibold">Bookmarks Lưu Trữ Thực Tế</span>
                 <p className="text-3xl font-black text-cyan-400">{overview?.totalLinks || 0}</p>
-                <p className="text-[11px] text-cyan-300 font-medium">Bảng bookmark_links</p>
+                {/* <p className="text-[11px] text-cyan-300 font-medium">Bảng bookmark_links</p> */}
               </div>
 
               <div className="p-5 rounded-3xl bg-white/[0.02] border border-white/[0.08] space-y-2">
                 <span className="text-xs text-slate-400 font-semibold">Bộ Sưu Tập / Boards Kanban</span>
                 <p className="text-3xl font-black text-purple-400">{overview?.totalCollections || 0}</p>
-                <p className="text-[11px] text-purple-300 font-medium">Bảng bookmark_collections</p>
+                {/* <p className="text-[11px] text-purple-300 font-medium">Bảng bookmark_collections</p> */}
               </div>
 
               <div className="p-5 rounded-3xl bg-white/[0.02] border border-white/[0.08] space-y-2">
                 <span className="text-xs text-slate-400 font-semibold">Tổng Giao Dịch VietQR</span>
                 <p className="text-3xl font-black text-amber-400">{transactions.length}</p>
-                <p className="text-[11px] text-amber-300 font-medium">Bảng transactions ({transactions.filter(t => t.status === 'completed' || t.status === 'success').length} Đã duyệt)</p>
+                {/* <p className="text-[11px] text-amber-300 font-medium">Bảng transactions ({transactions.filter(t => t.status === 'completed' || t.status === 'success').length} Đã duyệt)</p> */}
               </div>
             </div>
 
@@ -1336,22 +1336,22 @@ export function AdminPage({ user, onBack }) {
               <div className="p-6 rounded-3xl bg-white/[0.02] border border-white/[0.08] space-y-4">
                 <h3 className="text-base font-bold text-white flex items-center gap-2">
                   <Globe className="w-4 h-4 text-emerald-400" />
-                  <span>Nguồn Dữ Liệu Supabase 100% Thực Tế</span>
+                  <span>Nguồn Dữ Liệu Supabase </span>
                 </h3>
-                <p className="text-xs text-slate-400">Toàn bộ bảng và số bản ghi hiện hữu trong cơ sở dữ liệu PostgreSQL</p>
+                {/* <p className="text-xs text-slate-400">Toàn bộ bảng và số bản ghi hiện hữu trong cơ sở dữ liệu PostgreSQL</p> */}
 
                 <div className="space-y-3 pt-1">
                   <div className="p-3 rounded-2xl bg-white/[0.03] border border-white/5 space-y-1">
                     <div className="flex justify-between text-xs">
-                      <span className="font-mono text-cyan-300 font-bold">public.profiles</span>
+                      {/* <span className="font-mono text-cyan-300 font-bold">public.profiles</span> */}
                       <span className="text-white font-mono font-bold">{overview?.totalUsers || 0} tài khoản</span>
                     </div>
-                    <p className="text-[11px] text-slate-400">Chứa thông tin người dùng, gói hiện tại (plan), đặc quyền Pro và vai trò Admin.</p>
+                    <p className="text-[11px] text-slate-400">Chứa thông tin người dùng, gói hiện tại , đặc quyền Pro và vai trò Admin.</p>
                   </div>
 
                   <div className="p-3 rounded-2xl bg-white/[0.03] border border-white/5 space-y-1">
                     <div className="flex justify-between text-xs">
-                      <span className="font-mono text-purple-300 font-bold">public.transactions</span>
+                      {/* <span className="font-mono text-purple-300 font-bold">public.transactions</span> */}
                       <span className="text-white font-mono font-bold">{transactions.length} giao dịch</span>
                     </div>
                     <p className="text-[11px] text-slate-400">Chứa lịch sử chuyển khoản VietQR, số tiền, mã GD và trạng thái (completed / pending).</p>
@@ -1359,7 +1359,7 @@ export function AdminPage({ user, onBack }) {
 
                   <div className="p-3 rounded-2xl bg-white/[0.03] border border-white/5 space-y-1">
                     <div className="flex justify-between text-xs">
-                      <span className="font-mono text-emerald-300 font-bold">public.bookmark_links</span>
+                      {/* <span className="font-mono text-emerald-300 font-bold">public.bookmark_links</span> */}
                       <span className="text-white font-mono font-bold">{overview?.totalLinks || 0} liên kết</span>
                     </div>
                     <p className="text-[11px] text-slate-400">Lưu trữ toàn bộ link, URL, tiêu đề web và thẻ phân loại của người dùng.</p>
@@ -1367,7 +1367,7 @@ export function AdminPage({ user, onBack }) {
 
                   <div className="p-3 rounded-2xl bg-white/[0.03] border border-white/5 space-y-1">
                     <div className="flex justify-between text-xs">
-                      <span className="font-mono text-amber-300 font-bold">public.bookmark_collections</span>
+                      {/* <span className="font-mono text-amber-300 font-bold">public.bookmark_collections</span> */}
                       <span className="text-white font-mono font-bold">{overview?.totalCollections || 0} bảng</span>
                     </div>
                     <p className="text-[11px] text-slate-400">Lưu các bảng Kanban, danh mục bookmark do người dùng tự tạo.</p>

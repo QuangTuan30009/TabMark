@@ -1,9 +1,9 @@
-import { ArrowRight, Sparkles, Layers, Zap } from 'lucide-react'
+import { ArrowRight, Sparkles, Layers, Zap, Search } from 'lucide-react'
 
 export function HeroSection({ onOpenDashboard }) {
   return (
     <section className="relative overflow-hidden pt-28 pb-16 md:pt-36 md:pb-24 bg-[#06080f]">
-      {/* ── AMBIENT CYANG & MAGENTA GLOW SPHERES ── */}
+      {/* ── AMBIENT CYAN & MAGENTA GLOW SPHERES ── */}
       <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
         {/* Top Right Cyan Glow */}
         <div className="absolute -top-20 right-10 w-[600px] h-[500px] bg-gradient-to-br from-cyan-500/20 via-blue-600/15 to-transparent blur-[140px] rounded-full" />
@@ -16,35 +16,66 @@ export function HeroSection({ onOpenDashboard }) {
       </div>
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
-        {/* ── 2-COLUMN SPLIT HERO (Concept 5 Signature Layout) ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center pt-4 pb-12 md:pb-16">
+        {/* ── 2-COLUMN SPLIT HERO ── */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center pt-2 pb-12 md:pb-16">
+          
           {/* Left Column: Typography & Action */}
           <div className="lg:col-span-6 text-left space-y-6">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-[1.12]">
-              Organize the Web{' '}
-              <br className="hidden sm:inline" />
-              at the Speed of{' '}
-              <span className="text-white">Thought.</span>
+            
+            {/* Top Pill Tag */}
+            {/* <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/25 text-xs font-bold text-cyan-300 shadow-[0_0_20px_rgba(6,182,212,0.15)] animate-fade-in">
+              <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+              <span>Nền Tảng Quản Lý Bookmark AI Thế Hệ Mới</span>
+            </div> */}
+
+            {/* Headline */}
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight text-white leading-[1.14] text-balance">
+              Tổ Chức Không Gian Web{' '}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-sky-300 to-indigo-400">
+                Theo Tốc Độ Tư Duy.
+              </span>
             </h1>
 
-            <p className="text-base sm:text-lg leading-relaxed text-slate-400 max-w-xl font-normal">
-              Experience a new era of visual organization with beautiful Kanban flows and instant, intelligent AI summarization for every saved link.
+            {/* Subtitle Description */}
+            <p className="text-sm sm:text-base md:text-lg leading-relaxed text-slate-300/90 max-w-xl font-normal text-balance">
+              Trải nghiệm quy trình sắp xếp trực quan với bảng Kanban mượt mà, tích hợp Gemini AI tự động đọc hiểu, trích xuất tóm tắt và tìm kiếm siêu tốc.
             </p>
 
-            <div className="pt-2">
+            {/* Action Buttons */}
+            <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5">
               <button
                 onClick={onOpenDashboard}
-                className="group inline-flex items-center gap-2.5 rounded-full bg-gradient-to-r from-[#22d3ee] via-[#38bdf8] to-[#818cf8] hover:brightness-110 px-8 py-4 font-extrabold text-sm sm:text-base text-slate-950 shadow-[0_0_35px_rgba(34,211,238,0.45)] hover:shadow-[0_0_50px_rgba(34,211,238,0.7)] transition-all cursor-pointer transform hover:-translate-y-0.5"
+                className="group inline-flex items-center justify-center gap-2.5 rounded-full bg-gradient-to-r from-[#22d3ee] via-[#38bdf8] to-[#818cf8] hover:brightness-110 px-8 py-4 font-extrabold text-sm sm:text-base text-slate-950 shadow-[0_0_35px_rgba(34,211,238,0.45)] hover:shadow-[0_0_50px_rgba(34,211,238,0.7)] transition-all cursor-pointer transform hover:-translate-y-0.5"
               >
-                <span>Try TabMark Free</span>
+                <span>Dùng thử TabMark miễn phí</span>
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
               </button>
+
+              <a
+                href="#features"
+                className="inline-flex items-center justify-center px-6 py-4 rounded-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-xs sm:text-sm font-semibold text-slate-300 hover:text-white transition-all text-center"
+              >
+                Tìm hiểu tính năng
+              </a>
             </div>
+
+            {/* Social proof metric */}
+            {/* <div className="pt-2 flex items-center gap-4 text-xs text-slate-400">
+              <div className="flex -space-x-2 overflow-hidden">
+                <span className="inline-block h-7 w-7 rounded-full ring-2 ring-[#06080f] bg-blue-600 flex items-center justify-center text-[10px] font-bold text-white">TM</span>
+                <span className="inline-block h-7 w-7 rounded-full ring-2 ring-[#06080f] bg-purple-600 flex items-center justify-center text-[10px] font-bold text-white">AI</span>
+                <span className="inline-block h-7 w-7 rounded-full ring-2 ring-[#06080f] bg-cyan-600 flex items-center justify-center text-[10px] font-bold text-white">Pro</span>
+              </div>
+              <p className="text-slate-400">
+                Đã phục vụ hơn <b className="text-white font-semibold">1,000+</b> liên kết & bookmark khoa học.
+              </p>
+            </div> */}
+
           </div>
 
-          {/* Right Column: Dynamic 3D Isometric Floating Kanban Board (Enlarged & Left-Tilted) */}
-          <div className="lg:col-span-6 relative flex items-center justify-center pt-4 lg:pt-0">
-            {/* Layered Multi-Color Ambient Neon Halos (Cyan, Purple, Pink) */}
+          {/* Right Column: Dynamic 3D Isometric Floating Kanban Board */}
+          <div className="lg:col-span-6 relative flex items-center justify-center pt-2 lg:pt-0">
+            {/* Layered Multi-Color Ambient Neon Halos */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[520px] bg-gradient-to-tr from-cyan-400/40 via-purple-600/35 to-pink-500/30 rounded-full blur-[130px] animate-pulse-aura -z-10 pointer-events-none" />
             
             {/* Secondary vibrant Cyan Accent Halo */}
@@ -53,7 +84,7 @@ export function HeroSection({ onOpenDashboard }) {
             {/* Tertiary Hot Pink Accent Halo */}
             <div className="absolute -bottom-12 -left-8 w-[350px] h-[350px] bg-pink-500/30 rounded-full blur-[100px] animate-pulse -z-10 pointer-events-none delay-1000" />
             
-            {/* Floating 3D Board Component (Left Tilted & Enlarged) */}
+            {/* Floating 3D Board Component */}
             <div className="relative w-full flex items-center justify-center animate-float-3d-left">
               <img
                 src="/concept5-board-clean.png"
@@ -65,35 +96,47 @@ export function HeroSection({ onOpenDashboard }) {
           </div>
         </div>
 
-        {/* ── 3 MINIMAL VALUE PILLARS (Concept 5 Signature Footer Strip) ── */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-12 border-t border-white/[0.08]">
-          <div className="space-y-2">
-            <h3 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
-              <span>Visual Kanban</span>
+        {/* ── 3 VALUE PILLARS (Glassmorphism Cards) ── */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 pt-10 border-t border-white/[0.08]">
+          
+          <div className="p-5 sm:p-6 rounded-2xl bg-white/[0.02] hover:bg-white/[0.04] border border-white/[0.08] hover:border-cyan-500/30 transition-all group shadow-sm">
+            <div className="w-10 h-10 rounded-xl bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center text-cyan-400 mb-3 shadow-[0_0_15px_rgba(6,182,212,0.2)]">
+              <Layers className="w-5 h-5" />
+            </div>
+            <h3 className="text-base font-bold text-white tracking-tight group-hover:text-cyan-300 transition-colors">
+              Quy Trình Kanban Trực Quan
             </h3>
-            <p className="text-sm leading-relaxed text-slate-400">
-              Structured boards and effortless drag-and-drop organization for content.
+            <p className="mt-2 text-xs sm:text-sm leading-relaxed text-slate-400">
+              Sắp xếp và kéo thả liên kết giữa các bảng To-do, Reading, Done một cách thông minh và linh hoạt.
             </p>
           </div>
 
-          <div className="space-y-2">
-            <h3 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
-              <span>Gemini AI Assistant</span>
+          <div className="p-5 sm:p-6 rounded-2xl bg-white/[0.02] hover:bg-white/[0.04] border border-white/[0.08] hover:border-purple-500/30 transition-all group shadow-sm">
+            <div className="w-10 h-10 rounded-xl bg-purple-500/15 border border-purple-500/30 flex items-center justify-center text-purple-400 mb-3 shadow-[0_0_15px_rgba(168,85,247,0.2)]">
+              <Sparkles className="w-5 h-5" />
+            </div>
+            <h3 className="text-base font-bold text-white tracking-tight group-hover:text-purple-300 transition-colors">
+              Trợ Lý Gemini AI Tóm Tắt
             </h3>
-            <p className="text-sm leading-relaxed text-slate-400">
-              Integrated intelligent features for summary generation and categorization.
+            <p className="mt-2 text-xs sm:text-sm leading-relaxed text-slate-400">
+              Tự động phân tích nội dung trang web, trích xuất ý chính và gợi ý từ khóa thẻ (tags) chuẩn xác.
             </p>
           </div>
 
-          <div className="space-y-2">
-            <h3 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
-              <span>Instant Search</span>
+          <div className="p-5 sm:p-6 rounded-2xl bg-white/[0.02] hover:bg-white/[0.04] border border-white/[0.08] hover:border-blue-500/30 transition-all group shadow-sm">
+            <div className="w-10 h-10 rounded-xl bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-blue-400 mb-3 shadow-[0_0_15px_rgba(59,130,246,0.2)]">
+              <Zap className="w-5 h-5" />
+            </div>
+            <h3 className="text-base font-bold text-white tracking-tight group-hover:text-blue-300 transition-colors">
+              Tìm Kiếm Siêu Tốc
             </h3>
-            <p className="text-sm leading-relaxed text-slate-400">
-              Powerful, lightning-fast search capabilities across all saved content.
+            <p className="mt-2 text-xs sm:text-sm leading-relaxed text-slate-400">
+              Tìm kiếm tức thì theo ngữ cảnh, tên trang hoặc ghi chú cá nhân với phím tắt thông minh.
             </p>
           </div>
+
         </div>
+
       </div>
     </section>
   )

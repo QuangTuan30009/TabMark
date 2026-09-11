@@ -50,17 +50,17 @@ export default function KanbanColumn({
 
   return (
     <div
-      className={`w-full flex flex-col rounded-2xl border transition-all duration-300 max-h-[calc(100vh-12rem)] ${
+      className={`w-full flex flex-col rounded-2xl border transition-all duration-300 max-h-[calc(100vh-10rem)] sm:max-h-[calc(100vh-12rem)] ${
         isHighlighted ? 'highlight-active-column' : 'border-white/[0.04]'
       } ${glowClass || 'bg-[#0b0d14]/40'}`}
     >
       {/* Column Header */}
-      <div className="px-4 py-3.5 flex items-center justify-between border-b border-white/[0.04] bg-white/[0.01]">
+      <div className="px-4 py-3 sm:py-3.5 flex items-center justify-between border-b border-white/[0.04] bg-white/[0.01]">
         <div className="flex items-center gap-2.5 min-w-0">
           {/* Color Indicator Dot */}
           <div className={`w-2 h-2 rounded-full ${indicatorColor} shadow-[0_0_8px_currentColor]`} />
           <h3 className="font-bold text-sm text-white truncate tracking-wide">{title}</h3>
-          <span className="text-[11px] font-semibold text-slate-400 bg-white/[0.04] border border-white/5 px-2.5 py-0.5 rounded-full flex-shrink-0">
+          <span className="text-[10px] sm:text-[11px] font-semibold text-slate-400 bg-white/[0.04] border border-white/5 px-2 sm:px-2.5 py-0.5 rounded-full shrink-0">
             {cards.length} {cards.length === 1 ? 'card' : 'cards'}
           </span>
         </div>
@@ -69,7 +69,7 @@ export default function KanbanColumn({
           {onAddLink && (
             <button
               onClick={() => onAddLink(columnKey)}
-              className="p-1 hover:bg-white/5 rounded-lg text-slate-400 hover:text-white transition-colors cursor-pointer mr-1"
+              className="p-1.5 hover:bg-white/5 rounded-lg text-slate-400 hover:text-white transition-colors cursor-pointer mr-1"
               title="Add link to group"
             >
               <Plus className="w-4 h-4" />
@@ -79,7 +79,7 @@ export default function KanbanColumn({
           <div className="relative">
             <button
               onClick={() => setMenuOpen(!menuOpen)}
-              className="p-1 hover:bg-white/5 rounded-lg text-slate-400 hover:text-white transition-colors cursor-pointer"
+              className="p-1.5 hover:bg-white/5 rounded-lg text-slate-400 hover:text-white transition-colors cursor-pointer"
             >
               <MoreVertical className="w-4 h-4" />
             </button>
