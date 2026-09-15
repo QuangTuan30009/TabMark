@@ -465,11 +465,11 @@ export function AdminPage({ user, onBack }) {
     <div className="min-h-screen bg-[#06080f] text-slate-100 font-sans selection:bg-purple-500/30">
       
       {/* ── TOP NAV BAR ── */}
-      <header className="sticky top-0 z-40 bg-[#0a0d18]/95 backdrop-blur-xl border-b border-white/[0.08] px-3 sm:px-8 py-2.5 sm:py-3.5 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2.5 pt-safe">
-        <div className="flex items-center gap-2 sm:gap-4">
+      <header className="sticky top-0 z-40 bg-[#0a0d18]/95 backdrop-blur-xl border-b border-white/[0.08] px-3.5 sm:px-8 pt-safe pt-3 sm:pt-4 pb-3 sm:pb-3.5 flex items-center justify-between gap-2.5">
+        <div className="flex items-center gap-2 sm:gap-4 min-w-0">
           <button
             onClick={onBack}
-            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-xs font-semibold text-slate-300 hover:text-white transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-xs font-semibold text-slate-300 hover:text-white transition-all cursor-pointer shrink-0"
           >
             <ArrowLeft className="w-4 h-4" />
             <span className="hidden sm:inline">Về Dashboard</span>
@@ -477,24 +477,21 @@ export function AdminPage({ user, onBack }) {
 
           <div className="h-4 w-[1px] bg-white/10 hidden sm:block" />
 
-          <div className="flex items-center gap-2 sm:gap-2.5">
-            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-gradient-to-tr from-purple-600 to-blue-600 flex items-center justify-center text-white shadow-lg shadow-purple-500/20 shrink-0">
+          <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-purple-600 to-blue-600 flex items-center justify-center text-white shadow-lg shadow-purple-500/20 shrink-0">
               <Shield className="w-4 h-4" />
             </div>
-            <div>
+            <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <h1 className="text-xs sm:text-sm font-extrabold text-white tracking-wide">TabMark Admin</h1>
-                {/* <span className="text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">
-                  OC3 Production
-                </span> */}
+                <h1 className="text-xs sm:text-sm font-extrabold text-white tracking-wide truncate">TabMark Admin</h1>
               </div>
-              <p className="text-[10px] text-slate-400 hidden md:block">Hệ thống Quản trị Doanh thu </p>
+              <p className="text-[10px] text-slate-400 hidden md:block truncate">Hệ thống Quản trị Doanh thu</p>
             </div>
           </div>
         </div>
 
         {/* Right side: Quick Export & Refresh */}
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2 shrink-0">
           {/* Quick Export Button */}
           <button
             onClick={handleExportTransactionsCSV}
@@ -508,7 +505,7 @@ export function AdminPage({ user, onBack }) {
           {pendingTransactions.length > 0 && (
             <button
               onClick={() => setActiveTab('revenue')}
-              className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/40 text-[11px] font-bold text-amber-300 animate-pulse cursor-pointer"
+              className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/40 text-[10px] sm:text-[11px] font-bold text-amber-300 animate-pulse cursor-pointer shrink-0"
             >
               <Clock className="w-3.5 h-3.5" />
               <span>{pendingTransactions.length} Chờ duyệt</span>
@@ -518,7 +515,7 @@ export function AdminPage({ user, onBack }) {
           <button
             onClick={loadAdminData}
             disabled={isLoading}
-            className="p-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-slate-400 hover:text-white transition-all cursor-pointer"
+            className="p-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-slate-400 hover:text-white transition-all cursor-pointer shrink-0"
             title="Làm mới dữ liệu thực tế"
           >
             <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
@@ -527,32 +524,32 @@ export function AdminPage({ user, onBack }) {
       </header>
 
       {/* ── MAIN CONTENT CONTAINER ── */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-8 py-8 space-y-8">
+      <main className="max-w-7xl mx-auto px-3.5 sm:px-8 py-4 sm:py-8 space-y-5 sm:space-y-8">
         
         {/* ── TAB SELECTOR (5 CỘT CỐT LÕI CHO OC3) ── */}
-        <div className="grid grid-cols-2 sm:flex sm:items-center gap-1.5 sm:gap-2 p-1.5 bg-white/[0.03] border border-white/[0.08] rounded-2xl w-full overflow-x-auto">
+        <div className="flex items-center gap-1.5 sm:gap-2 p-1.5 bg-white/[0.03] border border-white/[0.08] rounded-2xl w-full overflow-x-auto scrollbar-none snap-x touch-pan-x">
           <button
             onClick={() => setActiveTab('overview')}
-            className={`flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+            className={`flex items-center gap-2 px-3 sm:px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap snap-start shrink-0 ${
               activeTab === 'overview'
                 ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/25'
                 : 'text-slate-400 hover:text-white hover:bg-white/5'
             }`}
           >
             <TrendingUp className="w-3.5 h-3.5" />
-            <span>Tổng Quan</span>
+            <span>1. Dashboard Tổng Quan</span>
           </button>
 
           <button
             onClick={() => setActiveTab('revenue')}
-            className={`flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
               activeTab === 'revenue'
                 ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/25'
                 : 'text-slate-400 hover:text-white hover:bg-white/5'
             }`}
           >
             <DollarSign className="w-3.5 h-3.5" />
-            <span>Giao Dịch</span>
+            <span>2. Giao Dịch & Minh Chứng</span>
             {pendingTransactions.length > 0 && (
               <span className="px-1.5 py-0.2 rounded-full bg-amber-400 text-black font-extrabold text-[9px]">
                 {pendingTransactions.length}
@@ -562,38 +559,38 @@ export function AdminPage({ user, onBack }) {
 
           <button
             onClick={() => setActiveTab('paid_users')}
-            className={`flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
               activeTab === 'paid_users'
                 ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/25'
                 : 'text-slate-400 hover:text-white hover:bg-white/5'
             }`}
           >
             <UserCheck className="w-3.5 h-3.5" />
-            <span>Paid ({paidUsersList.length})</span>
+            <span>3. Paid Users  ({paidUsersList.length}/20)</span>
           </button>
 
           <button
             onClick={() => setActiveTab('analytics')}
-            className={`flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
               activeTab === 'analytics'
                 ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/25'
                 : 'text-slate-400 hover:text-white hover:bg-white/5'
             }`}
           >
             <BarChart3 className="w-3.5 h-3.5" />
-            <span>Phân Tích</span>
+            <span>4. Phân Tích & Tracking</span>
           </button>
 
           <button
             onClick={() => setActiveTab('users')}
-            className={`flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
               activeTab === 'users'
                 ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/25'
                 : 'text-slate-400 hover:text-white hover:bg-white/5'
             }`}
           >
             <Users className="w-3.5 h-3.5" />
-            <span>Users ({usersList.length})</span>
+            <span>5. Toàn Bộ Người Dùng ({usersList.length})</span>
           </button>
         </div>
 
@@ -603,94 +600,97 @@ export function AdminPage({ user, onBack }) {
         {activeTab === 'overview' && overview && (
           <div className="space-y-6 animate-fade-in-up">
             
-            {/* Top 4 KPI Cards - 2x2 on mobile, 4 cols on large screens */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
+            {/* Top 4 KPI Cards - 2 Columns on Mobile, 4 Columns on Desktop */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-5">
               
               {/* Card 1: Paid Users (Mục tiêu OC3 >= 20) */}
-              <div className="p-5 rounded-3xl bg-gradient-to-b from-purple-500/10 to-transparent border border-purple-500/20 hover:border-purple-500/40 transition-all relative overflow-hidden">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-purple-300">Paid Users</span>
-                  <div className="w-9 h-9 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-300">
-                    <Target className="w-4 h-4" />
+              <div className="p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl bg-gradient-to-b from-purple-500/10 to-transparent border border-purple-500/20 hover:border-purple-500/40 transition-all relative overflow-hidden flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] sm:text-xs font-semibold text-purple-300">Paid Users</span>
+                    <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-300 shrink-0">
+                      <Target className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                    </div>
+                  </div>
+                  <div className="mt-2 sm:mt-3 flex items-baseline gap-1.5 sm:gap-2">
+                    <span className="text-xl sm:text-3xl font-black text-white">{paidUsersList.length}</span>
+                    <span className="text-[10px] sm:text-xs text-purple-400 font-bold">/ 20 mục tiêu</span>
                   </div>
                 </div>
-                <div className="mt-3 flex items-baseline gap-2">
-                  <span className="text-3xl font-black text-white">{paidUsersList.length}</span>
-                  <span className="text-xs text-purple-400 font-bold">/ 20 mục tiêu</span>
-                </div>
                 {/* Progress bar to 20 */}
-                <div className="mt-2.5 space-y-1">
+                <div className="mt-2 sm:mt-2.5 space-y-1">
                   <div className="h-1.5 w-full rounded-full bg-white/10 overflow-hidden">
                     <div 
                       style={{ width: `${Math.min((paidUsersList.length / 20) * 100, 100)}%` }}
                       className="h-full bg-gradient-to-r from-purple-500 to-indigo-400 rounded-full"
                     />
                   </div>
-                  {/* <p className="text-[10px] text-purple-300 flex justify-between">
-                    <span>Đạt {((paidUsersList.length / 20) * 100).toFixed(0)}% chỉ tiêu OC3</span>
-                    <span>{paidUsersList.length >= 20 ? '✅ Đạt chuẩn' : 'Tiếp tục tích lũy'}</span>
-                  </p> */}
                 </div>
               </div>
 
               {/* Card 2: Total Revenue */}
-              <div className="p-5 rounded-3xl bg-white/[0.02] border border-white/[0.08] hover:border-emerald-500/30 transition-all relative overflow-hidden">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-slate-400">Tổng Doanh Thu </span>
-                  <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
-                    <DollarSign className="w-4 h-4" />
+              <div className="p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl bg-white/[0.02] border border-white/[0.08] hover:border-emerald-500/30 transition-all relative overflow-hidden flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] sm:text-xs font-semibold text-slate-400">Tổng Doanh Thu</span>
+                    <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
+                      <DollarSign className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                    </div>
+                  </div>
+                  <div className="mt-2 sm:mt-3">
+                    <span className="text-base sm:text-2xl lg:text-3xl font-extrabold text-emerald-400 truncate block">{formatVND(overview.totalRevenue)}</span>
                   </div>
                 </div>
-                <div className="mt-3 flex items-baseline gap-2">
-                  <span className="text-2xl sm:text-3xl font-extrabold text-emerald-400">{formatVND(overview.totalRevenue)}</span>
-                </div>
-                <p className="text-[11px] text-slate-400 mt-2 flex items-center justify-between">
-                  <span>{overview.pendingRevenue > 0 ? `⏳ Chờ duyệt: ${formatVND(overview.pendingRevenue)}` : 'Đã đối soát xong'}</span>
-                  {/* <span className="text-emerald-400 font-semibold">+100% Real</span> */}
+                <p className="text-[10px] sm:text-[11px] text-slate-400 mt-2 truncate">
+                  {overview.pendingRevenue > 0 ? `⏳ Chờ: ${formatVND(overview.pendingRevenue)}` : 'Đã đối soát'}
                 </p>
               </div>
 
               {/* Card 3: MRR Monthly */}
-              <div className="p-5 rounded-3xl bg-white/[0.02] border border-white/[0.08] hover:border-blue-500/30 transition-all relative overflow-hidden">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-slate-400">Doanh Thu Tháng </span>
-                  <div className="w-9 h-9 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
-                    <TrendingUp className="w-4 h-4" />
+              <div className="p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl bg-white/[0.02] border border-white/[0.08] hover:border-blue-500/30 transition-all relative overflow-hidden flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] sm:text-xs font-semibold text-slate-400">Doanh Thu Tháng</span>
+                    <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 shrink-0">
+                      <TrendingUp className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                    </div>
+                  </div>
+                  <div className="mt-2 sm:mt-3">
+                    <span className="text-base sm:text-2xl lg:text-3xl font-extrabold text-white truncate block">{formatVND(overview.mrr)}</span>
                   </div>
                 </div>
-                <div className="mt-3 flex items-baseline gap-2">
-                  <span className="text-2xl sm:text-3xl font-extrabold text-white">{formatVND(overview.mrr)}</span>
-                </div>
-                <p className="text-[11px] text-blue-300 mt-2">Dự kiến duy trì định kỳ</p>
+                <p className="text-[10px] sm:text-[11px] text-blue-300 mt-2 truncate">Duy trì định kỳ</p>
               </div>
 
               {/* Card 4: Conversion Rate */}
-              <div className="p-5 rounded-3xl bg-white/[0.02] border border-white/[0.08] hover:border-amber-500/30 transition-all relative overflow-hidden">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-slate-400">Tỷ Lệ Chuyển Đổi (CR)</span>
-                  <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
-                    <Zap className="w-4 h-4" />
+              <div className="p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl bg-white/[0.02] border border-white/[0.08] hover:border-amber-500/30 transition-all relative overflow-hidden flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] sm:text-xs font-semibold text-slate-400">Chuyển Đổi (CR)</span>
+                    <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 shrink-0">
+                      <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                    </div>
+                  </div>
+                  <div className="mt-2 sm:mt-3">
+                    <span className="text-xl sm:text-3xl font-black text-white">{overview.conversionRate}</span>
                   </div>
                 </div>
-                <div className="mt-3 flex items-baseline gap-2">
-                  <span className="text-3xl font-extrabold text-white">{overview.conversionRate}</span>
-                </div>
-                <p className="text-[11px] text-slate-400 mt-2">Tỷ lệ User Free nâng cấp gói trả phí</p>
+                <p className="text-[10px] sm:text-[11px] text-slate-400 mt-2 truncate">User nâng cấp Pro</p>
               </div>
 
             </div>
 
             {/* Plan Distribution & Data Load */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2 p-6 rounded-3xl bg-white/[0.02] border border-white/[0.08] space-y-5">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3.5 sm:gap-6">
+              <div className="lg:col-span-2 p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-white/[0.02] border border-white/[0.08] space-y-4 sm:space-y-5">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-base font-bold text-white">Phân Bổ Người Dùng Theo Gói Cước</h3>
-                  <span className="text-xs text-slate-400 font-mono">Tổng {overview.totalUsers} tài khoản</span>
+                  <h3 className="text-sm sm:text-base font-bold text-white">Phân Bổ Người Dùng Theo Gói Cước</h3>
+                  <span className="text-[11px] sm:text-xs text-slate-400 font-mono">Tổng {overview.totalUsers} tài khoản</span>
                 </div>
 
                 {/* Multi-segment Progress Bar */}
                 <div className="space-y-2">
-                  <div className="h-3 w-full rounded-full bg-white/[0.05] overflow-hidden flex p-0.5 gap-0.5">
+                  <div className="h-2.5 sm:h-3 w-full rounded-full bg-white/[0.05] overflow-hidden flex p-0.5 gap-0.5">
                     {overview.planBreakdown.free > 0 && (
                       <div
                         style={{ width: `${(overview.planBreakdown.free / overview.totalUsers) * 100}%` }}
@@ -722,31 +722,31 @@ export function AdminPage({ user, onBack }) {
                   </div>
                 </div>
 
-                <div className="space-y-3.5">
+                <div className="space-y-2.5 sm:space-y-3.5">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-slate-300 flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-slate-500" />
+                    <span className="text-slate-300 flex items-center gap-1.5 sm:gap-2">
+                      <span className="w-2 h-2 rounded-full bg-slate-500 shrink-0" />
                       Gói Miễn Phí (Free 0đ)
                     </span>
                     <span className="font-bold text-white font-mono">{overview.planBreakdown.free} users ({((overview.planBreakdown.free / overview.totalUsers) * 100).toFixed(0)}%)</span>
                   </div>
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-blue-400 flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-blue-500" />
+                    <span className="text-blue-400 flex items-center gap-1.5 sm:gap-2">
+                      <span className="w-2 h-2 rounded-full bg-blue-500 shrink-0" />
                       Gói Starter (69K/tháng)
                     </span>
                     <span className="font-bold text-blue-400 font-mono">{overview.planBreakdown.starter} users ({((overview.planBreakdown.starter / overview.totalUsers) * 100).toFixed(0)}%)</span>
                   </div>
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-purple-400 flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-purple-500" />
+                    <span className="text-purple-400 flex items-center gap-1.5 sm:gap-2">
+                      <span className="w-2 h-2 rounded-full bg-purple-500 shrink-0" />
                       Gói Pro (149K/tháng) 
                     </span>
                     <span className="font-bold text-purple-400 font-mono">{overview.planBreakdown.pro} users ({((overview.planBreakdown.pro / overview.totalUsers) * 100).toFixed(0)}%)</span>
                   </div>
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-amber-400 flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-amber-400" />
+                    <span className="text-amber-400 flex items-center gap-1.5 sm:gap-2">
+                      <span className="w-2 h-2 rounded-full bg-amber-400 shrink-0" />
                       Gói Business (299K/tháng)
                     </span>
                     <span className="font-bold text-amber-400 font-mono">{overview.planBreakdown.business} users ({((overview.planBreakdown.business / overview.totalUsers) * 100).toFixed(0)}%)</span>
@@ -754,45 +754,41 @@ export function AdminPage({ user, onBack }) {
                 </div>
               </div>
 
-              <div className="p-6 rounded-3xl bg-white/[0.02] border border-white/[0.08] space-y-4">
-                <h3 className="text-base font-bold text-white">Dữ Liệu Kho Lưu Trữ</h3>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="p-3.5 rounded-2xl bg-white/[0.02] border border-white/5">
-                    <Bookmark className="w-4 h-4 text-cyan-400 mb-1.5" />
-                    <p className="text-2xl font-bold text-white">{overview.totalLinks}</p>
+              <div className="p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-white/[0.02] border border-white/[0.08] space-y-4">
+                <h3 className="text-sm sm:text-base font-bold text-white">Dữ Liệu Kho Lưu Trữ</h3>
+                <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
+                  <div className="p-3 sm:p-3.5 rounded-xl sm:rounded-2xl bg-white/[0.02] border border-white/5">
+                    <Bookmark className="w-4 h-4 text-cyan-400 mb-1" />
+                    <p className="text-xl sm:text-2xl font-bold text-white">{overview.totalLinks}</p>
                     <p className="text-[10px] text-slate-400">Bookmarks trong DB</p>
                   </div>
-                  <div className="p-3.5 rounded-2xl bg-white/[0.02] border border-white/5">
-                    <Layers className="w-4 h-4 text-indigo-400 mb-1.5" />
-                    <p className="text-2xl font-bold text-white">{overview.totalCollections}</p>
+                  <div className="p-3 sm:p-3.5 rounded-xl sm:rounded-2xl bg-white/[0.02] border border-white/5">
+                    <Layers className="w-4 h-4 text-indigo-400 mb-1" />
+                    <p className="text-xl sm:text-2xl font-bold text-white">{overview.totalCollections}</p>
                     <p className="text-[10px] text-slate-400">Nhóm / Board</p>
                   </div>
                 </div>
-                {/* <div className="p-3.5 rounded-2xl bg-emerald-500/5 border border-emerald-500/20 text-xs text-slate-300">
-                  <p className="text-emerald-400 font-bold mb-1">Mục tiêu Khởi nghiệp OC3:</p>
-                  <p className="text-[11px] leading-relaxed">Đạt tối thiểu 20 khách hàng trả phí (Paid Users) và có doanh thu thực tế chứng thực nhu cầu thị trường.</p>
-                </div> */}
               </div>
             </div>
 
             {/* 7-Day Revenue Trend Chart */}
-            <div className="p-6 rounded-3xl bg-white/[0.02] border border-white/[0.08] space-y-4">
+            <div className="p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-white/[0.02] border border-white/[0.08] space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>
-                  <h3 className="text-base font-bold text-white flex items-center gap-2">
-                    <BarChart3 className="w-4 h-4 text-emerald-400" />
-                    <span>Biểu Đồ Tăng Trưởng Doanh Thu Theo Thời Gian (7 Ngày Gần Nhất)</span>
+                  <h3 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+                    <BarChart3 className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <span>Biểu Đồ Tăng Trưởng Doanh Thu (7 Ngày)</span>
                   </h3>
-                  <p className="text-xs text-slate-400">Doanh số thực tế phát sinh theo từng ngày qua VietQR</p>
+                  <p className="text-[11px] sm:text-xs text-slate-400">Doanh số thực tế phát sinh theo từng ngày qua VietQR</p>
                 </div>
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-400 font-bold">
-                  <span>Tổng tuần này: {formatVND(revenueTrend7Days.totalWeek)}</span>
+                <div className="flex items-center gap-2 px-2.5 sm:px-3 py-1 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-[11px] sm:text-xs text-emerald-400 font-bold self-start sm:self-auto">
+                  <span>Tổng tuần: {formatVND(revenueTrend7Days.totalWeek)}</span>
                 </div>
               </div>
 
               {/* Bar Chart Visualization */}
-              <div className="pt-4 pb-2">
-                <div className="grid grid-cols-7 gap-2 sm:gap-4 items-end h-40">
+              <div className="pt-3 pb-1">
+                <div className="grid grid-cols-7 gap-1 sm:gap-4 items-end h-32 sm:h-40">
                   {revenueTrend7Days.days.map((d, i) => {
                     const heightPercent = revenueTrend7Days.maxRev > 0
                       ? Math.max((d.revenue / revenueTrend7Days.maxRev) * 100, 8)
@@ -800,14 +796,14 @@ export function AdminPage({ user, onBack }) {
                     const isPeak = d.revenue === revenueTrend7Days.maxRev && d.revenue > 0
 
                     return (
-                      <div key={i} className="flex flex-col items-center gap-2 h-full justify-end group">
-                        <div className="text-[10px] text-slate-400 font-mono opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                      <div key={i} className="flex flex-col items-center gap-1 sm:gap-2 h-full justify-end group">
+                        <div className="text-[9px] sm:text-[10px] text-slate-400 font-mono opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap hidden sm:block">
                           {formatVND(d.revenue)}
                         </div>
-                        <div className="w-full max-w-[48px] bg-white/[0.04] rounded-xl overflow-hidden flex flex-col justify-end p-1 relative h-28">
+                        <div className="w-full max-w-[32px] sm:max-w-[48px] bg-white/[0.04] rounded-lg sm:rounded-xl overflow-hidden flex flex-col justify-end p-0.5 sm:p-1 relative h-20 sm:h-28">
                           <div
                             style={{ height: `${heightPercent}%` }}
-                            className={`w-full rounded-lg transition-all duration-500 ${
+                            className={`w-full rounded-md sm:rounded-lg transition-all duration-500 ${
                               isPeak
                                 ? 'bg-gradient-to-t from-emerald-500 to-teal-400 shadow-[0_0_15px_rgba(16,185,129,0.4)]'
                                 : d.revenue > 0
@@ -817,8 +813,8 @@ export function AdminPage({ user, onBack }) {
                           />
                         </div>
                         <div className="text-center">
-                          <p className="text-[11px] font-bold text-slate-300">{d.dayOfWeek}</p>
-                          <p className="text-[9px] text-slate-500">{d.label}</p>
+                          <p className="text-[10px] sm:text-[11px] font-bold text-slate-300">{d.dayOfWeek}</p>
+                          <p className="text-[8px] sm:text-[9px] text-slate-500 truncate max-w-[40px] sm:max-w-none">{d.label}</p>
                         </div>
                       </div>
                     )
@@ -1264,29 +1260,25 @@ export function AdminPage({ user, onBack }) {
           <div className="space-y-6 animate-fade-in-up">
             
             {/* Top Stats: 100% Real Data from Supabase */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-              <div className="p-5 rounded-3xl bg-white/[0.02] border border-white/[0.08] space-y-2">
-                <span className="text-xs text-slate-400 font-semibold">Số Tài Khoản </span>
-                <p className="text-3xl font-black text-white">{overview?.totalUsers || 0}</p>
-                {/* <p className="text-[11px] text-emerald-400 font-medium">Bảng profiles (Đồng bộ auth.users)</p> */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-5">
+              <div className="p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl bg-white/[0.02] border border-white/[0.08] space-y-1 sm:space-y-2">
+                <span className="text-[11px] sm:text-xs text-slate-400 font-semibold truncate block">Số Tài Khoản</span>
+                <p className="text-xl sm:text-3xl font-black text-white">{overview?.totalUsers || 0}</p>
               </div>
 
-              <div className="p-5 rounded-3xl bg-white/[0.02] border border-white/[0.08] space-y-2">
-                <span className="text-xs text-slate-400 font-semibold">Bookmarks Lưu Trữ Thực Tế</span>
-                <p className="text-3xl font-black text-cyan-400">{overview?.totalLinks || 0}</p>
-                {/* <p className="text-[11px] text-cyan-300 font-medium">Bảng bookmark_links</p> */}
+              <div className="p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl bg-white/[0.02] border border-white/[0.08] space-y-1 sm:space-y-2">
+                <span className="text-[11px] sm:text-xs text-slate-400 font-semibold truncate block">Bookmarks Lưu Trữ</span>
+                <p className="text-xl sm:text-3xl font-black text-cyan-400">{overview?.totalLinks || 0}</p>
               </div>
 
-              <div className="p-5 rounded-3xl bg-white/[0.02] border border-white/[0.08] space-y-2">
-                <span className="text-xs text-slate-400 font-semibold">Bộ Sưu Tập / Boards Kanban</span>
-                <p className="text-3xl font-black text-purple-400">{overview?.totalCollections || 0}</p>
-                {/* <p className="text-[11px] text-purple-300 font-medium">Bảng bookmark_collections</p> */}
+              <div className="p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl bg-white/[0.02] border border-white/[0.08] space-y-1 sm:space-y-2">
+                <span className="text-[11px] sm:text-xs text-slate-400 font-semibold truncate block">Bộ Sưu Tập / Boards</span>
+                <p className="text-xl sm:text-3xl font-black text-purple-400">{overview?.totalCollections || 0}</p>
               </div>
 
-              <div className="p-5 rounded-3xl bg-white/[0.02] border border-white/[0.08] space-y-2">
-                <span className="text-xs text-slate-400 font-semibold">Tổng Giao Dịch VietQR</span>
-                <p className="text-3xl font-black text-amber-400">{transactions.length}</p>
-                {/* <p className="text-[11px] text-amber-300 font-medium">Bảng transactions ({transactions.filter(t => t.status === 'completed' || t.status === 'success').length} Đã duyệt)</p> */}
+              <div className="p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl bg-white/[0.02] border border-white/[0.08] space-y-1 sm:space-y-2">
+                <span className="text-[11px] sm:text-xs text-slate-400 font-semibold truncate block">Tổng GD VietQR</span>
+                <p className="text-xl sm:text-3xl font-black text-amber-400">{transactions.length}</p>
               </div>
             </div>
 

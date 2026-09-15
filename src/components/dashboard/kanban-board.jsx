@@ -163,7 +163,7 @@ export default function KanbanBoard({
       <div
         className={`${
           viewMode === 'list' ? 'hidden sm:flex' : 'flex'
-        } sm:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 snap-x snap-mandatory sm:snap-none overflow-x-auto sm:overflow-x-visible gap-4 sm:gap-6 p-4 sm:p-6 w-full auto-rows-min`}
+        } sm:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 snap-x snap-mandatory sm:snap-none overflow-x-auto sm:overflow-x-visible gap-3 sm:gap-6 p-3 sm:p-6 w-full auto-rows-min`}
       >
         {collections.map((col, index) => {
           const config = colorsConfig[index % colorsConfig.length]
@@ -176,7 +176,7 @@ export default function KanbanBoard({
             <div
               key={col.id}
               id={`column-${col.id}`}
-              className={`transition-all duration-300 w-[86vw] max-w-[340px] shrink-0 snap-center sm:w-full sm:max-w-none sm:shrink ${
+              className={`transition-all duration-300 w-[82vw] max-w-[320px] shrink-0 snap-start sm:w-full sm:max-w-none sm:shrink ${
                 isDragging ? 'opacity-40 scale-95' : ''
               } ${isDragOver ? 'ring-2 ring-primary/50 rounded-2xl' : ''}`}
               draggable
