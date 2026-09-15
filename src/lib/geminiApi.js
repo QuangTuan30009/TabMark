@@ -38,22 +38,24 @@ export async function chatWithGemini(messages, contextBookmarks = []) {
   // 2. Thử gọi qua Client SDK nếu có
   if (genAI) {
     try {
-      let systemInstruction = `Bạn là Tabmark AI, một trợ lý ảo thông minh được tích hợp trực tiếp trong ứng dụng quản lý bookmark Tabmark.\n`
-      systemInstruction += `Nhiệm vụ của bạn là hỗ trợ người dùng quản lý, tìm kiếm, tóm tắt và sắp xếp các liên kết (bookmark).\n\n`
+      let systemInstruction = `Bạn là TabMark AI, trợ lý quản lý và khai thác kho bookmark thông minh của người dùng.
+Nhiệm vụ của bạn là hỗ trợ tìm kiếm, phân tích, tóm tắt và tư vấn tài liệu/liên kết từ kho bookmark.
 
-      if (contextBookmarks && contextBookmarks.length > 0) {
-        systemInstruction += `Dưới đây là danh sách các bookmark hiện có trong kho mà người dùng đang mở làm ngữ cảnh (Context):\n`
-        contextBookmarks.forEach((link, idx) => {
-          systemInstruction += `- ${idx + 1}. Title: "${link.title}" | URL: "${link.url}" | Ghi chú: "${link.note || 'Không có'}" | Tags: [${(link.tags || []).join(', ')}]\n`
-        })
-        systemInstruction += `\nHãy sử dụng danh sách này để trả lời các câu hỏi liên quan (như tìm kiếm link phù hợp, tóm tắt nhóm link, giải thích nội dung, phân tích tags, v.v.).\n`
-      } else {
-        systemInstruction += `Nhóm bookmark hiện tại của người dùng đang trống. Hãy thân thiện hướng dẫn họ cách thêm bookmark hoặc hỏi xem có thể hỗ trợ gì khác.\n`
-      }
+${contextBookmarks && contextBookmarks.length > 0 ? `NGỮ CẢNH KHO BOOKMARK HIỆN TẠI (${contextBookmarks.length} liên kết):
+${contextBookmarks.map((link, idx) => `${idx + 1}. [${link.title}](${link.url}) | Ghi chú: "${link.note || link.description || 'Không có'}" | Tags: [${(link.tags || []).join(', ')}]`).join('\n')}` : 'Kho bookmark hiện tại của người dùng đang trống.'}
 
-      systemInstruction += `\nLưu ý:\n`
-      systemInstruction += `1. Luôn trả lời bằng tiếng Việt một cách lịch sự, ngắn gọn và hữu ích.\n`
-      systemInstruction += `2. Bạn có thể sử dụng markdown để định dạng câu trả lời (như in đậm, danh sách, bảng biểu, liên kết).\n`
+QUY TẮC ĐỊNH DẠNG BẮT BUỘC (UI FORMATTING RULES):
+1. Luôn trả lời bằng tiếng Việt lịch sự, gãy gọn, chuyên nghiệp, thông minh.
+2. Khi liệt kê hoặc đề xuất liên kết, LUÔN dùng định dạng Markdown chuẩn:
+   1. **[Tên Trang Web](URL)**
+      - Tóm tắt hoặc vai trò của trang này (1 câu ngắn).
+      - Thẻ: \`#tag1\` \`#tag2\` (nếu có)
+   Tuyệt đối không dùng định dạng tự chế như "**Title** (url)" hay viết link trần.
+3. Về cấu trúc văn bản:
+   - Sử dụng tiêu đề "### " để chia từng mục rõ ràng (ví dụ: "### 💡 Gợi ý nổi bật", "### 📋 Tóm tắt liên kết").
+   - Dùng gạch đầu dòng "- " cho các ý chi tiết.
+   - Khi có mã code hoặc lệnh, hãy bọc trong block code \`\`\` và ghi rõ ngôn ngữ.
+4. Tránh lạm dụng emoji kì lạ. Chỉ dùng emoji tinh tế ở đầu tiêu đề.`
 
       const chatModel = genAI.getGenerativeModel({
         model: modelName,
@@ -95,22 +97,24 @@ export async function chatWithGemini(messages, contextBookmarks = []) {
 
   if (qLower.includes('tóm tắt') || qLower.includes('summarize')) {
     if (!contextBookmarks || contextBookmarks.length === 0) {
-      return 'Hiện tại kho bookmark của bạn chưa có liên kết nào để tóm tắt.'
+      return 'Hiện tại kho bookmark của bạn chưa có liên kết nào để tóm tắt. Hãy thêm bookmark mới để tôi hỗ trợ nhé!'
     }
-    let res = `Dưới đây là tóm tắt nhanh các bookmark trong kho của bạn (${contextBookmarks.length} liên kết):\n\n`
+    let res = `### 📋 Tóm tắt kho bookmark (${contextBookmarks.length} liên kết)\n\n`
+    res += `Dưới đây là các liên kết nổi bật đang có trong bộ sưu tập của bạn:\n\n`
     contextBookmarks.slice(0, 8).forEach((link, idx) => {
-      const note = link.note || link.description || (link.tags && link.tags.length > 0 ? `Thẻ: ${link.tags.join(', ')}` : 'Trang tài nguyên hữu ích')
-      res += `${idx + 1}. **${link.title}** (${link.url})\n   👉 *${note}*\n\n`
+      const note = link.note || link.description || 'Tài nguyên được lưu trữ trong không gian làm việc.'
+      const tagStr = (link.tags && link.tags.length > 0) ? link.tags.map(t => `\`#${t.replace(/^#/, '')}\``).join(' ') : ''
+      res += `${idx + 1}. **[${link.title}](${link.url})**\n   - ${note}${tagStr ? `\n   - ${tagStr}` : ''}\n\n`
     })
     if (contextBookmarks.length > 8) {
-      res += `*Và ${contextBookmarks.length - 8} bookmark khác trong kho...*`
+      res += `> *Còn ${contextBookmarks.length - 8} bookmark khác trong kho. Bạn có thể nhập "Tìm [từ khóa]" để lọc nhanh.*`
     }
     return res
   }
 
   if (qLower.includes('tìm') || qLower.includes('search') || qLower.includes('find')) {
     const term = qLower.replace(/tìm kiếm|tìm|search|find/g, '').trim()
-    if (!term) return 'Bạn muốn tìm kiếm từ khóa nào? Hãy nhập ví dụ: "Tìm React".'
+    if (!term) return 'Bạn muốn tìm kiếm từ khóa nào? Hãy nhập ví dụ: "Tìm React" hoặc "Tìm công cụ design".'
     
     const matched = contextBookmarks.filter(l => 
       (l.title || '').toLowerCase().includes(term) || 
@@ -119,16 +123,29 @@ export async function chatWithGemini(messages, contextBookmarks = []) {
     )
 
     if (matched.length === 0) {
-      return `Không tìm thấy bookmark nào liên quan đến từ khóa **"${term}"**.`
+      return `Không tìm thấy bookmark nào liên quan đến từ khóa **"${term}"** trong nhóm hiện tại.`
     }
-    let res = `Tìm thấy **${matched.length}** liên kết liên quan đến **"${term}"**:\n\n`
+    let res = `### 🔍 Kết quả tìm kiếm cho "${term}" (${matched.length} liên kết)\n\n`
     matched.forEach((link, idx) => {
-      res += `${idx + 1}. **${link.title}** (${link.url}) ${link.collectionName ? `*— trong nhóm ${link.collectionName}*` : ''}\n`
+      const note = link.note || link.description || ''
+      res += `${idx + 1}. **[${link.title}](${link.url})**\n${note ? `   - ${note}\n` : ''}\n`
     })
     return res
   }
 
-  return `Xin chào! Tôi là TabMark AI. Tôi đã ghi nhận câu hỏi của bạn: "${latestText}".\n\nBạn có thể bảo tôi: **"Tóm tắt các link"** hoặc **"Tìm [tên công nghệ/link]"** để tôi tìm kiếm ngay trong kho bookmark!`
+  if (qLower.includes('gợi ý') || qLower.includes('hay') || qLower.includes('suggest') || qLower.includes('tài liệu')) {
+    if (!contextBookmarks || contextBookmarks.length === 0) {
+      return 'Kho bookmark của bạn đang trống, hãy thêm các link bạn yêu thích vào nhé!'
+    }
+    const sample = contextBookmarks.slice(0, 4)
+    let res = `### 💡 Gợi ý tài nguyên nổi bật trong kho của bạn\n\n`
+    sample.forEach((link, idx) => {
+      res += `${idx + 1}. **[${link.title}](${link.url})**\n   - ${link.note || 'Tài liệu hữu ích nên tham khảo lại khi làm việc.'}\n\n`
+    })
+    return res
+  }
+
+  return `Xin chào! Tôi là **TabMark AI**.\n\nTôi có thể hỗ trợ bạn:\n- 📋 **"Tóm tắt nhóm"** — Xem tổng quan các liên kết trong kho\n- 🔍 **"Tìm [từ khóa]"** — Tra cứu bookmark theo chủ đề\n- 💡 **"Gợi ý tài liệu"** — Đề xuất liên kết hữu ích nhất`
 }
 
 /**
