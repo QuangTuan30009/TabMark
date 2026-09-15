@@ -7,6 +7,7 @@ import DashboardHeader from '@/components/dashboard/header'
 import KanbanBoard from '@/components/dashboard/kanban-board'
 import MobileBottomBar from '@/components/dashboard/mobile-bottom-bar'
 import MobileCategoryPills from '@/components/dashboard/mobile-category-pills'
+import { AiMessageBubble } from '@/components/dashboard/ai-chat-message'
 import { CollectionModal } from '@/components/modals/collection-modal'
 import { LinkModal } from '@/components/modals/link-modal'
 import { ShareModal } from '@/components/modals/share-modal'
@@ -452,7 +453,7 @@ export function DashboardPage({ onBackHome, user, onLogout, sharedCollectionId }
       {aiChatOpen && (() => {
         const aiQuota = getAiQuota(currentUser)
         return (
-          <div className="fixed inset-x-0 bottom-0 sm:inset-auto sm:bottom-6 sm:right-6 w-full sm:w-96 bg-[#0c0f16]/98 backdrop-blur-2xl border-t sm:border border-white/15 shadow-[0_-10px_40px_rgba(0,0,0,0.8)] sm:shadow-2xl rounded-t-3xl sm:rounded-2xl flex flex-col h-[82vh] sm:h-[520px] max-h-[88vh] z-50 animate-fade-in-up pb-safe">
+          <div className="fixed inset-x-0 bottom-0 sm:inset-auto sm:bottom-6 sm:right-6 w-full sm:w-[420px] bg-[#0c0f16]/98 backdrop-blur-2xl border-t sm:border border-white/15 shadow-[0_-10px_40px_rgba(0,0,0,0.8)] sm:shadow-2xl rounded-t-3xl sm:rounded-2xl flex flex-col h-[85vh] sm:h-[560px] max-h-[90vh] z-50 animate-fade-in-up pb-safe">
             {/* Mobile Drag Handle */}
             <div
               className="sm:hidden pt-2.5 pb-1 flex justify-center cursor-grab active:cursor-grabbing"
@@ -495,20 +496,7 @@ export function DashboardPage({ onBackHome, user, onLogout, sharedCollectionId }
             {/* Chat Messages */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
               {aiChatMessages.map((msg, idx) => (
-                <div
-                  key={idx}
-                  className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div
-                    className={`max-w-[85%] rounded-2xl p-3.5 text-xs leading-relaxed whitespace-pre-line ${
-                      msg.sender === 'user'
-                        ? 'bg-blue-600 text-white rounded-br-none shadow-[0_0_15px_rgba(59,130,246,0.2)]'
-                        : 'bg-white/[0.03] border border-white/5 text-slate-300 rounded-bl-none'
-                    }`}
-                  >
-                    {msg.text}
-                  </div>
-                </div>
+                <AiMessageBubble key={idx} message={msg} />
               ))}
               {isAiResponding && (
                 <div className="flex justify-start">

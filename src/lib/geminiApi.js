@@ -98,11 +98,12 @@ export async function chatWithGemini(messages, contextBookmarks = []) {
       return 'Hiện tại kho bookmark của bạn chưa có liên kết nào để tóm tắt.'
     }
     let res = `Dưới đây là tóm tắt nhanh các bookmark trong kho của bạn (${contextBookmarks.length} liên kết):\n\n`
-    contextBookmarks.slice(0, 5).forEach((link, idx) => {
-      res += `${idx + 1}. **${link.title}** (${link.url})\n   👉 *${link.note || 'Không có mô tả'}*\n\n`
+    contextBookmarks.slice(0, 8).forEach((link, idx) => {
+      const note = link.note || link.description || (link.tags && link.tags.length > 0 ? `Thẻ: ${link.tags.join(', ')}` : 'Trang tài nguyên hữu ích')
+      res += `${idx + 1}. **${link.title}** (${link.url})\n   👉 *${note}*\n\n`
     })
-    if (contextBookmarks.length > 5) {
-      res += `*Và ${contextBookmarks.length - 5} bookmark khác...*`
+    if (contextBookmarks.length > 8) {
+      res += `*Và ${contextBookmarks.length - 8} bookmark khác trong kho...*`
     }
     return res
   }
