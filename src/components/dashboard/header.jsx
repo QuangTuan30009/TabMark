@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Search, Download, Upload, RefreshCw, Plus, Sparkles, Command, Menu, MoreVertical } from 'lucide-react'
+import { Search, Download, Upload, RefreshCw, Plus, Sparkles, Command, Menu, MoreVertical, FolderPlus } from 'lucide-react'
 
 export default function DashboardHeader({
   query,
@@ -20,7 +20,7 @@ export default function DashboardHeader({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   return (
-    <header className="border-b border-white/[0.06] bg-[#090d16]/90 backdrop-blur-xl sticky top-0 z-40 px-4 sm:px-6 py-2.5 sm:py-3.5 select-none">
+    <header className="border-b border-white/[0.06] bg-[#090d16]/90 backdrop-blur-xl sticky top-0 z-40 px-3.5 sm:px-6 py-2.5 sm:py-3.5 select-none pt-safe">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         
         {/* ── LEFT: HAMBURGER + SMART AI SEARCH BAR ── */}
@@ -79,6 +79,18 @@ export default function DashboardHeader({
                 <span className="text-[11px] sm:text-xs">PRO</span>
               </button>
             )
+          )}
+
+          {/* + Add Collection Button */}
+          {onAddGroup && (
+            <button
+              onClick={onAddGroup}
+              className="flex items-center gap-1.5 px-3 py-1.5 sm:py-2 bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 hover:text-white border border-white/10 rounded-xl text-xs font-semibold transition-all cursor-pointer shrink-0"
+              title="Tạo nhóm bookmark mới"
+            >
+              <FolderPlus className="w-4 h-4 text-blue-400" />
+              <span className="hidden sm:inline">Thêm Nhóm</span>
+            </button>
           )}
 
           {/* + Add Link Button (Primary) */}
@@ -153,6 +165,19 @@ export default function DashboardHeader({
                   onClick={() => setMobileMenuOpen(false)}
                 />
                 <div className="absolute right-0 top-full mt-2 w-48 bg-[#10141f] border border-white/10 rounded-2xl shadow-2xl z-50 py-1.5 backdrop-blur-xl animate-fade-in-up">
+                  {onAddGroup && (
+                    <button
+                      onClick={() => {
+                        setMobileMenuOpen(false)
+                        onAddGroup()
+                      }}
+                      className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-xs text-blue-400 hover:bg-white/5 transition-colors font-semibold"
+                    >
+                      <FolderPlus className="w-4 h-4 text-blue-400" />
+                      <span>Thêm Nhóm (Collection)</span>
+                    </button>
+                  )}
+
                   <button
                     onClick={() => {
                       setMobileMenuOpen(false)

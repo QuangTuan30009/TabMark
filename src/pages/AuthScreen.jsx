@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Mail, Lock, AlertCircle, Check, Eye, EyeOff, Sparkles, Shield, ArrowLeft, Layers, Zap } from 'lucide-react'
 import { isSupabaseConfigured, supabase } from '@/lib/supabaseClient'
+import { signInWithGoogle } from '@/lib/googleAuth'
 
 export default function AuthScreen({ onLogin, onBackHome }) {
   const [isSignUp, setIsSignUp] = useState(false)
@@ -86,13 +87,14 @@ export default function AuthScreen({ onLogin, onBackHome }) {
     if (isSupabaseConfigured) {
       try {
         setLoading(true)
-        const { error: googleError } = await supabase.auth.signInWithOAuth({
-          provider: 'google',
-          options: {
-            redirectTo: window.location.origin
-          }
-        })
-        if (googleError) throw googleError
+        const res = await signInWithGoogle()
+        if (res?.cancelled) {
+          setLoading(false)
+          return
+        }
+        if (res?.data?.session?.user && onLogin) {
+          onLogin(res.data.session.user)
+        }
       } catch (err) {
         console.error(err)
         setError(err.message || 'Lỗi đăng nhập Google, vui lòng thử lại.')
@@ -178,7 +180,7 @@ export default function AuthScreen({ onLogin, onBackHome }) {
       </div>
 
       {/* ── RIGHT AUTH FORM CONTAINER (Responsive on all screens) ── */}
-      <div className="flex-1 flex flex-col justify-between p-5 sm:p-8 lg:p-12 w-full max-w-xl mx-auto overflow-y-auto">
+      <div className="flex-1 flex flex-col justify-between px-5 pb-5 pt-[calc(max(env(safe-area-inset-top,0px),28px)+14px)] sm:p-8 lg:p-12 w-full max-w-xl mx-auto overflow-y-auto">
         
         {/* Top bar */}
         <div className="flex items-center justify-between mb-6 sm:mb-8">

@@ -257,6 +257,29 @@ export default function KanbanCard({
             {card.note ? card.note : 'Chưa có tóm tắt. Bấm để AI phân tích link này...'}
           </p>
         </div>
+
+        {/* ── QUICK ACTION BAR (1-Tap Fast Access) ── */}
+        <div className="pt-1 flex items-center justify-between gap-2 border-t border-white/[0.04]">
+          <a
+            href={getHref(card.url)}
+            target="_blank"
+            rel="noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-lg bg-blue-600/10 hover:bg-blue-600/20 text-xs font-semibold text-blue-300 hover:text-blue-200 border border-blue-500/20 transition-all touch-press"
+          >
+            <ExternalLink className="w-3 h-3 text-blue-400" />
+            <span>Mở link</span>
+          </a>
+          <button
+            type="button"
+            onClick={handleCopyLink}
+            className="flex items-center justify-center gap-1 py-1.5 px-2.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-xs font-medium text-slate-300 hover:text-white border border-white/[0.06] transition-all touch-press cursor-pointer"
+            title="Sao chép URL"
+          >
+            {copied ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3 text-slate-400" />}
+            <span className="text-[11px]">{copied ? 'Đã copy' : 'Copy'}</span>
+          </button>
+        </div>
       </div>
     </div>
   )

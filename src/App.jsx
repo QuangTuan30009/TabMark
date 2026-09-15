@@ -7,6 +7,7 @@ import { DashboardPage } from '@/pages/dashboard-page'
 import { AdminPage } from '@/pages/admin-page'
 import { supabase } from '@/lib/supabaseClient'
 import { isAdminUser } from '@/lib/adminApi'
+import { isInstalledApp } from '@/lib/platform'
 
 export default function App() {
   const [page, setPage] = useState(() => {
@@ -15,6 +16,10 @@ export default function App() {
     if (hash === '#dashboard') return 'dashboard';
     if (hash === '#login') return 'login';
     if (hash.startsWith('#shared/')) return 'shared';
+    if (isInstalledApp()) {
+      const savedMock = localStorage.getItem('tabmark_mock_user');
+      return savedMock ? 'dashboard' : 'login';
+    }
     return 'home';
   })
   const [showWelcome, setShowWelcome] = useState(() => window.location.hash !== '#dashboard')

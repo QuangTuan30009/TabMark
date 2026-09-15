@@ -560,4 +560,39 @@
   animation: pulse-aura 4s ease-in-out infinite;
 }
 
+/* ── Mobile Safe Area Insets & Touch Ergonomics ── */
+:root {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.pt-safe {
+  padding-top: max(env(safe-area-inset-top, 0px), 0px);
+}
+
+.pb-safe {
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), 0px);
+}
+
+.pb-dock {
+  padding-bottom: calc(max(env(safe-area-inset-bottom, 0px), 0px) + 5.5rem);
+}
+
+/* Hide scrollbar for smooth category pill navigation */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Active tap feedback */
+.touch-press {
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+.touch-press:active {
+  transform: scale(0.96);
+  opacity: 0.9;
+}
+
 

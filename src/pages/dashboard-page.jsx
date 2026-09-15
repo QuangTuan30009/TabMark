@@ -5,6 +5,8 @@ import 'animate.css'
 import Sidebar from '@/components/dashboard/sidebar'
 import DashboardHeader from '@/components/dashboard/header'
 import KanbanBoard from '@/components/dashboard/kanban-board'
+import MobileBottomBar from '@/components/dashboard/mobile-bottom-bar'
+import MobileCategoryPills from '@/components/dashboard/mobile-category-pills'
 import { CollectionModal } from '@/components/modals/collection-modal'
 import { LinkModal } from '@/components/modals/link-modal'
 import { ShareModal } from '@/components/modals/share-modal'
@@ -69,6 +71,8 @@ export function DashboardPage({ onBackHome, user, onLogout, sharedCollectionId }
   const [highlightedColumnId, setHighlightedColumnId] = useState(null)
   const [query, setQuery] = useState('')
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false)
+  const [viewMode, setViewMode] = useState(() => (typeof window !== 'undefined' && window.innerWidth <= 640 ? 'list' : 'kanban'))
+  const [mobileActiveTab, setMobileActiveTab] = useState('board')
   const [sidebarSearchQuery, setSidebarSearchQuery] = useState('')
   const [collectionModalOpen, setCollectionModalOpen] = useState(false)
   const [shareModalOpen, setShareModalOpen] = useState(false)
@@ -351,6 +355,7 @@ export function DashboardPage({ onBackHome, user, onLogout, sharedCollectionId }
         user={currentUser}
         onOpenPayment={() => setPaymentModalOpen(true)}
         onSettingsClick={() => setSettingsModalOpen(true)}
+        onAddCollection={canEditGroup ? () => setCollectionModalOpen(true) : undefined}
         onLogout={onLogout}
         isOpen={isMobileSidebarOpen}
         onClose={() => setIsMobileSidebarOpen(false)}
@@ -376,10 +381,20 @@ export function DashboardPage({ onBackHome, user, onLogout, sharedCollectionId }
           onOpenMobileSidebar={() => setIsMobileSidebarOpen(true)}
         />
 
-        {/* Kanban Area */}
+        {/* Mobile Horizontal Category Pills Strip & View Mode Switcher */}
+        <MobileCategoryPills
+          collections={filteredCollections}
+          activeCollectionId={activeCollection?.id}
+          onSelectCollection={handleSelectCollection}
+          onAddGroup={canEditGroup ? () => setCollectionModalOpen(true) : undefined}
+          viewMode={viewMode}
+          onToggleViewMode={setViewMode}
+        />
+
+        {/* Kanban / List Area */}
         <main className="flex-1 flex flex-col overflow-hidden kanban-board-bg">
           {/* Active Group Description Header */}
-          <div className="px-4 sm:px-6 pt-3.5 sm:pt-5 pb-1 flex items-center justify-between">
+          <div className="px-4 sm:px-6 pt-3 sm:pt-4 pb-1 hidden sm:flex items-center justify-between">
             <div className="min-w-0 pr-2">
               <h1 className="text-lg sm:text-xl font-bold text-white tracking-wide truncate">{activeCollection?.name ?? 'No group'}</h1>
               <p className="text-xs text-slate-400 mt-0.5 truncate">{activeCollection?.description || 'Thêm link vào bảng Kanban này.'}</p>
@@ -389,11 +404,12 @@ export function DashboardPage({ onBackHome, user, onLogout, sharedCollectionId }
             </div>
           </div>
 
-          {/* Kanban Board Component */}
+          {/* Kanban Board Component with ViewMode support */}
           <KanbanBoard
             collections={filteredCollections}
             activeCollectionId={activeCollection?.id}
             highlightedColumnId={highlightedColumnId}
+            viewMode={viewMode}
             onDragStart={canEditLinks ? handleDragStart : undefined}
             onDragOver={canEditLinks ? handleDragOver : undefined}
             onDrop={canEditLinks ? handleDrop : undefined}
@@ -413,24 +429,40 @@ export function DashboardPage({ onBackHome, user, onLogout, sharedCollectionId }
         </main>
       </div>
 
-      {/* Floating Messenger-style AI Chat Bubble */}
+      {/* Floating Messenger-style AI Chat Bubble (Desktop Only) */}
       {!aiChatOpen && (
         <button
           onClick={() => setAiChatOpen(true)}
-          className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 p-3.5 sm:p-4 rounded-full bg-gradient-to-tr from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white shadow-lg shadow-purple-500/20 transition-all duration-300 z-40 flex items-center justify-center scale-100 hover:scale-105 active:scale-95 cursor-pointer"
+          className="hidden sm:flex fixed bottom-6 right-6 p-4 rounded-full bg-gradient-to-tr from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white shadow-lg shadow-purple-500/20 transition-all duration-300 z-40 items-center justify-center scale-100 hover:scale-105 active:scale-95 cursor-pointer"
           title="Mở AI Assistant"
         >
           <Sparkles className="w-5 h-5 fill-white/10" />
         </button>
       )}
 
-      {/* Floating Messenger-style AI Chat Widget */}
+      {/* Mobile Backdrop Overlay for AI Chat Bottom Sheet */}
+      {aiChatOpen && (
+        <div
+          className="sm:hidden fixed inset-0 z-40 bg-black/60 backdrop-blur-xs animate-fade-in"
+          onClick={() => setAiChatOpen(false)}
+        />
+      )}
+
+      {/* AI Chat Widget (Mobile Bottom Sheet & Desktop Messenger Widget) */}
       {aiChatOpen && (() => {
         const aiQuota = getAiQuota(currentUser)
         return (
-          <div className="fixed bottom-3 right-3 sm:bottom-6 sm:right-6 w-full max-w-[calc(100vw-1.5rem)] sm:w-96 bg-[#0c0f16]/95 backdrop-blur-md border border-white/10 shadow-2xl rounded-2xl flex flex-col h-[75vh] sm:h-[520px] max-h-[85vh] z-50 animate-fade-in-up">
+          <div className="fixed inset-x-0 bottom-0 sm:inset-auto sm:bottom-6 sm:right-6 w-full sm:w-96 bg-[#0c0f16]/98 backdrop-blur-2xl border-t sm:border border-white/15 shadow-[0_-10px_40px_rgba(0,0,0,0.8)] sm:shadow-2xl rounded-t-3xl sm:rounded-2xl flex flex-col h-[82vh] sm:h-[520px] max-h-[88vh] z-50 animate-fade-in-up pb-safe">
+            {/* Mobile Drag Handle */}
+            <div
+              className="sm:hidden pt-2.5 pb-1 flex justify-center cursor-grab active:cursor-grabbing"
+              onClick={() => setAiChatOpen(false)}
+            >
+              <div className="w-12 h-1 bg-white/20 rounded-full" />
+            </div>
+
             {/* Header */}
-            <div className="p-4 border-b border-white/5 flex items-center justify-between bg-white/[0.01] rounded-t-2xl">
+            <div className="p-4 border-b border-white/5 flex items-center justify-between bg-white/[0.01] sm:rounded-t-2xl">
               <div className="flex items-center gap-2.5">
                 <div className="relative">
                   <Sparkles className="w-5 h-5 text-purple-400 fill-purple-400/10" />
@@ -490,21 +522,46 @@ export function DashboardPage({ onBackHome, user, onLogout, sharedCollectionId }
               <div ref={chatEndRef} />
             </div>
 
+            {/* Quick Prompt Suggestion Pills */}
+            <div className="px-3 pt-2 pb-1 flex items-center gap-1.5 overflow-x-auto no-scrollbar border-t border-white/5 bg-[#090b11]/30">
+              <button
+                type="button"
+                onClick={() => setAiChatInput('Tóm tắt các link trong nhóm này')}
+                className="px-2.5 py-1 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-[10px] text-cyan-300 font-medium whitespace-nowrap border border-cyan-500/20 transition-colors cursor-pointer touch-press"
+              >
+                📝 Tóm tắt nhóm
+              </button>
+              <button
+                type="button"
+                onClick={() => setAiChatInput('Tìm bookmark ')}
+                className="px-2.5 py-1 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-[10px] text-purple-300 font-medium whitespace-nowrap border border-purple-500/20 transition-colors cursor-pointer touch-press"
+              >
+                🔍 Tìm kiếm
+              </button>
+              <button
+                type="button"
+                onClick={() => setAiChatInput('Gợi ý tài liệu hay')}
+                className="px-2.5 py-1 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-[10px] text-blue-300 font-medium whitespace-nowrap border border-blue-500/20 transition-colors cursor-pointer touch-press"
+              >
+                💡 Gợi ý tài liệu
+              </button>
+            </div>
+
             {/* Input Form */}
-            <form onSubmit={handleSendAiMessage} className="p-4 border-t border-white/5 bg-[#090b11]/50 rounded-b-2xl">
+            <form onSubmit={handleSendAiMessage} className="p-3 sm:p-4 border-t border-white/5 bg-[#090b11]/50 sm:rounded-b-2xl">
               <div className="flex items-center gap-2">
                 <input
                   type="text"
                   value={aiChatInput}
                   onChange={(e) => setAiChatInput(e.target.value)}
                   placeholder="Hỏi AI về bookmark..."
-                  className="flex-1 bg-white/[0.02] border border-white/10 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
+                  className="flex-1 bg-white/[0.03] border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
                   disabled={isAiResponding}
                 />
                 <button
                   type="submit"
                   disabled={!aiChatInput.trim() || isAiResponding}
-                  className="p-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white rounded-xl transition-all cursor-pointer flex items-center justify-center"
+                  className="p-2.5 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white rounded-xl transition-all cursor-pointer flex items-center justify-center touch-press"
                 >
                   <Send className="w-4 h-4" />
                 </button>
@@ -513,6 +570,23 @@ export function DashboardPage({ onBackHome, user, onLogout, sharedCollectionId }
           </div>
         )
       })()}
+
+      {/* Mobile Bottom Navigation Bar (Glassmorphism Dock) */}
+      <MobileBottomBar
+        activeTab={mobileActiveTab}
+        onTabChange={(tab) => {
+          setMobileActiveTab(tab)
+          if (tab === 'board') {
+            setAiChatOpen(false)
+          }
+        }}
+        onOpenAddLink={() => handleOpenAddLinkModal(activeCollectionId)}
+        onOpenCollections={() => setIsMobileSidebarOpen(true)}
+        onToggleAiChat={() => setAiChatOpen((prev) => !prev)}
+        onOpenSettings={() => setSettingsModalOpen(true)}
+        isAiChatOpen={aiChatOpen}
+        aiQuotaRemaining={getAiQuota(currentUser).remaining}
+      />
 
       {collectionModalOpen && (
         <CollectionModal 

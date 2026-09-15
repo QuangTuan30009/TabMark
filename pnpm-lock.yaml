@@ -17,6 +17,9 @@ importers:
       '@capacitor/core':
         specifier: ^7.0.0
         version: 7.6.9
+      '@capgo/capacitor-social-login':
+        specifier: 7.20.0
+        version: 7.20.0(@capacitor/core@7.6.9)
       '@google/generative-ai':
         specifier: ^0.24.1
         version: 0.24.1
@@ -263,6 +266,11 @@ packages:
 
   '@capacitor/core@7.6.9':
     resolution: {integrity: sha512-4DOh/xySC9S5ryhUIqpOppasIyi2WiTdF0JuZ/2DEs+vf5eunRzHDdNYBp1snA3faHciTw/3SVGXfR+WkYxsMA==}
+
+  '@capgo/capacitor-social-login@7.20.0':
+    resolution: {integrity: sha512-rHlEALFUonLe4sDG+qybDowh2/XDiHJ4DK9pShe1aPTGSrmA5j7kz8VbHYGqgof5xdyeC7pAY3+8PASTW+qGKg==}
+    peerDependencies:
+      '@capacitor/core': '>=7.0.0'
 
   '@date-fns/tz@1.4.1':
     resolution: {integrity: sha512-P5LUNhtbj6YfI3iJjw5EL9eUAG6OitD0W3fWQcpQjDRc/QIsL0tRNuO1PcDvPccWL1fSTXXdE1ds+l95DV/OFA==}
@@ -2668,6 +2676,10 @@ snapshots:
   '@capacitor/core@7.6.9':
     dependencies:
       tslib: 2.8.1
+
+  '@capgo/capacitor-social-login@7.20.0(@capacitor/core@7.6.9)':
+    dependencies:
+      '@capacitor/core': 7.6.9
 
   '@date-fns/tz@1.4.1':
     optional: true
