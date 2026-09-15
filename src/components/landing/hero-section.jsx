@@ -2,7 +2,7 @@ import { ArrowRight, Sparkles, Layers, Zap, Search } from 'lucide-react'
 
 export function HeroSection({ onOpenDashboard }) {
   return (
-    <section className="relative overflow-hidden pt-28 pb-16 md:pt-36 md:pb-24 bg-[#06080f]">
+    <section className="relative overflow-hidden pt-32 pb-16 md:pt-36 md:pb-24 bg-[#06080f]">
       {/* ── AMBIENT CYAN & MAGENTA GLOW SPHERES ── */}
       <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
         {/* Top Right Cyan Glow */}

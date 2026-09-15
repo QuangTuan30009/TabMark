@@ -569,6 +569,12 @@
   padding-top: max(env(safe-area-inset-top, 0px), 0px);
 }
 
+@media (max-width: 640px) {
+  .pt-safe {
+    padding-top: max(env(safe-area-inset-top, 0px), 36px);
+  }
+}
+
 .pb-safe {
   padding-bottom: max(env(safe-area-inset-bottom, 0px), 0px);
 }

@@ -37,21 +37,21 @@ export function Navbar({ onOpenDashboard, onLoginClick }) {
 
   return (
     <header 
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 pt-safe ${
         isScrolled 
-          ? 'bg-[#06080f]/90 backdrop-blur-xl border-b border-white/[0.08] shadow-[0_4px_30px_rgba(0,0,0,0.8)]' 
-          : 'bg-transparent border-b border-transparent'
+          ? 'bg-[#06080f]/95 backdrop-blur-xl border-b border-white/[0.08] shadow-[0_4px_30px_rgba(0,0,0,0.8)]' 
+          : 'bg-[#06080f]/80 backdrop-blur-md md:bg-transparent border-b border-white/[0.04] md:border-transparent'
       }`}
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
-        <div className="flex h-20 items-center justify-between">
+        <div className="flex h-14 sm:h-20 items-center justify-between">
           {/* Logo */}
           <div className="flex items-center">
             <a href="#" className="flex items-center group cursor-pointer" onClick={onOpenDashboard}>
               <img 
                 src="/tabmark-logo-white.png" 
                 alt="TabMark Logo" 
-                className="h-9 sm:h-10 w-auto object-contain transition-transform group-hover:scale-105" 
+                className="h-8 sm:h-10 w-auto object-contain transition-transform group-hover:scale-105" 
               />
             </a>
           </div>
