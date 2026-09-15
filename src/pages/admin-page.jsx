@@ -834,37 +834,37 @@ export function AdminPage({ user, onBack }) {
             
             {/* Pending Transactions Section */}
             {pendingTransactions.length > 0 ? (
-              <div className="p-6 rounded-3xl bg-amber-500/10 border-2 border-amber-500/30 space-y-4 shadow-xl">
+              <div className="p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-amber-500/10 border border-amber-500/30 space-y-4 shadow-xl">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
-                    <Clock className="w-5 h-5 text-amber-400 animate-pulse" />
+                    <Clock className="w-5 h-5 text-amber-400 animate-pulse shrink-0" />
                     <div>
-                      <h3 className="text-base font-bold text-white">Có {pendingTransactions.length} Giao Dịch Chờ Đối Soát Ngân Hàng</h3>
-                      <p className="text-xs text-amber-300/80">Vui lòng kiểm tra tài khoản ngân hàng và bấm Duyệt để kích hoạt gói</p>
+                      <h3 className="text-sm sm:text-base font-bold text-white">Có {pendingTransactions.length} Giao Dịch Chờ Đối Soát</h3>
+                      <p className="text-[11px] sm:text-xs text-amber-300/80">Kiểm tra tài khoản ngân hàng và bấm Duyệt để kích hoạt gói cho khách hàng</p>
                     </div>
                   </div>
                 </div>
 
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs">
+                <div className="overflow-x-auto rounded-xl border border-amber-500/20">
+                  <table className="w-full text-left text-xs min-w-[640px]">
                     <thead>
-                      <tr className="border-b border-amber-500/20 text-amber-200">
-                        <th className="py-2.5 px-3">Mã Chuyển Khoản</th>
-                        <th className="py-2.5 px-3">Khách Hàng (Email)</th>
-                        <th className="py-2.5 px-3">Gói Yêu Cầu</th>
-                        <th className="py-2.5 px-3">Số Tiền</th>
-                        <th className="py-2.5 px-3">Phương Thức</th>
-                        <th className="py-2.5 px-3">Thời Gian</th>
-                        <th className="py-2.5 px-3 text-right">Hành Động Admin</th>
+                      <tr className="border-b border-amber-500/20 bg-amber-500/10 text-amber-200">
+                        <th className="py-2.5 px-3 font-semibold">Mã Chuyển Khoản</th>
+                        <th className="py-2.5 px-3 font-semibold">Khách Hàng (Email)</th>
+                        <th className="py-2.5 px-3 font-semibold">Gói Yêu Cầu</th>
+                        <th className="py-2.5 px-3 font-semibold">Số Tiền</th>
+                        <th className="py-2.5 px-3 font-semibold">Phương Thức</th>
+                        <th className="py-2.5 px-3 font-semibold">Thời Gian</th>
+                        <th className="py-2.5 px-3 text-right font-semibold">Hành Động Admin</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-amber-500/10">
+                    <tbody className="divide-y divide-amber-500/10 bg-black/20">
                       {pendingTransactions.map((tx) => (
                         <tr key={tx.id} className="hover:bg-amber-500/5 transition-colors">
                           <td className="py-3 px-3 font-mono font-bold text-cyan-300">{tx.transaction_code || tx.transactionCode}</td>
                           <td className="py-3 px-3 text-white font-medium">{tx.email}</td>
                           <td className="py-3 px-3 font-bold text-purple-300">{tx.plan_name || tx.planName || 'Gói Pro'}</td>
-                          <td className="py-3 px-3 font-extrabold text-emerald-400">{formatVND(tx.amount)}</td>
+                          <td className="py-3 px-3 font-extrabold text-emerald-400 font-mono">{formatVND(tx.amount)}</td>
                           <td className="py-3 px-3 text-slate-300">VietQR 24/7</td>
                           <td className="py-3 px-3 text-slate-400 text-[11px]">{new Date(tx.created_at).toLocaleString('vi-VN')}</td>
                           <td className="py-3 px-3 text-right">
@@ -872,15 +872,15 @@ export function AdminPage({ user, onBack }) {
                               <button
                                 onClick={() => handleApprove(tx)}
                                 disabled={actionLoadingId === tx.id}
-                                className="flex items-center gap-1 px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold transition-all cursor-pointer shadow-md"
+                                className="flex items-center gap-1 px-2.5 sm:px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-all cursor-pointer shadow-md"
                               >
                                 <Check className="w-3.5 h-3.5" />
-                                <span>Duyệt & Kích hoạt</span>
+                                <span>Duyệt</span>
                               </button>
                               <button
                                 onClick={() => handleReject(tx)}
                                 disabled={actionLoadingId === tx.id}
-                                className="p-1.5 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 transition-all cursor-pointer"
+                                className="p-1 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 transition-all cursor-pointer"
                                 title="Từ chối"
                               >
                                 <X className="w-3.5 h-3.5" />
@@ -894,20 +894,20 @@ export function AdminPage({ user, onBack }) {
                 </div>
               </div>
             ) : (
-              <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/[0.08] flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="p-4 sm:p-5 rounded-2xl bg-white/[0.02] border border-white/[0.08] flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
                     <CheckCircle2 className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold text-white">Hiện không có giao dịch nào đang chờ duyệt</h3>
-                    <p className="text-xs text-slate-400">Tất cả giao dịch VietQR đã được đối soát hoặc chưa có yêu cầu chuyển khoản mới.</p>
+                    <h3 className="text-xs sm:text-sm font-bold text-white">Hiện không có giao dịch nào đang chờ duyệt</h3>
+                    <p className="text-[11px] sm:text-xs text-slate-400">Tất cả giao dịch VietQR đã được đối soát hoặc chưa có yêu cầu chuyển khoản mới.</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 w-full sm:w-auto">
                   <button
                     onClick={loadAdminData}
-                    className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-xs font-semibold text-slate-300 hover:text-white transition-colors cursor-pointer"
+                    className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-xs font-semibold text-slate-300 hover:text-white transition-colors cursor-pointer"
                   >
                     <RefreshCw className="w-3.5 h-3.5" />
                     <span>Làm mới</span>
@@ -917,30 +917,29 @@ export function AdminPage({ user, onBack }) {
             )}
 
             {/* All Transactions History Table (Minh chứng OC3) */}
-            <div className="p-6 rounded-3xl bg-white/[0.02] border border-white/[0.08] space-y-5">
-              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div className="p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-white/[0.02] border border-white/[0.08] space-y-4 sm:space-y-5">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
-                  <h3 className="text-base font-bold text-white flex items-center gap-2">
-                    <CreditCard className="w-4 h-4 text-cyan-400" />
-                    <span>Danh Sách Giao Dịch & Thanh Toán </span>
+                  <h3 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+                    <CreditCard className="w-4 h-4 text-cyan-400 shrink-0" />
+                    <span>Danh Sách Giao Dịch & Thanh Toán</span>
                   </h3>
-                  {/* <p className="text-xs text-slate-400 mt-0.5">Dữ liệu thực tế phục vụ báo cáo minh chứng doanh thu cuối kỳ</p> */}
                 </div>
 
                 {/* Action Buttons: Export CSV */}
-                <div className="flex items-center gap-2.5">
+                <div className="flex items-center gap-2">
                   <button
                     onClick={handleExportTransactionsCSV}
-                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-md cursor-pointer"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-md cursor-pointer"
                   >
                     <FileSpreadsheet className="w-3.5 h-3.5" />
-                    <span>Xuất Excel / CSV </span>
+                    <span>Xuất CSV</span>
                   </button>
                 </div>
               </div>
 
               {/* Filters Bar: Search + Status + Date Range */}
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-1">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 pt-1">
                 {/* Search */}
                 <div className="relative flex-1">
                   <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -962,39 +961,39 @@ export function AdminPage({ user, onBack }) {
                 </div>
 
                 {/* Date Range Filter */}
-                <div className="flex items-center gap-1 bg-white/[0.03] p-1 rounded-xl border border-white/10 text-xs">
+                <div className="flex items-center gap-1 bg-white/[0.03] p-1 rounded-xl border border-white/10 text-xs overflow-x-auto scrollbar-none snap-x">
                   <button
                     onClick={() => setTxDateRange('all')}
-                    className={`px-2.5 py-1 rounded-lg font-medium transition-colors ${txDateRange === 'all' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}
+                    className={`px-2.5 py-1 rounded-lg font-medium transition-colors whitespace-nowrap snap-start shrink-0 ${txDateRange === 'all' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}
                   >
-                    Tất cả thời gian
+                    Tất cả
                   </button>
                   <button
                     onClick={() => setTxDateRange('today')}
-                    className={`px-2.5 py-1 rounded-lg font-medium transition-colors ${txDateRange === 'today' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}
+                    className={`px-2.5 py-1 rounded-lg font-medium transition-colors whitespace-nowrap snap-start shrink-0 ${txDateRange === 'today' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}
                   >
                     Hôm nay
                   </button>
                   <button
                     onClick={() => setTxDateRange('7days')}
-                    className={`px-2.5 py-1 rounded-lg font-medium transition-colors ${txDateRange === '7days' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}
+                    className={`px-2.5 py-1 rounded-lg font-medium transition-colors whitespace-nowrap snap-start shrink-0 ${txDateRange === '7days' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}
                   >
-                    7 ngày qua
+                    7 ngày
                   </button>
                   <button
                     onClick={() => setTxDateRange('30days')}
-                    className={`px-2.5 py-1 rounded-lg font-medium transition-colors ${txDateRange === '30days' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}
+                    className={`px-2.5 py-1 rounded-lg font-medium transition-colors whitespace-nowrap snap-start shrink-0 ${txDateRange === '30days' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}
                   >
-                    30 ngày qua
+                    30 ngày
                   </button>
                 </div>
               </div>
 
               {/* Status Filter Pills */}
-              <div className="flex items-center gap-2 overflow-x-auto pb-1">
+              <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 scrollbar-none snap-x">
                 <button
                   onClick={() => setTxStatusFilter('all')}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
+                  className={`px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer snap-start shrink-0 ${
                     txStatusFilter === 'all'
                       ? 'bg-blue-600 text-white shadow-md'
                       : 'bg-white/[0.04] text-slate-400 hover:text-white'
@@ -1005,7 +1004,7 @@ export function AdminPage({ user, onBack }) {
 
                 <button
                   onClick={() => setTxStatusFilter('pending')}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
+                  className={`px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 snap-start shrink-0 ${
                     txStatusFilter === 'pending'
                       ? 'bg-amber-500 text-black font-bold shadow-md'
                       : 'bg-white/[0.04] text-amber-300 hover:bg-amber-500/10'
@@ -1017,7 +1016,7 @@ export function AdminPage({ user, onBack }) {
 
                 <button
                   onClick={() => setTxStatusFilter('completed')}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
+                  className={`px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 snap-start shrink-0 ${
                     txStatusFilter === 'completed'
                       ? 'bg-emerald-600 text-white font-bold shadow-md'
                       : 'bg-white/[0.04] text-emerald-400 hover:bg-emerald-500/10'
@@ -1029,7 +1028,7 @@ export function AdminPage({ user, onBack }) {
 
                 <button
                   onClick={() => setTxStatusFilter('failed')}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
+                  className={`px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 snap-start shrink-0 ${
                     txStatusFilter === 'failed'
                       ? 'bg-rose-600 text-white font-bold shadow-md'
                       : 'bg-white/[0.04] text-rose-400 hover:bg-rose-500/10'
@@ -1041,23 +1040,23 @@ export function AdminPage({ user, onBack }) {
               </div>
 
               {filteredTransactions.length === 0 ? (
-                <div className="py-12 text-center text-slate-500 text-xs">
+                <div className="py-10 text-center text-slate-500 text-xs">
                   {transactions.length === 0
                     ? 'Chưa có giao dịch thanh toán nào được ghi nhận.'
                     : 'Không tìm thấy giao dịch nào phù hợp với bộ lọc tìm kiếm.'}
                 </div>
               ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs">
+                <div className="overflow-x-auto rounded-xl border border-white/5">
+                  <table className="w-full text-left text-xs min-w-[700px]">
                     <thead>
-                      <tr className="border-b border-white/[0.08] text-slate-400">
-                        <th className="py-3 px-3">Mã GD</th>
-                        <th className="py-3 px-3">Khách Hàng (Email)</th>
-                        <th className="py-3 px-3">Gói Dịch Vụ</th>
-                        <th className="py-3 px-3">Số Tiền</th>
-                        <th className="py-3 px-3">Phương Thức</th>
-                        <th className="py-3 px-3">Thời Gian</th>
-                        <th className="py-3 px-3 text-right">Trạng Thái</th>
+                      <tr className="border-b border-white/[0.08] bg-white/[0.02] text-slate-400 text-[11px] uppercase tracking-wider">
+                        <th className="py-3 px-3 font-semibold">Mã GD</th>
+                        <th className="py-3 px-3 font-semibold">Khách Hàng</th>
+                        <th className="py-3 px-3 font-semibold">Gói Dịch Vụ</th>
+                        <th className="py-3 px-3 font-semibold">Số Tiền</th>
+                        <th className="py-3 px-3 font-semibold">Phương Thức</th>
+                        <th className="py-3 px-3 font-semibold">Thời Gian</th>
+                        <th className="py-3 px-3 text-right font-semibold">Trạng Thái</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-white/[0.04]">
@@ -1066,24 +1065,24 @@ export function AdminPage({ user, onBack }) {
                           <td className="py-3.5 px-3 font-mono text-cyan-400 font-semibold">{tx.transaction_code || tx.transactionCode || tx.id}</td>
                           <td className="py-3.5 px-3 text-white font-medium">{tx.email}</td>
                           <td className="py-3.5 px-3">
-                            <span className="px-2.5 py-0.5 rounded-full font-bold text-[10px] bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                            <span className="px-2.5 py-0.5 rounded-full font-bold text-[10px] uppercase bg-purple-500/20 text-purple-300 border border-purple-500/30">
                               {tx.plan_name || tx.planName || 'Gói Pro'}
                             </span>
                           </td>
-                          <td className="py-3.5 px-3 font-extrabold text-white">{formatVND(tx.amount)}</td>
-                          <td className="py-3.5 px-3 text-slate-300">{tx.payment_method || 'VietQR'}</td>
+                          <td className="py-3.5 px-3 font-extrabold text-white font-mono">{formatVND(tx.amount)}</td>
+                          <td className="py-3.5 px-3 text-slate-300">VietQR</td>
                           <td className="py-3.5 px-3 text-slate-400 text-[11px]">{new Date(tx.created_at).toLocaleString('vi-VN')}</td>
                           <td className="py-3.5 px-3 text-right">
                             {tx.status === 'completed' || tx.status === 'success' ? (
-                              <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                              <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
                                 <CheckCircle2 className="w-3 h-3" /> Thành công
                               </span>
                             ) : tx.status === 'pending' ? (
-                              <span className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">
+                              <span className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-400 bg-amber-500/10 px-2.5 py-0.5 rounded-full border border-amber-500/20">
                                 <Clock className="w-3 h-3" /> Chờ duyệt
                               </span>
                             ) : (
-                              <span className="inline-flex items-center gap-1 text-[11px] font-bold text-rose-400 bg-rose-500/10 px-2 py-0.5 rounded-full border border-rose-500/20">
+                              <span className="inline-flex items-center gap-1 text-[11px] font-bold text-rose-400 bg-rose-500/10 px-2.5 py-0.5 rounded-full border border-rose-500/20">
                                 <XCircle className="w-3 h-3" /> Từ chối
                               </span>
                             )}
@@ -1106,55 +1105,46 @@ export function AdminPage({ user, onBack }) {
           <div className="space-y-6 animate-fade-in-up">
             
             {/* OC3 Target Milestone Banner */}
-            <div className="p-6 rounded-3xl bg-gradient-to-r from-purple-900/40 via-indigo-900/30 to-blue-900/40 border border-purple-500/30 space-y-4">
+            <div className="p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-gradient-to-r from-purple-900/40 via-indigo-900/30 to-blue-900/40 border border-purple-500/30 space-y-4 shadow-lg">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    {/* <span className="text-xs font-bold uppercase tracking-wider text-purple-300 bg-purple-500/20 px-3 py-1 rounded-full border border-purple-500/30 flex items-center gap-1.5">
-                      <Target className="w-3.5 h-3.5 text-purple-400" />
-                      Chỉ Tiêu OC3 EXE101
-                    </span> */}
-                    {/* <span className="text-xs text-emerald-400 font-bold bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
-                      Mục tiêu $\ge$ 20 Paid Users
-                    </span> */}
-                  </div>
-                  <h2 className="text-xl sm:text-2xl font-black text-white">
-                    Hiện có: <span className="text-purple-300">{paidUsersList.length}</span> / 20 Khách Hàng Trả Phí
+                  <h2 className="text-lg sm:text-2xl font-black text-white">
+                    Hiện có: <span className="text-purple-300 font-mono">{paidUsersList.length}</span> / 20 Khách Hàng Trả Phí
                   </h2>
-                  <p className="text-xs text-slate-300">
+                  <p className="text-[11px] sm:text-xs text-slate-300">
                     Bao gồm tài khoản kích hoạt các gói trả phí Starter, Pro, Business và các giao dịch chuyển khoản VietQR thực tế.
                   </p>
                 </div>
 
-                <div className="flex items-center gap-2.5 shrink-0">
+                <div className="flex items-center gap-2 shrink-0">
                   <button
                     onClick={handleExportPaidUsersCSV}
-                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs shadow-lg shadow-purple-500/20 transition-all cursor-pointer"
+                    className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs shadow-lg shadow-purple-500/20 transition-all cursor-pointer"
                   >
                     <Download className="w-3.5 h-3.5" />
-                    <span>Xuất CSV Paid Users</span>
+                    <span>Xuất CSV</span>
                   </button>
 
                   <button
                     onClick={handleRefreshLiveRealData}
-                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/[0.08] hover:bg-white/[0.15] text-cyan-300 border border-cyan-400/30 text-xs font-bold transition-all cursor-pointer"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.08] hover:bg-white/[0.15] text-cyan-300 border border-cyan-400/30 text-xs font-bold transition-all cursor-pointer"
                     title="Đồng bộ lại toàn bộ dữ liệu thực tế từ Supabase"
                   >
                     <RefreshCw className="w-3.5 h-3.5" />
-                    <span>Đồng Bộ Realtime</span>
+                    <span>Đồng Bộ</span>
                   </button>
                 </div>
               </div>
 
               {/* Progress Bar to 20 */}
               <div className="space-y-1.5 pt-1">
-                <div className="h-3 w-full rounded-full bg-black/40 overflow-hidden p-0.5 border border-white/10">
+                <div className="h-2.5 sm:h-3 w-full rounded-full bg-black/40 overflow-hidden p-0.5 border border-white/10">
                   <div
                     style={{ width: `${Math.min((paidUsersList.length / 20) * 100, 100)}%` }}
                     className="h-full bg-gradient-to-r from-purple-500 via-indigo-400 to-emerald-400 rounded-full transition-all duration-700 shadow-[0_0_15px_rgba(168,85,247,0.5)]"
                   />
                 </div>
-                <div className="flex justify-between text-[11px] text-slate-400 font-mono">
+                <div className="flex justify-between text-[10px] sm:text-[11px] text-slate-400 font-mono">
                   <span>Tiến độ: {((paidUsersList.length / 20) * 100).toFixed(1)}%</span>
                   <span>{paidUsersList.length >= 20 ? '🎉 ĐÃ HOÀN THÀNH CHỈ TIÊU OC3 (≥20)' : `Còn thiếu ${Math.max(20 - paidUsersList.length, 0)} khách hàng để đạt chỉ tiêu`}</span>
                 </div>
@@ -1162,32 +1152,32 @@ export function AdminPage({ user, onBack }) {
             </div>
 
             {/* Paid Users Table with LTV */}
-            <div className="p-6 rounded-3xl bg-white/[0.02] border border-white/[0.08] space-y-4">
+            <div className="p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-white/[0.02] border border-white/[0.08] space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-base font-bold text-white flex items-center gap-2">
-                    <Award className="w-4 h-4 text-amber-400" />
+                  <h3 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+                    <Award className="w-4 h-4 text-amber-400 shrink-0" />
                     <span>Danh Sách Khách Hàng Trả Phí & Giá Trị Vòng Đời (LTV)</span>
                   </h3>
-                  <p className="text-xs text-slate-400 mt-0.5">Tổng số khách hàng trả phí thực tế: {paidUsersList.length}</p>
+                  <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5">Tổng số khách hàng trả phí thực tế: {paidUsersList.length}</p>
                 </div>
               </div>
 
               {paidUsersList.length === 0 ? (
-                <div className="py-12 text-center text-slate-500 text-xs">
+                <div className="py-10 text-center text-slate-500 text-xs">
                   Chưa có tài khoản nào được kích hoạt gói trả phí trong database profiles hoặc có giao dịch VietQR đã duyệt.
                 </div>
               ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs">
+                <div className="overflow-x-auto rounded-xl border border-white/5">
+                  <table className="w-full text-left text-xs min-w-[650px]">
                     <thead>
-                      <tr className="border-b border-white/[0.08] text-slate-400">
-                        <th className="py-3 px-3">Khách Hàng</th>
-                        <th className="py-3 px-3">Gói Đang Dùng</th>
-                        <th className="py-3 px-3">LTV (Tổng Chi Tiêu)</th>
-                        <th className="py-3 px-3">Số Lần Mua</th>
-                        <th className="py-3 px-3">Ngày Kích Hoạt</th>
-                        <th className="py-3 px-3 text-right">Thao Tác</th>
+                      <tr className="border-b border-white/[0.08] bg-white/[0.02] text-slate-400 text-[11px] uppercase tracking-wider">
+                        <th className="py-3 px-3 font-semibold">Khách Hàng</th>
+                        <th className="py-3 px-3 font-semibold">Gói Đang Dùng</th>
+                        <th className="py-3 px-3 font-semibold">LTV (Tổng Chi Tiêu)</th>
+                        <th className="py-3 px-3 font-semibold">Số Lần Mua</th>
+                        <th className="py-3 px-3 font-semibold">Ngày Kích Hoạt</th>
+                        <th className="py-3 px-3 text-right font-semibold">Thao Tác</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-white/[0.04]">
@@ -1198,16 +1188,16 @@ export function AdminPage({ user, onBack }) {
                               <img
                                 src={pu.avatar_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150'}
                                 alt=""
-                                className="w-7 h-7 rounded-full object-cover border border-white/10"
+                                className="w-7 h-7 rounded-full object-cover border border-white/10 shrink-0"
                               />
-                              <div>
-                                <p className="font-bold text-white flex items-center gap-1.5">
+                              <div className="min-w-0">
+                                <p className="font-bold text-white flex items-center gap-1.5 truncate">
                                   <span>{pu.full_name || 'Khách hàng'}</span>
-                                  <span className="text-[9px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                                    Paid User
+                                  <span className="text-[9px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 shrink-0">
+                                    Paid
                                   </span>
                                 </p>
-                                <p className="text-[10px] text-slate-400 font-mono">{pu.email}</p>
+                                <p className="text-[10px] text-slate-400 font-mono truncate">{pu.email}</p>
                               </div>
                             </div>
                           </td>
@@ -1225,7 +1215,7 @@ export function AdminPage({ user, onBack }) {
                           </td>
 
                           <td className="py-3.5 px-3 text-slate-300">
-                            <span className="px-2 py-0.5 rounded-md bg-white/[0.04] border border-white/10 font-mono">
+                            <span className="px-2 py-0.5 rounded-md bg-white/[0.04] border border-white/10 font-mono text-[11px]">
                               {pu.txCount} GD
                             </span>
                           </td>
@@ -1402,10 +1392,10 @@ export function AdminPage({ user, onBack }) {
             TAB 5: TOÀN BỘ NGƯỜI DÙNG & PHÂN QUYỀN (ALL USERS)
            ═══════════════════════════════════════════════════════════ */}
         {activeTab === 'users' && (
-          <div className="space-y-6 animate-fade-in-up">
+          <div className="space-y-4 sm:space-y-6 animate-fade-in-up">
             
             {/* Search & Filter Bar */}
-            <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/[0.08] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+            <div className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-white/[0.02] border border-white/[0.08] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
               <div className="relative flex-1">
                 <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                 <input
@@ -1421,7 +1411,7 @@ export function AdminPage({ user, onBack }) {
                 <select
                   value={planFilter}
                   onChange={(e) => setPlanFilter(e.target.value)}
-                  className="bg-white/[0.04] border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 cursor-pointer"
+                  className="bg-white/[0.04] border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 cursor-pointer flex-1 sm:flex-none"
                 >
                   <option value="all" className="bg-[#0b0f19] text-white">Tất cả các gói</option>
                   <option value="free" className="bg-[#0b0f19] text-white">Gói Free (0đ)</option>
@@ -1441,15 +1431,15 @@ export function AdminPage({ user, onBack }) {
             </div>
 
             {/* Users Table */}
-            <div className="p-6 rounded-3xl bg-white/[0.02] border border-white/[0.08]">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
+            <div className="p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-white/[0.02] border border-white/[0.08]">
+              <div className="overflow-x-auto rounded-xl border border-white/5">
+                <table className="w-full text-left text-xs min-w-[620px]">
                   <thead>
-                    <tr className="border-b border-white/[0.08] text-slate-400">
-                      <th className="py-3 px-3">Người Dùng</th>
-                      <th className="py-3 px-3">Gói Hiện Tại</th>
-                      <th className="py-3 px-3">Ngày Tham Gia</th>
-                      <th className="py-3 px-3 text-right">Phân Quyền / Đổi Gói</th>
+                    <tr className="border-b border-white/[0.08] bg-white/[0.02] text-slate-400 text-[11px] uppercase tracking-wider">
+                      <th className="py-3 px-3 font-semibold">Người Dùng</th>
+                      <th className="py-3 px-3 font-semibold">Gói Hiện Tại</th>
+                      <th className="py-3 px-3 font-semibold">Ngày Tham Gia</th>
+                      <th className="py-3 px-3 text-right font-semibold">Phân Quyền / Đổi Gói</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-white/[0.04]">
@@ -1462,18 +1452,18 @@ export function AdminPage({ user, onBack }) {
                               <img
                                 src={u.avatar_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150'}
                                 alt=""
-                                className="w-7 h-7 rounded-full object-cover border border-white/10"
+                                className="w-7 h-7 rounded-full object-cover border border-white/10 shrink-0"
                               />
-                              <div>
-                                <p className="font-bold text-white flex items-center gap-1.5">
+                              <div className="min-w-0">
+                                <p className="font-bold text-white flex items-center gap-1.5 truncate">
                                   <span>{u.full_name || 'Người dùng'}</span>
                                   {u.role === 'Super Admin' && (
-                                    <span className="text-[9px] px-1.5 py-0.2 rounded bg-red-500/20 text-red-300 border border-red-500/30">
+                                    <span className="text-[9px] px-1.5 py-0.2 rounded bg-red-500/20 text-red-300 border border-red-500/30 shrink-0">
                                       Admin
                                     </span>
                                   )}
                                 </p>
-                                <p className="text-[10px] text-slate-400 font-mono">{u.email}</p>
+                                <p className="text-[10px] text-slate-400 font-mono truncate">{u.email}</p>
                               </div>
                             </div>
                           </td>
