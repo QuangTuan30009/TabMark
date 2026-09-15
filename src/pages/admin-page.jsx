@@ -465,7 +465,7 @@ export function AdminPage({ user, onBack }) {
     <div className="min-h-screen bg-[#06080f] text-slate-100 font-sans selection:bg-purple-500/30">
       
       {/* ── TOP NAV BAR ── */}
-      <header className="sticky top-0 z-40 bg-[#0a0d18]/90 backdrop-blur-xl border-b border-white/[0.08] px-3 sm:px-8 py-2.5 sm:py-3.5 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2.5">
+      <header className="sticky top-0 z-40 bg-[#0a0d18]/95 backdrop-blur-xl border-b border-white/[0.08] px-3 sm:px-8 py-2.5 sm:py-3.5 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2.5 pt-safe">
         <div className="flex items-center gap-2 sm:gap-4">
           <button
             onClick={onBack}
@@ -530,29 +530,29 @@ export function AdminPage({ user, onBack }) {
       <main className="max-w-7xl mx-auto px-4 sm:px-8 py-8 space-y-8">
         
         {/* ── TAB SELECTOR (5 CỘT CỐT LÕI CHO OC3) ── */}
-        <div className="flex items-center gap-2 p-1.5 bg-white/[0.03] border border-white/[0.08] rounded-2xl w-full overflow-x-auto">
+        <div className="grid grid-cols-2 sm:flex sm:items-center gap-1.5 sm:gap-2 p-1.5 bg-white/[0.03] border border-white/[0.08] rounded-2xl w-full overflow-x-auto">
           <button
             onClick={() => setActiveTab('overview')}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+            className={`flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
               activeTab === 'overview'
                 ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/25'
                 : 'text-slate-400 hover:text-white hover:bg-white/5'
             }`}
           >
             <TrendingUp className="w-3.5 h-3.5" />
-            <span>1. Dashboard Tổng Quan</span>
+            <span>Tổng Quan</span>
           </button>
 
           <button
             onClick={() => setActiveTab('revenue')}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+            className={`flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
               activeTab === 'revenue'
                 ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/25'
                 : 'text-slate-400 hover:text-white hover:bg-white/5'
             }`}
           >
             <DollarSign className="w-3.5 h-3.5" />
-            <span>2. Giao Dịch & Minh Chứng</span>
+            <span>Giao Dịch</span>
             {pendingTransactions.length > 0 && (
               <span className="px-1.5 py-0.2 rounded-full bg-amber-400 text-black font-extrabold text-[9px]">
                 {pendingTransactions.length}
@@ -562,38 +562,38 @@ export function AdminPage({ user, onBack }) {
 
           <button
             onClick={() => setActiveTab('paid_users')}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+            className={`flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
               activeTab === 'paid_users'
                 ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/25'
                 : 'text-slate-400 hover:text-white hover:bg-white/5'
             }`}
           >
             <UserCheck className="w-3.5 h-3.5" />
-            <span>3. Paid Users  ({paidUsersList.length}/20)</span>
+            <span>Paid ({paidUsersList.length})</span>
           </button>
 
           <button
             onClick={() => setActiveTab('analytics')}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+            className={`flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
               activeTab === 'analytics'
                 ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/25'
                 : 'text-slate-400 hover:text-white hover:bg-white/5'
             }`}
           >
             <BarChart3 className="w-3.5 h-3.5" />
-            <span>4. Phân Tích & Tracking</span>
+            <span>Phân Tích</span>
           </button>
 
           <button
             onClick={() => setActiveTab('users')}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+            className={`flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
               activeTab === 'users'
                 ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/25'
                 : 'text-slate-400 hover:text-white hover:bg-white/5'
             }`}
           >
             <Users className="w-3.5 h-3.5" />
-            <span>5. Toàn Bộ Người Dùng ({usersList.length})</span>
+            <span>Users ({usersList.length})</span>
           </button>
         </div>
 
@@ -603,8 +603,8 @@ export function AdminPage({ user, onBack }) {
         {activeTab === 'overview' && overview && (
           <div className="space-y-6 animate-fade-in-up">
             
-            {/* Top 4 KPI Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {/* Top 4 KPI Cards - 2x2 on mobile, 4 cols on large screens */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
               
               {/* Card 1: Paid Users (Mục tiêu OC3 >= 20) */}
               <div className="p-5 rounded-3xl bg-gradient-to-b from-purple-500/10 to-transparent border border-purple-500/20 hover:border-purple-500/40 transition-all relative overflow-hidden">
