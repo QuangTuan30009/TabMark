@@ -17,6 +17,7 @@ import { useCollections } from '@/hooks/use-collections'
 import { isSupabaseConfigured } from '@/lib/bookmarksApi'
 import { chatWithGemini, isGeminiConfigured, generateLinkSummary } from '@/lib/geminiApi'
 import { getAiQuota, consumeAiQuota, showQuotaExceededAlert } from '@/lib/quotaManager'
+import { registerBackButtonHandler } from '@/lib/backButtonHandler'
 
 const animatedSwal = Swal.mixin({
   background: '#10141f',
@@ -122,6 +123,50 @@ export function DashboardPage({ onBackHome, user, onLogout, sharedCollectionId }
     }, 8000)
     return () => clearTimeout(timer)
   }, [toast])
+
+  // Handle Android hardware back button for all modals and drawers in Dashboard
+  useEffect(() => {
+    const unregister = registerBackButtonHandler(() => {
+      if (linkEditor) {
+        setLinkEditor(null)
+        return true
+      }
+      if (collectionModalOpen) {
+        setCollectionModalOpen(false)
+        return true
+      }
+      if (shareModalOpen) {
+        setShareModalOpen(false)
+        return true
+      }
+      if (paymentModalOpen) {
+        setPaymentModalOpen(false)
+        return true
+      }
+      if (settingsModalOpen) {
+        setSettingsModalOpen(false)
+        return true
+      }
+      if (aiChatOpen) {
+        setAiChatOpen(false)
+        return true
+      }
+      if (isMobileSidebarOpen) {
+        setIsMobileSidebarOpen(false)
+        return true
+      }
+      return false // No open modal, delegate to global handler (double-tap exit or page nav)
+    })
+    return unregister
+  }, [
+    linkEditor,
+    collectionModalOpen,
+    shareModalOpen,
+    paymentModalOpen,
+    settingsModalOpen,
+    aiChatOpen,
+    isMobileSidebarOpen
+  ])
 
   // Listen for Ctrl+Z / Cmd+Z
   useEffect(() => {

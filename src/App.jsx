@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { isSupabaseConfigured, getUserProfile } from '@/lib/bookmarksApi'
 import LandingPage from '@/pages/LandingPage'
 import WelcomeScreen from '@/pages/WelcomeScreen'
@@ -8,6 +8,7 @@ import { AdminPage } from '@/pages/admin-page'
 import { supabase } from '@/lib/supabaseClient'
 import { isAdminUser } from '@/lib/adminApi'
 import { isInstalledApp } from '@/lib/platform'
+import { setupHardwareBackButton } from '@/lib/backButtonHandler'
 
 export default function App() {
   const [page, setPage] = useState(() => {
@@ -24,6 +25,16 @@ export default function App() {
   })
   const [showWelcome, setShowWelcome] = useState(() => window.location.hash !== '#dashboard')
   const [user, setUser] = useState(null)
+  const pageRef = useRef(page)
+  pageRef.current = page
+
+  // Initialize hardware back button handler for Android
+  useEffect(() => {
+    setupHardwareBackButton({
+      getPage: () => pageRef.current,
+      setPage: (newPage) => setPage(newPage),
+    })
+  }, [])
 
   // Sync user with profile data
   async function syncUserWithProfile(rawUser) {

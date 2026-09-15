@@ -46,6 +46,7 @@ import {
   adminUpdateUserPlan,
   adminResetUserAiQuota,
 } from '@/lib/adminApi'
+import { registerBackButtonHandler } from '@/lib/backButtonHandler'
 
 /**
  * Hàm xuất dữ liệu ra file CSV chuẩn UTF-8 (có BOM cho Excel tiếng Việt không lỗi font)
@@ -113,6 +114,26 @@ export function AdminPage({ user, onBack }) {
     window.addEventListener('tabmark_transaction_updated', handleTxUpdate)
     return () => window.removeEventListener('tabmark_transaction_updated', handleTxUpdate)
   }, [])
+
+  // Android hardware back button handler for Admin page
+  useEffect(() => {
+    const unregister = registerBackButtonHandler(() => {
+      if (selectedUserDetail) {
+        setSelectedUserDetail(null)
+        return true
+      }
+      if (activeTab !== 'overview') {
+        setActiveTab('overview')
+        return true
+      }
+      if (typeof onBack === 'function') {
+        onBack()
+        return true
+      }
+      return false
+    })
+    return unregister
+  }, [selectedUserDetail, activeTab, onBack])
 
   // Giao dịch đang chờ duyệt
   const pendingTransactions = useMemo(() => {
