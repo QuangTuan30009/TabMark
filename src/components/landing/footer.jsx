@@ -34,11 +34,21 @@ export function Footer() {
             <div key={heading}>
               <p className="mb-4 text-sm font-bold text-white tracking-wide">{heading}</p>
               <ul className="space-y-2.5">
-                {links.map((link) => (
-                  <li key={link}>
-                    <a href="#" className="text-xs sm:text-sm text-slate-400 transition-colors hover:text-cyan-300">{link}</a>
-                  </li>
-                ))}
+                {links.map((link) => {
+                  const isPrivacy = link === 'Chính sách bảo mật';
+                  return (
+                    <li key={link}>
+                      <a 
+                        href={isPrivacy ? '/privacy-policy.html' : '#'} 
+                        target={isPrivacy ? '_blank' : '_self'}
+                        rel={isPrivacy ? 'noopener noreferrer' : undefined}
+                        className="text-xs sm:text-sm text-slate-400 transition-colors hover:text-cyan-300"
+                      >
+                        {link}
+                      </a>
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           ))}
