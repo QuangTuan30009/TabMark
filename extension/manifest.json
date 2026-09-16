@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "TabMark - Smart Bookmark Saver",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Lưu trang web vào bảng Kanban TabMark chỉ với 1-click hoặc phím tắt Alt+S.",
   "permissions": [
     "activeTab",
