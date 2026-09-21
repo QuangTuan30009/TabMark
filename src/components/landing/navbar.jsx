@@ -32,7 +32,7 @@ export function Navbar({ onOpenDashboard, onLoginClick }) {
   const navLinks = [
     { href: "#features", text: "Tính năng" },
     { href: "#pricing", text: "Bảng giá" },
-    { href: "#contact", text: "Liên hệ" }
+    { href: "https://github.com/QuangTuan30009/TabMark", text: "Liên hệ", isExternal: true }
   ];
 
   return (
@@ -62,6 +62,8 @@ export function Navbar({ onOpenDashboard, onLoginClick }) {
               <a 
                 key={link.text} 
                 href={link.href} 
+                target={link.isExternal ? "_blank" : undefined}
+                rel={link.isExternal ? "noopener noreferrer" : undefined}
                 className="text-sm font-medium text-slate-300 hover:text-white transition-colors relative group py-1"
               >
                 {link.text}
@@ -109,6 +111,8 @@ export function Navbar({ onOpenDashboard, onLoginClick }) {
                 <a 
                   key={link.text} 
                   href={link.href} 
+                  target={link.isExternal ? "_blank" : undefined}
+                  rel={link.isExternal ? "noopener noreferrer" : undefined}
                   onClick={() => setIsMenuOpen(false)} 
                   className="px-3 py-3 text-base font-medium text-gray-600 dark:text-gray-300 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                 >

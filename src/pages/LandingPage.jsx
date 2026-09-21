@@ -3,7 +3,6 @@ import { Navbar } from '@/components/landing/navbar'
 import { HeroSection } from '@/components/landing/hero-section'
 import { FeaturesSection } from '@/components/landing/features-section'
 import { PricingSection } from '@/components/landing/pricing-section'
-import { ContactSection } from '@/components/landing/contact-section'
 import { Footer } from '@/components/landing/footer'
 import { PaymentModal } from '@/components/modals/payment-modal'
 import { registerBackButtonHandler } from '@/lib/backButtonHandler'
@@ -38,7 +37,6 @@ export default function LandingPage({ onOpenDashboard, onLoginClick, user }) {
           setPaymentModalOpen(true)
         }}
       />
-      <ContactSection />
       <Footer />
 
       {paymentModalOpen && (

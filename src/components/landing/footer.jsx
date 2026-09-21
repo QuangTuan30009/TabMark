@@ -22,7 +22,7 @@ const footerLinkGroups = [
     links: [
       { text: 'Về chúng tôi', href: '#features' },
       { text: 'Chính sách bảo mật', href: '/privacy-policy.html', isExternal: true },
-      { text: 'Liên hệ hỗ trợ', href: '#contact' },
+      { text: 'Liên hệ hỗ trợ', href: 'mailto:support@tabmark.app', isExternal: true },
     ],
   },
 ]
@@ -77,7 +77,6 @@ export function Footer() {
           <div className="flex items-center gap-4">
             <a href="https://github.com/QuangTuan30009/TabMark" target="_blank" rel="noreferrer" className="text-slate-400 hover:text-white transition-colors" title="Mã nguồn GitHub"><Code2 className="h-4 w-4" /></a>
             <a href="https://tabmark.app" target="_blank" rel="noreferrer" className="text-slate-400 hover:text-white transition-colors" title="Website"><Globe className="h-4 w-4" /></a>
-            <a href="#contact" className="text-slate-400 hover:text-white transition-colors" title="Liên hệ"><MessageSquare className="h-4 w-4" /></a>
             <a href="mailto:support@tabmark.app" className="text-slate-400 hover:text-white transition-colors" title="Email hỗ trợ"><Mail className="h-4 w-4" /></a>
           </div>
         </div>
