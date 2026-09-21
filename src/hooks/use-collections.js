@@ -355,10 +355,30 @@ export function useCollections({ animatedSwal, user, sharedCollectionId }) {
       try {
         let cloudCollections = []
         if (sharedCollectionId) {
-          // Chỉ tải collection được share
-          const sharedCol = await fetchSharedCollection(sharedCollectionId)
-          if (sharedCol) {
-            cloudCollections = [sharedCol]
+          if (sharedCollectionId.startsWith('bundle:')) {
+            try {
+              const base64Str = sharedCollectionId.replace('bundle:', '')
+              const binString = atob(base64Str)
+              const bytes = Uint8Array.from(binString, (m) => m.codePointAt(0))
+              const decodedStr = new TextDecoder().decode(bytes)
+              const parsed = JSON.parse(decodedStr)
+              const bundleCols = Array.isArray(parsed) ? parsed : (parsed.collections || [parsed])
+              cloudCollections = bundleCols.map(c => ({
+                id: c.id || 'shared-col',
+                name: c.name || 'Shared Bookmarks',
+                description: c.description || 'Danh sách bookmark được chia sẻ',
+                shareMode: 'view',
+                links: c.links || []
+              }))
+            } catch (bundleErr) {
+              console.error('Lỗi khi giải mã bundle shared:', bundleErr)
+            }
+          } else {
+            // Chỉ tải collection được share từ Supabase
+            const sharedCol = await fetchSharedCollection(sharedCollectionId)
+            if (sharedCol) {
+              cloudCollections = [sharedCol]
+            }
           }
         } else if (user) {
           // Tải danh sách collection của user
@@ -844,18 +864,56 @@ export function useCollections({ animatedSwal, user, sharedCollectionId }) {
     )))
   }
 
-  async function handleDrop(e, toCollectionId) {
+  async function handleDrop(e, toCollectionId, targetCardId = null) {
     const cardId = e.dataTransfer.getData('cardId')
     const fromCollectionId = e.dataTransfer.getData('fromCollectionId')
     
-    if (!cardId || !fromCollectionId || fromCollectionId === toCollectionId) return
+    if (!cardId || !fromCollectionId) return
 
+    // TRƯỜNG HỢP 1: Sắp xếp lại thứ tự ngay trong cùng 1 collection
+    if (fromCollectionId === toCollectionId) {
+      if (!targetCardId || targetCardId === cardId) return
+
+      const col = collections.find(c => c.id === toCollectionId)
+      if (!col || !col.links) return
+
+      const fromIndex = col.links.findIndex(l => l.id === cardId)
+      const toIndex = col.links.findIndex(l => l.id === targetCardId)
+      if (fromIndex === -1 || toIndex === -1 || fromIndex === toIndex) return
+
+      const newLinks = [...col.links]
+      const [movedLink] = newLinks.splice(fromIndex, 1)
+      newLinks.splice(toIndex, 0, movedLink)
+
+      setCollections(current => current.map(c => 
+        c.id === toCollectionId ? { ...c, links: newLinks } : c
+      ))
+
+      if (isSupabaseConfigured) {
+        try {
+          setSyncStatus('Sắp xếp lại link...')
+          await updateLink(cardId, {
+            ...movedLink,
+            position: toIndex
+          })
+          setSyncStatus('Đã sắp xếp lại thứ tự link')
+        } catch (error) {
+          console.error('Lỗi Supabase khi sắp xếp link:', error)
+          setSyncStatus('Lỗi khi lưu vị trí lên Cloud')
+        }
+      }
+      return
+    }
+
+    // TRƯỜNG HỢP 2: Di chuyển từ collection này sang collection khác
     const sourceCol = collections.find(c => c.id === fromCollectionId)
     const targetCol = collections.find(c => c.id === toCollectionId)
     if (!sourceCol || !targetCol) return
 
     const linkToUpdate = sourceCol.links.find(l => l.id === cardId)
     if (!linkToUpdate) return
+
+    let targetInsertIndex = 0
 
     setCollections(current => current.map(col => {
       if (col.id === fromCollectionId) {
@@ -865,9 +923,18 @@ export function useCollections({ animatedSwal, user, sharedCollectionId }) {
         }
       }
       if (col.id === toCollectionId) {
+        const nextLinks = [...col.links]
+        if (targetCardId) {
+          const idx = nextLinks.findIndex(l => l.id === targetCardId)
+          if (idx !== -1) {
+            nextLinks.splice(idx, 0, linkToUpdate)
+            targetInsertIndex = idx
+            return { ...col, links: nextLinks }
+          }
+        }
         return {
           ...col,
-          links: [linkToUpdate, ...col.links]
+          links: [linkToUpdate, ...nextLinks]
         }
       }
       return col
@@ -875,15 +942,47 @@ export function useCollections({ animatedSwal, user, sharedCollectionId }) {
 
     if (isSupabaseConfigured) {
       try {
-        setSyncStatus('Moving link in Supabase...')
+        setSyncStatus('Chuyển nhóm link...')
         await updateLink(cardId, {
           ...linkToUpdate,
-          collection_id: toCollectionId
+          collection_id: toCollectionId,
+          position: targetInsertIndex
         })
-        setSyncStatus('Link moved in Supabase')
+        setSyncStatus('Đã chuyển nhóm thành công')
       } catch (error) {
         console.error(error)
-        setSyncStatus('Failed to move link in Supabase')
+        setSyncStatus('Lỗi khi chuyển nhóm link')
+      }
+    }
+  }
+
+  // Hỗ trợ nút mũi tên Lên/Xuống trên từng thẻ bookmark
+  async function handleMoveLink(cardId, direction) {
+    const parentCol = collections.find(c => c.links?.some(l => l.id === cardId))
+    if (!parentCol || !parentCol.links) return
+
+    const currentIndex = parentCol.links.findIndex(l => l.id === cardId)
+    if (currentIndex === -1) return
+
+    const targetIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1
+    if (targetIndex < 0 || targetIndex >= parentCol.links.length) return
+
+    const newLinks = [...parentCol.links]
+    const [movedLink] = newLinks.splice(currentIndex, 1)
+    newLinks.splice(targetIndex, 0, movedLink)
+
+    setCollections(current => current.map(c => 
+      c.id === parentCol.id ? { ...c, links: newLinks } : c
+    ))
+
+    if (isSupabaseConfigured) {
+      try {
+        await updateLink(cardId, {
+          ...movedLink,
+          position: targetIndex
+        })
+      } catch (error) {
+        console.error('Lỗi đổi vị trí:', error)
       }
     }
   }
@@ -1242,6 +1341,7 @@ export function useCollections({ animatedSwal, user, sharedCollectionId }) {
     handleDeleteLink,
     handleDuplicateLink,
     handleDrop,
+    handleMoveLink,
     handleReorderCollections,
     handleExport,
     handleImport,

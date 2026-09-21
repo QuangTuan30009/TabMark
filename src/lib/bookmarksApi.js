@@ -99,6 +99,9 @@ export async function updateLink(id, link) {
   if (link.collection_id) {
     updateFields.collection_id = link.collection_id
   }
+  if (link.position !== undefined) {
+    updateFields.position = link.position
+  }
 
   const { data, error } = await supabase
     .from('bookmark_links')

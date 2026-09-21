@@ -63,6 +63,7 @@ export function DashboardPage({ onBackHome, user, onLogout, sharedCollectionId }
     handleDeleteLink,
     handleDuplicateLink,
     handleDrop,
+    handleMoveLink,
     handleReorderCollections,
     handleExport,
     handleImport,
@@ -79,6 +80,7 @@ export function DashboardPage({ onBackHome, user, onLogout, sharedCollectionId }
   const [sidebarSearchQuery, setSidebarSearchQuery] = useState('')
   const [collectionModalOpen, setCollectionModalOpen] = useState(false)
   const [shareModalOpen, setShareModalOpen] = useState(false)
+  const [selectedCardForShare, setSelectedCardForShare] = useState(null)
   const [paymentModalOpen, setPaymentModalOpen] = useState(false)
   const [settingsModalOpen, setSettingsModalOpen] = useState(false)
   const [linkEditor, setLinkEditor] = useState(null)
@@ -472,6 +474,11 @@ export function DashboardPage({ onBackHome, user, onLogout, sharedCollectionId }
             onDuplicateGroup={canEditGroup ? handleDuplicateGroup : undefined}
             onReorderCollections={canEditGroup ? handleReorderCollections : undefined}
             onGenerateSummary={canEditLinks ? handleGenerateSummary : undefined}
+            onMoveLink={canEditLinks ? handleMoveLink : undefined}
+            onShareCard={(card) => {
+              setSelectedCardForShare(card)
+              setShareModalOpen(true)
+            }}
           />
         </main>
       </div>
@@ -628,11 +635,17 @@ export function DashboardPage({ onBackHome, user, onLogout, sharedCollectionId }
           onSave={(col) => handleCreateCollection(col, () => setCollectionModalOpen(false))} 
         />
       )}
-      {shareModalOpen && activeCollection && (
+      {shareModalOpen && (
         <ShareModal 
-          collection={activeCollection}
-          onClose={() => setShareModalOpen(false)}
+          collection={activeCollection || collections[0]}
+          collections={collections}
+          initialSelectedCard={selectedCardForShare}
+          onClose={() => {
+            setShareModalOpen(false)
+            setSelectedCardForShare(null)
+          }}
           onUpdateShareMode={handleUpdateShareMode}
+          user={currentUser}
         />
       )}
       {linkEditor && (

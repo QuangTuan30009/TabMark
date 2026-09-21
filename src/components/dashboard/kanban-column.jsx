@@ -24,6 +24,8 @@ export default function KanbanColumn({
   onDuplicateGroup,
   onReorderCollections,
   onGenerateSummary,
+  onMoveLink,
+  onShareCard,
 }) {
   const [menuOpen, setMenuOpen] = useState(false)
   const [showPopupModal, setShowPopupModal] = useState(false)
@@ -147,7 +149,7 @@ export default function KanbanColumn({
         }}
         onDrop={(e) => {
           e.stopPropagation()
-          onDrop(e, columnKey)
+          if (onDrop) onDrop(e, columnKey, null)
         }}
       >
         {cards.length === 0 ? (
@@ -155,7 +157,7 @@ export default function KanbanColumn({
             <p className="text-xs text-slate-600">No bookmarks yet</p>
           </div>
         ) : (
-          cards.map((card) => (
+          cards.map((card, idx) => (
             <KanbanCard
               key={card.id}
               card={card}
@@ -163,6 +165,12 @@ export default function KanbanColumn({
               color={color}
               tooltipDirection={tooltipDirection}
               onDragStart={onDragStart}
+              onDropOnCard={onDrop}
+              canMoveUp={idx > 0}
+              canMoveDown={idx < cards.length - 1}
+              onMoveUp={onMoveLink ? () => onMoveLink(card.id, 'up') : undefined}
+              onMoveDown={onMoveLink ? () => onMoveLink(card.id, 'down') : undefined}
+              onShareCard={onShareCard}
               onEdit={onEdit}
               onDelete={onDelete}
               onDuplicate={onDuplicate}

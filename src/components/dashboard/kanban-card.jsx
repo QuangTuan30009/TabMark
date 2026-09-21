@@ -11,7 +11,10 @@ import {
   CreditCard,
   Globe,
   Search,
-  Check
+  Check,
+  ArrowUp,
+  ArrowDown,
+  Share2
 } from 'lucide-react'
 
 // High-res Favicon resolver with fallback
@@ -61,7 +64,6 @@ function BrandFavicon({ url, title, icon, className = 'w-4 h-4' }) {
   )
 }
 
-
 // Gradient themes for thumbnail banners when screenshot image is not present
 const bannerGradients = [
   'from-blue-900/40 via-indigo-950/50 to-[#0b0e14]',
@@ -77,6 +79,12 @@ export default function KanbanCard({
   color = 'blue',
   tooltipDirection = 'right',
   onDragStart,
+  onDropOnCard,
+  onMoveUp,
+  onMoveDown,
+  canMoveUp = false,
+  canMoveDown = false,
+  onShareCard,
   onEdit,
   onDelete,
   onDuplicate,
@@ -85,6 +93,7 @@ export default function KanbanCard({
   const [showMenu, setShowMenu] = useState(false)
   const [isGenerating, setIsGenerating] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [isDragOver, setIsDragOver] = useState(false)
 
   const handleAIClick = async (e) => {
     e.stopPropagation()
@@ -125,9 +134,29 @@ export default function KanbanCard({
           onDragStart(e, card.id, columnKey)
         }
       }}
-      className={`group relative ${showMenu ? 'z-30' : 'z-0'} rounded-2xl bg-[#0e1320] border border-white/[0.06] hover:border-blue-500/30 hover:shadow-[0_8px_30px_rgba(0,0,0,0.5)] transition-all duration-300 ${
-        canDrag ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'
-      }`}
+      onDragOver={(e) => {
+        if (canDrag) {
+          e.preventDefault()
+          e.stopPropagation()
+          setIsDragOver(true)
+        }
+      }}
+      onDragLeave={() => setIsDragOver(false)}
+      onDrop={(e) => {
+        if (canDrag) {
+          e.preventDefault()
+          e.stopPropagation()
+          setIsDragOver(false)
+          if (onDropOnCard) {
+            onDropOnCard(e, columnKey, card.id)
+          }
+        }
+      }}
+      className={`group relative ${showMenu ? 'z-30' : 'z-0'} rounded-2xl bg-[#0e1320] border transition-all duration-200 ${
+        isDragOver
+          ? 'border-cyan-400 ring-2 ring-cyan-400/60 shadow-[0_0_25px_rgba(6,182,212,0.4)] scale-[1.02]'
+          : 'border-white/[0.06] hover:border-blue-500/30 hover:shadow-[0_8px_30px_rgba(0,0,0,0.5)]'
+      } ${canDrag ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'}`}
     >
       {/* ── TOP THUMBNAIL BANNER (Concept 1 Style) ── */}
       <div className="relative h-28 w-full border-b border-white/[0.04]">
@@ -177,6 +206,37 @@ export default function KanbanCard({
                     {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-slate-400" />}
                     <span>{copied ? 'Đã sao chép!' : 'Sao chép link'}</span>
                   </button>
+
+                  {/* Quick Reorder Buttons */}
+                  {canMoveUp && onMoveUp && (
+                    <button
+                      onClick={() => { setShowMenu(false); onMoveUp() }}
+                      className="w-full flex items-center gap-2.5 px-3.5 py-2 text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white transition-colors cursor-pointer"
+                    >
+                      <ArrowUp className="w-3.5 h-3.5 text-cyan-400" />
+                      <span>Di chuyển lên</span>
+                    </button>
+                  )}
+                  {canMoveDown && onMoveDown && (
+                    <button
+                      onClick={() => { setShowMenu(false); onMoveDown() }}
+                      className="w-full flex items-center gap-2.5 px-3.5 py-2 text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white transition-colors cursor-pointer"
+                    >
+                      <ArrowDown className="w-3.5 h-3.5 text-cyan-400" />
+                      <span>Di chuyển xuống</span>
+                    </button>
+                  )}
+
+                  {onShareCard && (
+                    <button
+                      onClick={() => { setShowMenu(false); onShareCard(card) }}
+                      className="w-full flex items-center gap-2.5 px-3.5 py-2 text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white transition-colors cursor-pointer"
+                    >
+                      <Share2 className="w-3.5 h-3.5 text-purple-400" />
+                      <span>Chia sẻ bookmark này</span>
+                    </button>
+                  )}
+
                   {onEdit && (
                     <button
                       onClick={() => { setShowMenu(false); onEdit(card) }}

@@ -28,6 +28,8 @@ export default function KanbanBoard({
   onDuplicateGroup,
   onReorderCollections,
   onGenerateSummary,
+  onMoveLink,
+  onShareCard,
 }) {
   const boardRef = useRef(null)
   const [draggedColId, setDraggedColId] = useState(null)
@@ -118,13 +120,19 @@ export default function KanbanBoard({
               {/* List of Cards */}
               {activeCol.links?.length > 0 ? (
                 <div className="space-y-3">
-                  {activeCol.links.map((card) => (
+                  {activeCol.links.map((card, idx) => (
                     <KanbanCard
                       key={card.id}
                       card={card}
                       columnKey={activeCol.id}
                       color={activeConfig.color}
                       onDragStart={onDragStart}
+                      onDropOnCard={onDrop}
+                      canMoveUp={idx > 0}
+                      canMoveDown={idx < activeCol.links.length - 1}
+                      onMoveUp={onMoveLink ? () => onMoveLink(card.id, 'up') : undefined}
+                      onMoveDown={onMoveLink ? () => onMoveLink(card.id, 'down') : undefined}
+                      onShareCard={onShareCard}
                       onEdit={onEdit}
                       onDelete={onDelete}
                       onDuplicate={onDuplicate}
@@ -205,6 +213,8 @@ export default function KanbanBoard({
                 onDeleteGroup={onDeleteGroup}
                 onDuplicateGroup={onDuplicateGroup}
                 onGenerateSummary={onGenerateSummary}
+                onMoveLink={onMoveLink}
+                onShareCard={onShareCard}
               />
             </div>
           )
