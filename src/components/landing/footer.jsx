@@ -1,4 +1,4 @@
-import { Globe, MessageSquare, Mail, Sparkles } from 'lucide-react'
+import { Globe, MessageSquare, Mail, Sparkles, Code2 } from 'lucide-react'
 
 const footerLinkGroups = [
   {
@@ -6,7 +6,7 @@ const footerLinkGroups = [
     links: [
       { text: 'Tính năng', href: '#features' },
       { text: 'Bảng giá', href: '#pricing' },
-      { text: 'Doanh nghiệp', href: '#pricing' },
+      { text: 'Liên hệ', href: 'https://github.com/QuangTuan30009/TabMark', isExternal: true },
     ],
   },
   {
@@ -75,8 +75,9 @@ export function Footer() {
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/[0.06] pt-8 md:flex-row text-xs text-slate-500">
           <p>© 2026 TabMark • Nền tảng quản lý bookmark trực quan AI • EXE201 Production</p>
           <div className="flex items-center gap-4">
+            <a href="https://github.com/QuangTuan30009/TabMark" target="_blank" rel="noreferrer" className="text-slate-400 hover:text-white transition-colors" title="Mã nguồn GitHub"><Code2 className="h-4 w-4" /></a>
             <a href="https://tabmark.app" target="_blank" rel="noreferrer" className="text-slate-400 hover:text-white transition-colors" title="Website"><Globe className="h-4 w-4" /></a>
-            <a href="#contact" className="text-slate-400 hover:text-white transition-colors" title="Cộng đồng"><MessageSquare className="h-4 w-4" /></a>
+            <a href="#contact" className="text-slate-400 hover:text-white transition-colors" title="Liên hệ"><MessageSquare className="h-4 w-4" /></a>
             <a href="mailto:support@tabmark.app" className="text-slate-400 hover:text-white transition-colors" title="Email hỗ trợ"><Mail className="h-4 w-4" /></a>
           </div>
         </div>
