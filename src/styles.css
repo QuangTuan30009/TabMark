@@ -154,9 +154,6 @@
     @apply bg-background text-foreground;
     margin: 0;
     overflow-x: hidden;
-    /* Force GPU compositing layer for body */
-    transform: translateZ(0);
-    -webkit-transform: translateZ(0);
   }
 
   button {

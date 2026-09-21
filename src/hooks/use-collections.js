@@ -13,155 +13,309 @@ import {
 } from '@/lib/bookmarksApi'
 import { supabase } from '@/lib/supabaseClient'
 
-const STORAGE_KEY = 'tabmark.collections.v2'
+const STORAGE_KEY = 'tabmark.collections.v7'
 
 const defaultCollections = [
   {
-    id: 'default',
-    name: 'Default',
-    description: 'Dự án và tài liệu mặc định.',
+    id: 'guide',
+    name: 'Hướng dẫn & Bắt đầu',
+    description: 'Làm quen và trải nghiệm các tính năng cốt lõi của TabMark.',
     links: [
-      { id: 'def1', title: 'My Storage', url: 'drive.google.com', icon: 'drive', tags: ['storage', 'google'], note: 'Google Drive storage' },
-      { id: 'def2', title: 'SAIGON FOODS', url: 'docs.google.com/spreadsheets', icon: 'sheets', tags: ['work', 'data'], note: 'Bảng tính công việc' },
-      { id: 'def3', title: 'DOCKER và KUBERNETES', url: 'docs.google.com/presentation', icon: 'slides', tags: ['devops', 'learning'], note: 'Slide đào tạo Docker & Kubernetes' },
-      { id: 'def4', title: 'Tailwind CSS button collection', url: 'buttons.tailwind.co', icon: 'css', tags: ['design', 'css', 'tailwind'], note: 'Thư viện mẫu button Tailwind' },
-      { id: 'def5', title: 'Watch and Rebuild Storybook', url: 'dev.to/storybook', icon: 'book', tags: ['dev', 'storybook'], note: 'Hướng dẫn tối ưu Storybook' },
-      { id: 'def6', title: 'Componentix', url: 'docs.gray.land', icon: 'docs', tags: ['ui', 'docs'], note: 'Tài liệu UI Component' }
+      {
+        id: 'guide1',
+        title: 'Chào mừng đến với Tabmark!',
+        url: 'https://tabmark.app',
+        icon: 'sparkles',
+        tags: ['Guide', 'Welcome'],
+        note: 'Kéo thả thẻ này giữa các cột để thay đổi trạng thái tiến độ.',
+        status: 'todo',
+        time: '3 min'
+      },
+      {
+        id: 'guide2',
+        title: 'Khám phá tính năng AI Summary',
+        url: 'https://tabmark.app/ai',
+        icon: 'ai',
+        tags: ['AI', 'Feature'],
+        note: 'Bấm vào nút Sparkles hoặc AI để tạo tóm tắt thông minh.',
+        status: 'in_progress',
+        time: '5 min'
+      }
     ]
   },
   {
-    id: 'redbean',
-    name: 'Redbean',
-    description: 'Dự án Redbean.',
+    id: 'general-work',
+    name: 'General Work',
+    description: 'Không gian làm việc và tài liệu dự án cốt lõi.',
     links: [
-      { id: 'rb1', title: 'MEET', url: 'meet.google.com', icon: 'meet', tags: ['meeting', 'google'], note: 'Link họp dự án' },
-      { id: 'rb2', title: 'Trello', url: 'trello.com', icon: 'trello', tags: ['management', 'task'], note: 'Bảng công việc Trello' },
-      { id: 'rb3', title: 'FSD', url: 'drive.google.com', icon: 'drive', tags: ['docs', 'design'], note: 'Tài liệu thiết kế FSD' },
-      { id: 'rb4', title: 'MASTER DATA', url: 'docs.google.com/spreadsheets', icon: 'sheets', tags: ['data', 'analytics'], note: 'Dữ liệu tổng hợp' },
-      { id: 'rb5', title: 'TimeSheet', url: 'docs.google.com/spreadsheets', icon: 'sheets', tags: ['hr', 'timesheet'], note: 'Bảng chấm công' },
-      { id: 'rb6', title: 'Master Plan', url: 'docs.google.com/spreadsheets', icon: 'sheets', tags: ['plan', 'project'], note: 'Kế hoạch tổng thể dự án' }
+      {
+        id: 'gw1',
+        title: 'Google Drive Storage',
+        url: 'https://drive.google.com',
+        icon: 'drive',
+        tags: ['storage', 'google'],
+        note: 'Kho lưu trữ tài liệu dự án, hồ sơ và file thuyết trình.',
+        status: 'todo',
+        time: '10 min'
+      },
+      {
+        id: 'gw2',
+        title: 'Bảng tính Google Sheets',
+        url: 'https://docs.google.com/spreadsheets',
+        icon: 'sheets',
+        tags: ['work', 'data'],
+        note: 'Bảng tính dữ liệu kinh doanh, quản lý chỉ số và theo dõi KPI.',
+        status: 'in_progress',
+        time: '15 min'
+      },
+      {
+        id: 'gw3',
+        title: 'GitHub - TabMark Repository',
+        url: 'https://github.com/QuangTuan30009/TabMark',
+        icon: 'gitlab',
+        tags: ['code', 'github'],
+        note: 'Kho mã nguồn chính thức và tiến độ phát triển hệ thống TabMark.',
+        status: 'done',
+        time: '20 min'
+      },
+      {
+        id: 'gw4',
+        title: 'Trello Kanban Board',
+        url: 'https://trello.com',
+        icon: 'trello',
+        tags: ['management', 'task'],
+        note: 'Bảng quản lý công việc và phân chia nhiệm vụ thành viên nhóm.',
+        status: 'done',
+        time: '10 min'
+      },
+      {
+        id: 'gw5',
+        title: 'Notion Workspace',
+        url: 'https://www.notion.so',
+        icon: 'docs',
+        tags: ['notes', 'workspace'],
+        note: 'Không gian ghi chú tài liệu, wiki cá nhân và quản lý kiến thức.',
+        status: 'todo',
+        time: '10 min'
+      },
+      {
+        id: 'gw6',
+        title: 'Google Meet',
+        url: 'https://meet.google.com',
+        icon: 'meet',
+        tags: ['meeting', 'google'],
+        note: 'Phòng họp trực tuyến và hội thảo nhóm nhanh chóng, ổn định.',
+        status: 'done',
+        time: '10 min'
+      }
     ]
   },
   {
-    id: 'digiin',
-    name: 'Digiin',
-    description: 'Dự án Digiin.',
+    id: 'ai-assistants',
+    name: 'Trợ lý AI',
+    description: 'Bộ công cụ trí tuệ nhân tạo tăng năng suất công việc.',
     links: [
-      { id: 'di1', title: 'MEET', url: 'meet.google.com', icon: 'meet', tags: ['meeting'], note: 'Họp định kỳ' },
-      { id: 'di2', title: 'Trello', url: 'trello.com', icon: 'trello', tags: ['trello'], note: 'Quản lý task' },
-      { id: 'di3', title: 'DBV - Mapping API', url: 'docs.google.com/spreadsheets', icon: 'sheets', tags: ['api', 'mapping'], note: 'Bảng ánh xạ API' },
-      { id: 'di4', title: 'CarData', url: 'docs.google.com/spreadsheets', icon: 'sheets', tags: ['data'], note: 'Dữ liệu xe' },
-      { id: 'di5', title: 'TimeSheet', url: 'docs.google.com/spreadsheets', icon: 'sheets', tags: ['hr'], note: 'Chấm công dự án' },
-      { id: 'di6', title: 'DATABASE SCHEMA V1.3.2', url: 'docs.google.com/spreadsheets', icon: 'sheets', tags: ['database', 'schema'], note: 'Sơ đồ cơ sở dữ liệu' }
+      {
+        id: 'ai1',
+        title: 'ChatGPT (OpenAI)',
+        url: 'https://chatgpt.com',
+        icon: 'chatgpt',
+        tags: ['ai', 'chatbot'],
+        note: 'Trợ lý AI đa năng hỗ trợ nghiên cứu, soạn thảo văn bản và lập trình.',
+        status: 'done',
+        time: '5 min'
+      },
+      {
+        id: 'ai2',
+        title: 'Claude AI (Anthropic)',
+        url: 'https://claude.ai',
+        icon: 'claude',
+        tags: ['ai', 'anthropic'],
+        note: 'Mô hình AI phân tích văn bản dài và xử lý tài liệu chuyên sâu.',
+        status: 'done',
+        time: '10 min'
+      },
+      {
+        id: 'ai3',
+        title: 'Google Gemini',
+        url: 'https://gemini.google.com',
+        icon: 'gemini',
+        tags: ['ai', 'google'],
+        note: 'AI thế hệ mới của Google tích hợp dữ liệu tìm kiếm thời gian thực.',
+        status: 'in_progress',
+        time: '5 min'
+      },
+      {
+        id: 'ai4',
+        title: 'v0 by Vercel',
+        url: 'https://v0.dev',
+        icon: 'react',
+        tags: ['ai', 'frontend'],
+        note: 'Sinh mã giao diện React và Tailwind CSS nhanh chóng bằng AI Prompt.',
+        status: 'todo',
+        time: '15 min'
+      },
+      {
+        id: 'ai5',
+        title: 'Midjourney',
+        url: 'https://www.midjourney.com',
+        icon: 'midjourney',
+        tags: ['ai', 'design'],
+        note: 'Khởi tạo ý tưởng đồ họa và hình ảnh nghệ thuật độc đáo bằng AI.',
+        status: 'todo',
+        time: '20 min'
+      }
     ]
   },
   {
-    id: 'cloudair',
-    name: 'Cloudair',
-    description: 'Dự án Cloudair.',
+    id: 'dev-design',
+    name: 'Lập trình & UI/UX',
+    description: 'Thư viện và công cụ phát triển phần mềm chuyên nghiệp.',
     links: [
-      { id: 'ca1', title: 'GitLab', url: 'gitlab.com', icon: 'gitlab', tags: ['code', 'git'], note: 'Kho lưu trữ mã nguồn' },
-      { id: 'ca2', title: 'Taiga', url: 'taiga.io', icon: 'taiga', tags: ['pm', 'scrum'], note: 'Quản lý dự án Agile' },
-      { id: 'ca3', title: 'Jira', url: 'jira.com', icon: 'jira', tags: ['jira', 'task'], note: 'Theo dõi lỗi & công việc' },
-      { id: 'ca4', title: 'Cloud Air Solution', url: 'cloud-air.com', icon: 'cloud', tags: ['website', 'solution'], note: 'Trang giải pháp Cloud' },
-      { id: 'ca5', title: 'Pham Huu Loc - Timesheet', url: 'docs.google.com/spreadsheets', icon: 'sheets', tags: ['timesheet'], note: 'Bảng chấm công cá nhân' }
+      {
+        id: 'dev1',
+        title: 'Tailwind CSS Docs',
+        url: 'https://tailwindcss.com/docs',
+        icon: 'css',
+        tags: ['css', 'tailwind'],
+        note: 'Tài liệu tra cứu class utility và hướng dẫn phong cách thiết kế hiện đại.',
+        status: 'done',
+        time: '10 min'
+      },
+      {
+        id: 'dev2',
+        title: 'Shadcn/UI Components',
+        url: 'https://ui.shadcn.com',
+        icon: 'shadcn',
+        tags: ['components', 'react'],
+        note: 'Bộ UI component React cao cấp, mã nguồn mở và tùy biến linh hoạt.',
+        status: 'done',
+        time: '15 min'
+      },
+      {
+        id: 'dev3',
+        title: 'Lucide Icons Library',
+        url: 'https://lucide.dev/icons',
+        icon: 'lucide',
+        tags: ['icons', 'svg'],
+        note: 'Hơn 1,000+ vector icon tối giản, nhẹ nhàng và chuẩn UX.',
+        status: 'in_progress',
+        time: '5 min'
+      },
+      {
+        id: 'dev4',
+        title: 'Figma Design',
+        url: 'https://www.figma.com',
+        icon: 'design',
+        tags: ['ui', 'ux'],
+        note: 'Nền tảng thiết kế UI/UX và cộng tác prototype thời gian thực.',
+        status: 'done',
+        time: '30 min'
+      },
+      {
+        id: 'dev5',
+        title: 'dbdiagram.io',
+        url: 'https://dbdiagram.io',
+        icon: 'database',
+        tags: ['database', 'schema'],
+        note: 'Thiết kế và trực quan hóa sơ đồ cơ sở dữ liệu quan hệ (ERD).',
+        status: 'todo',
+        time: '20 min'
+      }
     ]
   },
   {
-    id: 'tools',
-    name: 'Tools',
-    description: 'Các công cụ hữu ích.',
+    id: 'research-learning',
+    name: 'Nghiên cứu & Học tập',
+    description: 'Nền tảng tri thức, tài liệu học thuật và không gian ghi chú.',
     links: [
-      { id: 'to1', title: 'Extension devconsole', url: 'chrome.google.com/webstore', icon: 'chrome', tags: ['chrome', 'extension'], note: 'Tiện ích nhà phát triển' },
-      { id: 'to2', title: 'Tab Board', url: 'chromewebstore.google.com', icon: 'chrome', tags: ['extension', 'tabs'], note: 'Quản lý tab trình duyệt' },
-      { id: 'to3', title: 'Quay video', url: 'caplet.com', icon: 'video', tags: ['media', 'record'], note: 'Công cụ quay màn hình' },
-      { id: 'to4', title: 'Tra mã vận đơn SPX', url: 'spx.vn', icon: 'delivery', tags: ['shipping', 'spx'], note: 'Tra cứu đơn hàng Shopee Express' },
-      { id: 'to5', title: 'Create voice', url: 'voicemaker.in', icon: 'voice', tags: ['ai', 'voice'], note: 'Chuyển văn bản thành giọng nói' },
-      { id: 'to6', title: 'J2TEAM Security', url: 'chrome.google.com', icon: 'chrome', tags: ['security', 'extension'], note: 'Bảo mật tài khoản Facebook' }
+      {
+        id: 'rs1',
+        title: 'Google Scholar',
+        url: 'https://scholar.google.com',
+        icon: 'book',
+        tags: ['research', 'academic'],
+        note: 'Tra cứu bài báo khoa học, đề tài nghiên cứu và tài liệu học thuật.',
+        status: 'done',
+        time: '15 min'
+      },
+      {
+        id: 'rs2',
+        title: 'Coursera Online Courses',
+        url: 'https://www.coursera.org',
+        icon: 'docs',
+        tags: ['learning', 'courses'],
+        note: 'Nền tảng học trực tuyến các chứng chỉ công nghệ hàng đầu thế giới.',
+        status: 'in_progress',
+        time: '45 min'
+      },
+      {
+        id: 'rs3',
+        title: 'Notion Workspace',
+        url: 'https://www.notion.so',
+        icon: 'docs',
+        tags: ['notes', 'workspace'],
+        note: 'Không gian ghi chú tài liệu, wiki cá nhân và quản lý kiến thức.',
+        status: 'done',
+        time: '10 min'
+      },
+      {
+        id: 'rs4',
+        title: 'Google Meet',
+        url: 'https://meet.google.com',
+        icon: 'meet',
+        tags: ['meeting', 'google'],
+        note: 'Phòng họp trực tuyến và hội thảo nhóm nhanh chóng, ổn định.',
+        status: 'todo',
+        time: '10 min'
+      }
     ]
   },
   {
-    id: 'dev-tools',
-    name: 'Dev - Tools',
-    description: 'Công cụ hỗ trợ phát triển.',
+    id: 'productivity-tools',
+    name: 'Tiện ích Hàng ngày',
+    description: 'Các công cụ tiện ích hỗ trợ công việc và sinh hoạt.',
     links: [
-      { id: 'dt1', title: 'UI colors', url: 'uicolors.app/create', icon: 'color', tags: ['design', 'tailwind'], note: 'Tạo bảng màu Tailwind CSS' },
-      { id: 'dt2', title: 'Search library', url: 'npmjs.com', icon: 'npm', tags: ['package', 'npm'], note: 'Tìm kiếm thư viện Node' },
-      { id: 'dt3', title: 'Link VPS Giá rẻ', url: 'docs.google.com', icon: 'sheets', tags: ['hosting', 'vps'], note: 'Danh sách nhà cung cấp VPS' },
-      { id: 'dt4', title: 'Tools for designers & developers', url: 'magicpattern.design', icon: 'design', tags: ['patterns', 'ui'], note: 'Tạo hình nền & họa tiết' },
-      { id: 'dt5', title: 'Dev Tools', url: 'frontend-checklist.org', icon: 'checklist', tags: ['frontend', 'checklist'], note: 'Danh sách kiểm tra Frontend' },
-      { id: 'dt6', title: 'DB schema designer', url: 'dbdiagram.io', icon: 'database', tags: ['database', 'diagram'], note: 'Vẽ sơ đồ quan hệ thực thể ERD' }
-    ]
-  },
-  {
-    id: 'dev-icons',
-    name: 'Dev - Icons & logo',
-    description: 'Bộ sưu tập icon & logo.',
-    links: [
-      { id: 'di_ic1', title: 'Lucide', url: 'lucide.dev/icons/', icon: 'lucide', tags: ['icons', 'svg'], note: 'Thư viện icon SVG tối giản' },
-      { id: 'di_ic2', title: 'Iconer SVG icons', url: 'iconer.app/', icon: 'iconer', tags: ['icons', 'customize'], note: 'Tùy chỉnh & tải icon SVG' },
-      { id: 'di_ic3', title: 'Heroicons SVG icons', url: 'heroicons.com/', icon: 'heroicons', tags: ['icons', 'tailwind'], note: 'Icon của tác giả Tailwind CSS' },
-      { id: 'di_ic4', title: 'Essential SVG Icons', url: 'lineicons.com/icons/', icon: 'lineicons', tags: ['icons', 'outline'], note: 'Bộ icon đường nét hiện đại' },
-      { id: 'di_ic5', title: 'Streamline Icons', url: 'streamlinehq.com/', icon: 'streamline', tags: ['icons', 'graphics'], note: 'Bộ sưu tập vector đồ sộ' },
-      { id: 'di_ic6', title: 'Remix Icon', url: 'remixicon.com/', icon: 'remix', tags: ['icons', 'open-source'], note: 'Hơn 2000 icon mã nguồn mở' }
-    ]
-  },
-  {
-    id: 'dev-ui-ux',
-    name: 'Dev - UI/UX',
-    description: 'Cảm hứng thiết kế UI/UX.',
-    links: [
-      { id: 'duu1', title: 'Dribbble', url: 'dribbble.com/', icon: 'dribbble', tags: ['inspiration', 'design'], note: 'Cộng đồng designer chia sẻ sản phẩm' },
-      { id: 'duu2', title: 'Behance', url: 'behance.net/', icon: 'behance', tags: ['portfolio', 'creative'], note: 'Nền tảng trưng bày portfolio sáng tạo' },
-      { id: 'duu3', title: 'Collect UI', url: 'collectui.com/', icon: 'collectui', tags: ['ui', 'inspiration'], note: 'Mẫu thiết kế UI theo chủ đề' },
-      { id: 'duu4', title: 'Calltoidea', url: 'calltoidea.com/', icon: 'calltoidea', tags: ['ideas', 'elements'], note: 'Cảm hứng thiết kế các thành phần UI' },
-      { id: 'duu5', title: 'Recent Design', url: 'recentdesign.com/', icon: 'recent', tags: ['uiux', 'trends'], note: 'Xu hướng thiết kế mới nhất' },
-      { id: 'duu6', title: 'Copy file hoặc folder từ Drive', url: 'gdrive.vip', icon: 'drive', tags: ['tool', 'gdrive'], note: 'Sao chép file Google Drive nhanh' }
-    ]
-  },
-  {
-    id: 'dev-css-animations',
-    name: 'Dev - CSS Animations',
-    description: 'Hiệu ứng chuyển động CSS.',
-    links: [
-      { id: 'dca1', title: 'Animated UI Components', url: 'lottiefiles.com/', icon: 'lottie', tags: ['animation', 'lottie'], note: 'Thư viện hoạt họa Lottie chất lượng cao' },
-      { id: 'dca2', title: 'CSS Animations Library', url: 'animate.style/', icon: 'animate', tags: ['css', 'library'], note: 'Thư viện Animate.css ăn liền' },
-      { id: 'dca3', title: 'Keyframes Animation', url: 'keyframes.app/animate', icon: 'keyframes', tags: ['keyframes', 'generator'], note: 'Tạo keyframes trực quan' },
-      { id: 'dca4', title: 'Interactive SVG Animation', url: 'svgator.com/', icon: 'svg', tags: ['svg', 'editor'], note: 'Phần mềm làm hoạt hình SVG' },
-      { id: 'dca5', title: 'TailwindCSS Buttons', url: 'tailwindcss-buttons.com', icon: 'tailwind', tags: ['css', 'buttons'], note: 'Nút bấm đẹp với Tailwind CSS' },
-      { id: 'dca6', title: 'CSS Loaders', url: 'css-loaders.com/', icon: 'loader', tags: ['loaders', 'spinner'], note: 'Hơn 500 mẫu hiệu ứng loading CSS' }
-    ]
-  },
-  {
-    id: 'dev-css-generator',
-    name: 'Dev - CSS generator',
-    description: 'Trình tạo code CSS tự động.',
-    links: [
-      { id: 'dcg1', title: 'Low Poly Pattern Generator', url: 'trianglify.io/', icon: 'trianglify', tags: ['pattern', 'svg'], note: 'Tạo ảnh nền dạng lưới đa giác' },
-      { id: 'dcg2', title: 'Gradients for Tailwind CSS', url: 'hypercolor.dev/', icon: 'gradient', tags: ['gradients', 'tailwind'], note: 'Bảng màu gradient tuyệt đẹp' },
-      { id: 'dcg3', title: 'CSS shadow generator', url: 'neumorphism.io/', icon: 'neumorphism', tags: ['shadow', 'neumorphism'], note: 'Tạo đổ bóng phong cách Neumorphism' },
-      { id: 'dcg4', title: 'Border Radius Generator', url: '9elements.github.io/fancy-border-radius/', icon: 'border', tags: ['border', 'css'], note: 'Bo góc hình dạng bất quy tắc' },
-      { id: 'dcg5', title: 'Gradient Generator', url: 'cssgradient.io/', icon: 'gradient', tags: ['gradients', 'css'], note: 'Thiết kế dải màu chuyển tiếp' },
-      { id: 'dcg6', title: 'Create SVG waves', url: 'getwaves.io/', icon: 'waves', tags: ['waves', 'svg'], note: 'Tạo sóng SVG trang trí' }
-    ]
-  },
-  {
-    id: 'dev-ai',
-    name: 'Dev - AI',
-    description: 'Công cụ trí tuệ nhân tạo.',
-    links: [
-      { id: 'dai1', title: 'ChatGPT', url: 'chatgpt.com/', icon: 'chatgpt', tags: ['ai', 'chatbot'], note: 'Mô hình AI của OpenAI' },
-      { id: 'dai2', title: 'Claude AI', url: 'claude.ai/', icon: 'claude', tags: ['ai', 'anthropic'], note: 'Mô hình trợ lý AI Claude' },
-      { id: 'dai3', title: 'Gemini AI', url: 'gemini.google.com/', icon: 'gemini', tags: ['ai', 'google'], note: 'AI thế hệ mới của Google' },
-      { id: 'dai4', title: 'Midjourney', url: 'midjourney.com/', icon: 'midjourney', tags: ['ai', 'images'], note: 'Trình tạo ảnh nghệ thuật từ văn bản' }
-    ]
-  },
-  {
-    id: 'shadcn',
-    name: 'Shadcn',
-    description: 'Thư viện UI Shadcn.',
-    links: [
-      { id: 'sh1', title: 'shadcn/ui', url: 'ui.shadcn.com/', icon: 'shadcn', tags: ['components', 'react', 'tailwind'], note: 'Bộ UI component đẹp mắt & tái sử dụng' }
+      {
+        id: 'pr1',
+        title: 'Chrome Web Store',
+        url: 'https://chromewebstore.google.com',
+        icon: 'chrome',
+        tags: ['chrome', 'extension'],
+        note: 'Cửa hàng tiện ích mở rộng cho trình duyệt Chrome.',
+        status: 'done',
+        time: '5 min'
+      },
+      {
+        id: 'pr2',
+        title: 'Speedtest by Ookla',
+        url: 'https://www.speedtest.net',
+        icon: 'video',
+        tags: ['network', 'speed'],
+        note: 'Đo tốc độ kết nối internet và độ trễ đường truyền mạng.',
+        status: 'done',
+        time: '2 min'
+      },
+      {
+        id: 'pr3',
+        title: 'Tra cứu Viettel Post',
+        url: 'https://viettelpost.vn/tra-cuu-hanh-trinh-don',
+        icon: 'delivery',
+        tags: ['shipping', 'tracking'],
+        note: 'Theo dõi lộ trình bưu phẩm và tình trạng chuyển phát nhanh.',
+        status: 'in_progress',
+        time: '5 min'
+      },
+      {
+        id: 'pr4',
+        title: 'Canva Pro',
+        url: 'https://www.canva.com',
+        icon: 'color',
+        tags: ['design', 'presentation'],
+        note: 'Thiết kế slide thuyết trình, đồ họa mạng xã hội và banner.',
+        status: 'todo',
+        time: '20 min'
+      }
     ]
   }
 ]
@@ -175,7 +329,7 @@ function loadStoredCollections() {
     const saved = window.localStorage.getItem(STORAGE_KEY)
     if (saved) {
       const parsed = JSON.parse(saved)
-      if (parsed.some(c => c.id === 'default')) {
+      if (parsed.some(c => c.id === 'guide' || c.id === 'general-work' || c.id === 'default')) {
         return parsed
       }
     }
@@ -258,7 +412,7 @@ export function useCollections({ animatedSwal, user, sharedCollectionId }) {
         supabase.removeChannel(channel)
       }
     }
-  }, [user, sharedCollectionId])
+  }, [user?.id, sharedCollectionId])
 
   useEffect(() => {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(collections))
@@ -819,6 +973,122 @@ export function useCollections({ animatedSwal, user, sharedCollectionId }) {
     }
   }
 
+  async function handleResetToDefault() {
+    try {
+      // 1. Cập nhật ngay LocalStorage và xóa các key cũ
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultCollections))
+      window.localStorage.removeItem('tabmark.collections.v2')
+      window.localStorage.removeItem('tabmark.collections.v3')
+      window.localStorage.removeItem('tabmark.collections.v4')
+      window.localStorage.removeItem('tabmark.collections.v5')
+      window.localStorage.removeItem('tabmark.collections.v6')
+
+      // 2. Cập nhật state giao diện ngay lập tức
+      setCollections(defaultCollections)
+      setActiveCollectionId(defaultCollections[0]?.id)
+      setToast({ message: 'Đã sắp xếp lại toàn bộ bookmark sang danh sách chuẩn!' })
+
+      // 3. Nếu tài khoản đã đăng nhập trên Supabase, đồng bộ đè lên Cloud
+      if (isSupabaseConfigured && user?.id && user.id !== 'mock') {
+        try {
+          setSyncStatus('Đang đồng bộ lên Supabase...')
+
+          // Xóa các collections & links cũ của user trên Cloud
+          const { data: oldCols } = await supabase
+            .from('bookmark_collections')
+            .select('id')
+            .eq('owner_id', user.id)
+
+          if (oldCols && oldCols.length > 0) {
+            const oldIds = oldCols.map(c => c.id)
+            await supabase.from('bookmark_links').delete().in('collection_id', oldIds)
+            await supabase.from('bookmark_collections').delete().in('id', oldIds)
+          }
+
+          // Tạo các collection & links mới trên Supabase
+          const cloudNewCols = []
+          for (let colIdx = 0; colIdx < defaultCollections.length; colIdx++) {
+            const defCol = defaultCollections[colIdx]
+            const { data: createdCol, error: colErr } = await supabase
+              .from('bookmark_collections')
+              .insert({
+                owner_id: user.id,
+                name: defCol.name,
+                description: defCol.description,
+                share_mode: 'private',
+              })
+              .select()
+              .single()
+
+            if (colErr || !createdCol) {
+              console.warn('Lỗi tạo collection trên Supabase:', colErr)
+              continue
+            }
+
+            const linksToInsert = (defCol.links || []).map((l, lIdx) => ({
+              collection_id: createdCol.id,
+              title: l.title,
+              url: l.url,
+              icon: l.icon || '🔗',
+              tags: l.tags || [],
+              note: l.note || '',
+              status: l.status || 'todo',
+              time: l.time || '5 min',
+              position: lIdx,
+            }))
+
+            if (linksToInsert.length > 0) {
+              const { data: insertedLinks } = await supabase
+                .from('bookmark_links')
+                .insert(linksToInsert)
+                .select()
+
+              cloudNewCols.push({
+                id: createdCol.id,
+                name: createdCol.name,
+                description: createdCol.description,
+                shareMode: createdCol.share_mode,
+                ownerId: createdCol.owner_id,
+                links: (insertedLinks || []).map(il => ({
+                  id: il.id,
+                  title: il.title,
+                  url: il.url,
+                  icon: il.icon,
+                  tags: il.tags ?? [],
+                  note: il.note ?? '',
+                  status: il.status ?? 'todo',
+                  time: il.time ?? '5 min',
+                }))
+              })
+            } else {
+              cloudNewCols.push({
+                id: createdCol.id,
+                name: createdCol.name,
+                description: createdCol.description,
+                shareMode: createdCol.share_mode,
+                ownerId: createdCol.owner_id,
+                links: []
+              })
+            }
+          }
+
+          if (cloudNewCols.length > 0) {
+            setCollections(cloudNewCols)
+            setActiveCollectionId(cloudNewCols[0]?.id)
+            window.localStorage.setItem(STORAGE_KEY, JSON.stringify(cloudNewCols))
+            setSyncStatus('Synced with Supabase')
+            setToast({ message: 'Đã lưu danh sách link chuẩn vào tài khoản đám mây vĩnh viễn!' })
+          }
+        } catch (cloudErr) {
+          console.error('Lỗi lưu cloud:', cloudErr)
+          setSyncStatus('Lỗi đồng bộ Cloud, đã lưu cục bộ')
+        }
+      }
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
   return {
     collections,
     activeCollection,
@@ -842,6 +1112,9 @@ export function useCollections({ animatedSwal, user, sharedCollectionId }) {
     handleExport,
     handleImport,
     handleSync,
-    handleUpdateShareMode
+    handleUpdateShareMode,
+    handleResetToDefault,
   }
 }
+
+export { defaultCollections }

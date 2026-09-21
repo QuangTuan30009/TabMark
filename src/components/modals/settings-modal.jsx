@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { updateUserProfile } from '@/lib/bookmarksApi'
 import { supabase, isSupabaseConfigured } from '@/lib/supabaseClient'
 
-export function SettingsModal({ isOpen, onClose, user, onUserUpdated, onOpenPayment, onLogout }) {
+export function SettingsModal({ isOpen, onClose, user, onUserUpdated, onOpenPayment, onResetDefaultCollections, onLogout }) {
   const [fullName, setFullName] = useState('')
   const [avatarUrl, setAvatarUrl] = useState('')
   const [newPassword, setNewPassword] = useState('')
@@ -265,6 +265,30 @@ export function SettingsModal({ isOpen, onClose, user, onUserUpdated, onOpenPaym
                 className="px-3 py-1.5 text-xs font-bold text-black bg-amber-400 hover:bg-amber-300 rounded-lg transition-colors cursor-pointer shrink-0"
               >
                 Nâng cấp ngay
+              </button>
+            </div>
+          )}
+
+          {/* Reset Bookmark Collections to Curated Real Links */}
+          {onResetDefaultCollections && (
+            <div className="p-3.5 rounded-xl bg-blue-500/5 border border-blue-500/20 flex items-center justify-between">
+              <div>
+                <p className="text-xs font-bold text-blue-300">
+                  Sắp xếp lại Bookmark chuẩn
+                </p>
+                <p className="text-[11px] text-slate-400 mt-0.5">
+                  Khôi phục các nhóm link thật & chuẩn (General Work, AI, Dev, Học tập)
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  onClose()
+                  onResetDefaultCollections()
+                }}
+                className="px-3 py-1.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 rounded-lg transition-colors cursor-pointer shrink-0"
+              >
+                Khôi phục ngay
               </button>
             </div>
           )}

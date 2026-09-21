@@ -9,6 +9,7 @@ import { supabase } from '@/lib/supabaseClient'
 import { isAdminUser } from '@/lib/adminApi'
 import { isInstalledApp } from '@/lib/platform'
 import { setupHardwareBackButton } from '@/lib/backButtonHandler'
+import { logoutGoogle } from '@/lib/googleAuth'
 
 export default function App() {
   const [page, setPage] = useState(() => {
@@ -56,6 +57,31 @@ export default function App() {
 
   // Restore session
   useEffect(() => {
+    // Nếu cửa sổ này là OAuth popup đang nhận token, không can thiệp điều hướng
+    if (
+      typeof window !== 'undefined' &&
+      window.opener &&
+      (window.location.hash.includes('access_token') || window.location.hash.includes('id_token'))
+    ) {
+      return
+    }
+
+    const isRemembered = localStorage.getItem('tabmark_remember_me') !== 'false'
+    const isSessionActive = sessionStorage.getItem('tabmark_session_active') === 'true'
+
+    // Nếu người dùng chủ động bỏ chọn "Ghi nhớ phiên đăng nhập" và đã tắt tab/trình duyệt
+    if (!isRemembered && !isSessionActive) {
+      if (isSupabaseConfigured) {
+        supabase.auth.signOut().catch(() => {})
+      }
+      localStorage.removeItem('tabmark_mock_user')
+      setUser(null)
+      return
+    }
+
+    // Đánh dấu phiên hiện tại đang kích hoạt
+    sessionStorage.setItem('tabmark_session_active', 'true')
+
     if (isSupabaseConfigured) {
       // Restore from Supabase
       supabase.auth.getSession().then(({ data: { session } }) => {
@@ -72,9 +98,9 @@ export default function App() {
         if (session?.user) {
           syncUserWithProfile(session.user)
           setShowWelcome(false)
-          // Chỉ chuyển sang dashboard nếu không truy cập từ link shared
+          // Chỉ chuyển sang dashboard nếu không truy cập từ link shared và không phải popup
           const hash = window.location.hash
-          if (!hash.startsWith('#shared/')) {
+          if (!hash.startsWith('#shared/') && !window.opener) {
             window.history.pushState(null, '', '#dashboard')
             setPage('dashboard')
           }
@@ -137,8 +163,15 @@ export default function App() {
     setPage('login')
   }
 
-  function handleLogin(loggedInUser) {
+  function handleLogin(loggedInUser, remember = true) {
     setUser(loggedInUser)
+    if (remember) {
+      localStorage.setItem('tabmark_remember_me', 'true')
+    } else {
+      localStorage.setItem('tabmark_remember_me', 'false')
+    }
+    sessionStorage.setItem('tabmark_session_active', 'true')
+
     if (loggedInUser.isMock) {
       localStorage.setItem('tabmark_mock_user', JSON.stringify(loggedInUser))
     }
@@ -155,12 +188,28 @@ export default function App() {
   }
 
   async function handleLogout() {
-    if (isSupabaseConfigured) {
-      await supabase.auth.signOut()
-    } else {
-      localStorage.removeItem('tabmark_mock_user')
-      setUser(null)
+    try {
+      await logoutGoogle()
+    } catch (e) {
+      console.warn('Lỗi logout Google:', e)
     }
+
+    if (isSupabaseConfigured) {
+      try {
+        await supabase.auth.signOut()
+      } catch (e) {
+        console.warn('Lỗi signOut Supabase:', e)
+      }
+    }
+
+    localStorage.removeItem('tabmark_mock_user')
+    sessionStorage.removeItem('tabmark_session_active')
+
+    if (localStorage.getItem('tabmark_remember_me') === 'false') {
+      localStorage.removeItem('tabmark_saved_email')
+    }
+
+    setUser(null)
     window.history.pushState(null, '', window.location.pathname)
     setPage('home')
   }

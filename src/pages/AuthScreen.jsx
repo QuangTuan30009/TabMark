@@ -5,13 +5,28 @@ import { signInWithGoogle } from '@/lib/googleAuth'
 
 export default function AuthScreen({ onLogin, onBackHome }) {
   const [isSignUp, setIsSignUp] = useState(false)
-  const [email, setEmail] = useState('')
+  const [rememberMe, setRememberMe] = useState(() => {
+    return localStorage.getItem('tabmark_remember_me') !== 'false'
+  })
+  const [email, setEmail] = useState(() => {
+    return localStorage.getItem('tabmark_saved_email') || ''
+  })
   const [password, setPassword] = useState('')
-  const [rememberMe, setRememberMe] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [message, setMessage] = useState(null)
+
+  function handleRememberMeToggle(checked) {
+    setRememberMe(checked)
+    if (checked) {
+      localStorage.setItem('tabmark_remember_me', 'true')
+      if (email.trim()) localStorage.setItem('tabmark_saved_email', email.trim())
+    } else {
+      localStorage.setItem('tabmark_remember_me', 'false')
+      localStorage.removeItem('tabmark_saved_email')
+    }
+  }
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -31,6 +46,16 @@ export default function AuthScreen({ onLogin, onBackHome }) {
       return
     }
 
+    // Ghi nhớ thông tin phiên đăng nhập
+    if (rememberMe) {
+      localStorage.setItem('tabmark_remember_me', 'true')
+      localStorage.setItem('tabmark_saved_email', email.trim())
+    } else {
+      localStorage.setItem('tabmark_remember_me', 'false')
+      localStorage.removeItem('tabmark_saved_email')
+    }
+    sessionStorage.setItem('tabmark_session_active', 'true')
+
     if (isSupabaseConfigured) {
       try {
         if (isSignUp) {
@@ -41,7 +66,7 @@ export default function AuthScreen({ onLogin, onBackHome }) {
           if (signUpError) throw signUpError
 
           if (data?.session) {
-            onLogin(data.user)
+            onLogin(data.user, rememberMe)
           } else {
             setMessage('Đăng ký thành công! Vui lòng kiểm tra email của bạn để xác thực tài khoản.')
           }
@@ -52,7 +77,7 @@ export default function AuthScreen({ onLogin, onBackHome }) {
           })
           if (signInError) throw signInError
           if (data?.user) {
-            onLogin(data.user)
+            onLogin(data.user, rememberMe)
           }
         }
       } catch (err) {
@@ -69,7 +94,7 @@ export default function AuthScreen({ onLogin, onBackHome }) {
           setMessage('Đăng ký tài khoản Mock thành công! Giờ bạn có thể đăng nhập.')
           setIsSignUp(false)
         } else {
-          onLogin({ email: email.trim(), isMock: true })
+          onLogin({ email: email.trim(), isMock: true }, rememberMe)
         }
       }, 800)
     }
@@ -89,22 +114,39 @@ export default function AuthScreen({ onLogin, onBackHome }) {
         setLoading(true)
         const res = await signInWithGoogle()
         if (res?.cancelled) {
-          setLoading(false)
           return
         }
-        if (res?.data?.session?.user && onLogin) {
-          onLogin(res.data.session.user)
+        const loggedUser = res?.data?.user || res?.data?.session?.user
+        if (loggedUser && onLogin) {
+          if (rememberMe) {
+            localStorage.setItem('tabmark_remember_me', 'true')
+            if (loggedUser.email) localStorage.setItem('tabmark_saved_email', loggedUser.email)
+          } else {
+            localStorage.setItem('tabmark_remember_me', 'false')
+            localStorage.removeItem('tabmark_saved_email')
+          }
+          sessionStorage.setItem('tabmark_session_active', 'true')
+          onLogin(loggedUser, rememberMe)
         }
       } catch (err) {
         console.error(err)
         setError(err.message || 'Lỗi đăng nhập Google, vui lòng thử lại.')
+      } finally {
         setLoading(false)
       }
     } else {
       setLoading(true)
       setTimeout(() => {
         setLoading(false)
-        onLogin({ email: 'google.user@example.com', isMock: true, provider: 'google' })
+        if (rememberMe) {
+          localStorage.setItem('tabmark_remember_me', 'true')
+          localStorage.setItem('tabmark_saved_email', 'google.user@example.com')
+        } else {
+          localStorage.setItem('tabmark_remember_me', 'false')
+          localStorage.removeItem('tabmark_saved_email')
+        }
+        sessionStorage.setItem('tabmark_session_active', 'true')
+        onLogin({ email: 'google.user@example.com', isMock: true, provider: 'google' }, rememberMe)
       }, 800)
     }
   }
@@ -112,6 +154,14 @@ export default function AuthScreen({ onLogin, onBackHome }) {
   function handleQuickAdminLogin() {
     setEmail('taquangtuan2016@gmail.com')
     setPassword('tuan123')
+    if (rememberMe) {
+      localStorage.setItem('tabmark_remember_me', 'true')
+      localStorage.setItem('tabmark_saved_email', 'taquangtuan2016@gmail.com')
+    } else {
+      localStorage.setItem('tabmark_remember_me', 'false')
+      localStorage.removeItem('tabmark_saved_email')
+    }
+    sessionStorage.setItem('tabmark_session_active', 'true')
     onLogin({
       id: 'usr-admin',
       email: 'taquangtuan2016@gmail.com',
@@ -121,7 +171,7 @@ export default function AuthScreen({ onLogin, onBackHome }) {
       is_pro: true,
       plan: 'pro',
       isMock: true,
-    })
+    }, rememberMe)
   }
 
   return (
@@ -344,7 +394,7 @@ export default function AuthScreen({ onLogin, onBackHome }) {
                 <input
                   type="checkbox"
                   checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
+                  onChange={(e) => handleRememberMeToggle(e.target.checked)}
                   className="w-4 h-4 rounded border-white/20 bg-white/5 text-blue-600 focus:ring-0 focus:ring-offset-0 cursor-pointer accent-blue-600"
                 />
                 <span className="text-xs text-slate-400">Ghi nhớ phiên đăng nhập này</span>

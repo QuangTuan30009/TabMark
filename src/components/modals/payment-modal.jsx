@@ -1,14 +1,34 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { X, Check, Copy, Sparkles, ShieldCheck, Zap, QrCode, ArrowRight, ArrowLeft } from 'lucide-react'
 import Swal from 'sweetalert2'
 import { PAYMENT_CONFIG, generateVietQRUrl } from '@/lib/paymentConfig'
 import { upgradeUserToPro, recordTransaction } from '@/lib/bookmarksApi'
 
-export function PaymentModal({ isOpen, onClose, user, onUpgradeSuccess }) {
-  const [selectedPlan, setSelectedPlan] = useState(PAYMENT_CONFIG.plans[0])
+export function PaymentModal({ isOpen, onClose, user, onUpgradeSuccess, initialPlanId }) {
+  const getMatchedPlan = (id) => {
+    if (id) {
+      const match = PAYMENT_CONFIG.plans.find(
+        (p) => p.id === id || p.id.toLowerCase() === id.toLowerCase()
+      )
+      if (match) return match
+    }
+    return PAYMENT_CONFIG.plans[1] || PAYMENT_CONFIG.plans[0]
+  }
+
+  const [selectedPlan, setSelectedPlan] = useState(() => getMatchedPlan(initialPlanId))
   const [step, setStep] = useState('choose') // 'choose' | 'pay'
   const [copiedField, setCopiedField] = useState(null)
   const [isProcessing, setIsProcessing] = useState(false)
+
+  // Cập nhật selectedPlan khi initialPlanId hoặc modal mở lại
+  useEffect(() => {
+    if (isOpen) {
+      if (initialPlanId) {
+        setSelectedPlan(getMatchedPlan(initialPlanId))
+      }
+      setStep('choose')
+    }
+  }, [isOpen, initialPlanId])
 
   // Sinh mã chuyển khoản duy nhất dựa trên email user hoặc timestamp
   const transferCode = useMemo(() => {
@@ -125,21 +145,26 @@ export function PaymentModal({ isOpen, onClose, user, onUpgradeSuccess }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate__animated animate__fadeIn animate__faster">
-      <div className="relative w-full max-w-2xl overflow-hidden rounded-3xl border border-white/10 bg-[#0c101a] text-white shadow-[0_0_60px_rgba(59,130,246,0.2)]">
+    <div
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose()
+      }}
+      className="fixed inset-0 z-[110] flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md overflow-y-auto animate__animated animate__fadeIn animate__faster"
+    >
+      <div className="relative w-full max-w-2xl my-auto max-h-[92vh] flex flex-col overflow-hidden rounded-3xl border border-white/10 bg-[#0c101a] text-white shadow-[0_0_60px_rgba(59,130,246,0.2)]">
         {/* Header Glow Bar */}
-        <div className="h-1.5 w-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500" />
+        <div className="h-1.5 w-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 shrink-0" />
 
         {/* Modal Header */}
-        <div className="flex items-center justify-between border-b border-white/5 px-6 py-5">
+        <div className="flex items-center justify-between border-b border-white/5 px-6 py-4 sm:py-5 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-black shadow-[0_0_15px_rgba(251,191,36,0.3)]">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-black shadow-[0_0_15px_rgba(251,191,36,0.3)] shrink-0">
               <Sparkles className="h-5 w-5" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-white flex items-center gap-2">
+              <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
                 Nâng Cấp TabMark PRO
-                <span className="text-xs px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/30">
+                <span className="text-[10px] sm:text-xs px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/30">
                   Ưu Đãi Đặc Biệt
                 </span>
               </h3>
@@ -148,14 +173,14 @@ export function PaymentModal({ isOpen, onClose, user, onUpgradeSuccess }) {
           </div>
           <button
             onClick={onClose}
-            className="rounded-xl p-2 text-slate-400 hover:bg-white/5 hover:text-white transition-colors"
+            className="rounded-xl p-2 text-slate-400 hover:bg-white/5 hover:text-white transition-colors cursor-pointer"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
 
         {/* Modal Body */}
-        <div className="p-6 max-h-[80vh] overflow-y-auto">
+        <div className="p-4 sm:p-6 overflow-y-auto flex-1">
           {step === 'choose' ? (
             /* STEP 1: CHỌN GÓI */
             <div className="space-y-6">
@@ -194,11 +219,21 @@ export function PaymentModal({ isOpen, onClose, user, onUpgradeSuccess }) {
                         </ul>
                       </div>
                       <div className="mt-5 pt-3 border-t border-white/5">
-                        <div className={`w-full py-2 rounded-xl text-xs font-bold text-center transition-colors ${
-                          isSelected ? 'bg-blue-600 text-white' : 'bg-white/5 text-slate-300'
-                        }`}>
-                          {isSelected ? 'Đang chọn ✓' : 'Chọn gói này'}
-                        </div>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setSelectedPlan(plan)
+                            setStep('pay')
+                          }}
+                          className={`w-full py-2.5 rounded-xl text-xs font-bold text-center transition-all cursor-pointer ${
+                            isSelected
+                              ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-[0_0_15px_rgba(59,130,246,0.4)]'
+                              : 'bg-white/10 hover:bg-white/20 text-slate-200'
+                          }`}
+                        >
+                          {isSelected ? 'Thanh toán gói này →' : 'Chọn gói này'}
+                        </button>
                       </div>
                     </div>
                   )

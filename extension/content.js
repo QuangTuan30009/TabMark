@@ -42,7 +42,7 @@ if (isTabmarkPage) {
   function syncCollectionsToStorage(collections) {
     try {
       if (!collections) {
-        const stored = localStorage.getItem('tabmark.collections.v2')
+        const stored = localStorage.getItem('tabmark.collections.v7') || localStorage.getItem('tabmark.collections.v6') || localStorage.getItem('tabmark.collections.v2')
         if (stored) collections = JSON.parse(stored)
       }
       if (Array.isArray(collections) && collections.length > 0) {
@@ -117,7 +117,7 @@ if (isTabmarkPage) {
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === 'GET_TABMARK_COLLECTIONS') {
       try {
-        const stored = localStorage.getItem('tabmark.collections.v2')
+        const stored = localStorage.getItem('tabmark.collections.v7') || localStorage.getItem('tabmark.collections.v6') || localStorage.getItem('tabmark.collections.v2')
         if (stored) {
           sendResponse({ success: true, collections: JSON.parse(stored) })
           return true

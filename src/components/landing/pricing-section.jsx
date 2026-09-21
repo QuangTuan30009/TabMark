@@ -3,6 +3,7 @@ import { RevealSection } from '@/components/landing/reveal'
 
 const plans = [
   {
+    id: 'starter',
     name: 'Starter',
     target: 'Sinh viên & Cá nhân',
     price: '69.000 đ',
@@ -18,6 +19,7 @@ const plans = [
     cta: 'Đăng ký Starter',
   },
   {
+    id: 'pro',
     name: 'Pro',
     target: 'Freelancer, Developer & Team nhỏ',
     price: '149.000 đ',
@@ -35,6 +37,7 @@ const plans = [
     cta: 'Nâng cấp lên Pro',
   },
   {
+    id: 'business',
     name: 'Business',
     target: 'Doanh nghiệp & Phòng ban R&D',
     price: '299.000 đ',
@@ -52,7 +55,15 @@ const plans = [
   },
 ]
 
-export function PricingSection({ onOpenDashboard }) {
+export function PricingSection({ onOpenDashboard, onSelectPlan }) {
+  const handleChoosePlan = (planId) => {
+    if (onSelectPlan) {
+      onSelectPlan(planId)
+    } else if (onOpenDashboard) {
+      onOpenDashboard(planId)
+    }
+  }
+
   return (
     <section id="pricing" className="px-4 sm:px-6 py-20 md:py-28 relative bg-[#070a12] overflow-hidden">
       {/* Background ambient lighting */}
@@ -76,10 +87,11 @@ export function PricingSection({ onOpenDashboard }) {
           {plans.map((plan, i) => (
             <RevealSection key={plan.name} style={{ transitionDelay: `${i * 150}ms` }}>
               <div
-                className={`relative h-full flex flex-col rounded-3xl p-8 transition-all duration-300 backdrop-blur-xl ${
+                onClick={() => handleChoosePlan(plan.id)}
+                className={`relative h-full flex flex-col rounded-3xl p-8 transition-all duration-300 backdrop-blur-xl cursor-pointer ${
                   plan.popular
-                    ? 'bg-[#0e1424] border-2 border-cyan-400/80 shadow-[0_0_40px_rgba(6,182,212,0.25)] ring-1 ring-cyan-400/50 scale-[1.02]'
-                    : 'bg-[#0c101c]/80 border border-white/10 hover:border-white/20 shadow-xl'
+                    ? 'bg-[#0e1424] border-2 border-cyan-400/80 shadow-[0_0_40px_rgba(6,182,212,0.25)] ring-1 ring-cyan-400/50 scale-[1.02] hover:scale-[1.03]'
+                    : 'bg-[#0c101c]/80 border border-white/10 hover:border-white/20 hover:scale-[1.01] shadow-xl'
                 }`}
               >
                 {plan.popular && (
@@ -109,7 +121,10 @@ export function PricingSection({ onOpenDashboard }) {
                 </ul>
 
                 <button
-                  onClick={onOpenDashboard}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleChoosePlan(plan.id)
+                  }}
                   className={`w-full rounded-2xl py-3.5 text-sm font-bold transition-all cursor-pointer ${
                     plan.popular
                       ? 'bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 text-white hover:brightness-110 shadow-[0_0_25px_rgba(6,182,212,0.4)]'

@@ -12,6 +12,36 @@
     <link rel="apple-touch-icon" href="/apple-icon.png" />
     <link rel="manifest" href="/manifest.json" />
     <title>Tabmark - AI Bookmark Manager</title>
+    <script>
+      // Immediate OAuth Popup handler for Google Social Login
+      // Captures tokens before any framework can alter window.location.hash
+      (function() {
+        try {
+          if (window.opener && window.location.hash) {
+            var hash = window.location.hash.substring(1);
+            if (hash.indexOf('id_token=') !== -1 || hash.indexOf('access_token=') !== -1) {
+              var params = new URLSearchParams(hash);
+              var accessToken = params.get('access_token');
+              var idToken = params.get('id_token');
+              if (idToken) {
+                window.opener.postMessage({
+                  type: 'oauth-response',
+                  provider: 'google',
+                  accessToken: { token: accessToken || '' },
+                  idToken: idToken,
+                  responseType: 'online'
+                }, window.location.origin);
+                setTimeout(function() {
+                  window.close();
+                }, 50);
+              }
+            }
+          }
+        } catch (e) {
+          console.warn('OAuth popup handler error:', e);
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

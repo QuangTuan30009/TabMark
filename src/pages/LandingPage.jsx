@@ -9,6 +9,7 @@ import { registerBackButtonHandler } from '@/lib/backButtonHandler'
 
 export default function LandingPage({ onOpenDashboard, onLoginClick, user }) {
   const [paymentModalOpen, setPaymentModalOpen] = useState(false)
+  const [selectedPlanId, setSelectedPlanId] = useState('pro')
 
   useEffect(() => {
     const unregister = registerBackButtonHandler(() => {
@@ -26,12 +27,22 @@ export default function LandingPage({ onOpenDashboard, onLoginClick, user }) {
       <Navbar onOpenDashboard={onOpenDashboard} onLoginClick={onLoginClick || onOpenDashboard} />
       <HeroSection onOpenDashboard={onOpenDashboard} />
       <FeaturesSection />
-      <PricingSection onOpenDashboard={() => setPaymentModalOpen(true)} />
+      <PricingSection
+        onSelectPlan={(planId) => {
+          setSelectedPlanId(planId)
+          setPaymentModalOpen(true)
+        }}
+        onOpenDashboard={() => {
+          setSelectedPlanId('pro')
+          setPaymentModalOpen(true)
+        }}
+      />
       <Footer />
 
       {paymentModalOpen && (
         <PaymentModal
           isOpen={paymentModalOpen}
+          initialPlanId={selectedPlanId}
           onClose={() => setPaymentModalOpen(false)}
           user={user}
           onUpgradeSuccess={() => onOpenDashboard()}

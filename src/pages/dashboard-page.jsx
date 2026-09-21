@@ -67,7 +67,8 @@ export function DashboardPage({ onBackHome, user, onLogout, sharedCollectionId }
     handleExport,
     handleImport,
     handleSync,
-    handleUpdateShareMode
+    handleUpdateShareMode,
+    handleResetToDefault
   } = useCollections({ animatedSwal, user, sharedCollectionId })
 
   const [highlightedColumnId, setHighlightedColumnId] = useState(null)
@@ -656,6 +657,7 @@ export function DashboardPage({ onBackHome, user, onLogout, sharedCollectionId }
       {paymentModalOpen && (
         <PaymentModal
           isOpen={paymentModalOpen}
+          initialPlanId="pro"
           onClose={() => setPaymentModalOpen(false)}
           user={currentUser}
           onUpgradeSuccess={(plan) => {
@@ -683,6 +685,7 @@ export function DashboardPage({ onBackHome, user, onLogout, sharedCollectionId }
           user={currentUser}
           onUserUpdated={(updated) => setCurrentUser(updated)}
           onOpenPayment={() => setPaymentModalOpen(true)}
+          onResetDefaultCollections={handleResetToDefault}
           onLogout={onLogout}
         />
       )}

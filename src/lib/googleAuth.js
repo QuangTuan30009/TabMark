@@ -7,15 +7,42 @@ const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID?.trim()
 let isInitialized = false
 
 /**
+ * Xóa sạch trạng thái đăng nhập Google trong localStorage để tránh xung đột session
+ */
+export function clearGoogleAuthState() {
+  if (typeof window === 'undefined') return
+  try {
+    window.localStorage.removeItem('capgo_social_login_google_state')
+    window.localStorage.removeItem('capgo_social_login_oauth_pending')
+  } catch (e) {
+    console.warn('[GoogleAuth] Không thể xóa cache google auth:', e)
+  }
+}
+
+/**
+ * Đăng xuất Google hoàn toàn (clear cache + revoke trên provider)
+ */
+export async function logoutGoogle() {
+  clearGoogleAuthState()
+  try {
+    await SocialLogin.logout({ provider: 'google' })
+  } catch {
+    // Bỏ qua lỗi nếu chưa từng đăng nhập qua SocialLogin
+  }
+}
+
+/**
  * Initialize Google Auth for both Web and Capacitor Mobile
  */
 export async function initGoogleAuth() {
   if (isInitialized || !GOOGLE_CLIENT_ID) return
   try {
+    const redirectUrl = typeof window !== 'undefined' ? window.location.origin : undefined
     await SocialLogin.initialize({
       google: {
         webClientId: GOOGLE_CLIENT_ID,
         mode: 'online',
+        redirectUrl,
       },
     })
     isInitialized = true
@@ -37,12 +64,15 @@ export async function signInWithGoogle() {
   // 1. If Google Web Client ID is configured, use Google ID Token (Direction 2)
   if (GOOGLE_CLIENT_ID) {
     try {
+      // Dọn dẹp cache phiên cũ trước khi mở luồng đăng nhập mới
+      clearGoogleAuthState()
       await initGoogleAuth()
 
       const response = await SocialLogin.login({
         provider: 'google',
         options: {
           scopes: ['email', 'profile'],
+          prompt: 'select_account',
         },
       })
 
