@@ -1,14 +1,35 @@
 import { Globe, MessageSquare, Mail, Sparkles } from 'lucide-react'
 
-const footerLinks = {
-  'Sản phẩm': ['Tính năng', 'Bảng giá', 'Doanh nghiệp'],
-  'Công nghệ': ['React 19', 'Supabase Cloud', 'Gemini AI'],
-  'Dự án': ['Về chúng tôi', 'Chính sách bảo mật', 'Báo cáo OC3 EXE101'],
-}
+const footerLinkGroups = [
+  {
+    heading: 'Sản phẩm',
+    links: [
+      { text: 'Tính năng', href: '#features' },
+      { text: 'Bảng giá', href: '#pricing' },
+      { text: 'Doanh nghiệp', href: '#pricing' },
+    ],
+  },
+  {
+    heading: 'Công nghệ',
+    links: [
+      { text: 'React 19', href: 'https://react.dev', isExternal: true },
+      { text: 'Supabase Cloud', href: 'https://supabase.com', isExternal: true },
+      { text: 'Gemini AI', href: 'https://ai.google.dev', isExternal: true },
+    ],
+  },
+  {
+    heading: 'Dự án',
+    links: [
+      { text: 'Về chúng tôi', href: '#features' },
+      { text: 'Chính sách bảo mật', href: '/privacy-policy.html', isExternal: true },
+      { text: 'Liên hệ hỗ trợ', href: '#contact' },
+    ],
+  },
+]
 
 export function Footer() {
   return (
-    <footer id="contact" className="footer-gradient border-t border-white/[0.06] px-6 pb-8 pt-16 bg-[#05070d]">
+    <footer className="footer-gradient border-t border-white/[0.06] px-6 pb-8 pt-16 bg-[#05070d]">
       <div className="mx-auto max-w-7xl">
         <div className="grid gap-10 md:grid-cols-[2fr_1fr_1fr_1fr]">
           <div>
@@ -26,36 +47,33 @@ export function Footer() {
             </p>
             <div className="mt-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-xs font-semibold text-cyan-300">
               <Sparkles className="w-3 h-3 text-cyan-400" />
-              <span>Dự án khởi nghiệp sinh viên EXE101</span>
+              <span>Dự án khởi nghiệp sinh viên EXE201</span>
             </div>
           </div>
 
-          {Object.entries(footerLinks).map(([heading, links]) => (
-            <div key={heading}>
-              <p className="mb-4 text-sm font-bold text-white tracking-wide">{heading}</p>
+          {footerLinkGroups.map((group) => (
+            <div key={group.heading}>
+              <p className="mb-4 text-sm font-bold text-white tracking-wide">{group.heading}</p>
               <ul className="space-y-2.5">
-                {links.map((link) => {
-                  const isPrivacy = link === 'Chính sách bảo mật';
-                  return (
-                    <li key={link}>
-                      <a 
-                        href={isPrivacy ? '/privacy-policy.html' : '#'} 
-                        target={isPrivacy ? '_blank' : '_self'}
-                        rel={isPrivacy ? 'noopener noreferrer' : undefined}
-                        className="text-xs sm:text-sm text-slate-400 transition-colors hover:text-cyan-300"
-                      >
-                        {link}
-                      </a>
-                    </li>
-                  );
-                })}
+                {group.links.map((link) => (
+                  <li key={link.text}>
+                    <a 
+                      href={link.href} 
+                      target={link.isExternal ? '_blank' : '_self'}
+                      rel={link.isExternal ? 'noopener noreferrer' : undefined}
+                      className="text-xs sm:text-sm text-slate-400 transition-colors hover:text-cyan-300"
+                    >
+                      {link.text}
+                    </a>
+                  </li>
+                ))}
               </ul>
             </div>
           ))}
         </div>
 
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/[0.06] pt-8 md:flex-row text-xs text-slate-500">
-          <p>© 2026 TabMark • Nền tảng quản lý bookmark trực quan AI • EXE101 Production</p>
+          <p>© 2026 TabMark • Nền tảng quản lý bookmark trực quan AI • EXE201 Production</p>
           <div className="flex items-center gap-4">
             <a href="https://tabmark.app" target="_blank" rel="noreferrer" className="text-slate-400 hover:text-white transition-colors" title="Website"><Globe className="h-4 w-4" /></a>
             <a href="#contact" className="text-slate-400 hover:text-white transition-colors" title="Cộng đồng"><MessageSquare className="h-4 w-4" /></a>

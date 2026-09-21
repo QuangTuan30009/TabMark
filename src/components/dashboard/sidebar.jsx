@@ -60,8 +60,9 @@ export default function Sidebar({
     return name.slice(0, 2).toUpperCase()
   }
 
-  const displayName = user?.user_metadata?.full_name || (user?.email ? user.email.split('@')[0] : 'Sarah Jenkins')
-  const displayUsername = user?.email ? `@${user.email.split('@')[0]}` : '@SarahJ'
+  const avatarUrl = user?.avatar_url || user?.user_metadata?.avatar_url || ''
+  const displayName = user?.full_name || user?.user_metadata?.full_name || (user?.email ? user.email.split('@')[0] : 'Người dùng TabMark')
+  const displayUsername = user?.email ? `@${user.email.split('@')[0]}` : '@TabMark'
 
   return (
     <aside
@@ -72,10 +73,19 @@ export default function Sidebar({
       {/* ── USER PROFILE SECTION (Concept 1 Style) ── */}
       <div className="p-4 border-b border-white/[0.05] flex items-center justify-between bg-white/[0.01]">
         <div className="flex items-center gap-3 min-w-0">
-          <div className="relative w-10 h-10 rounded-full bg-gradient-to-tr from-cyan-500 via-blue-600 to-indigo-600 p-[1.5px] shadow-[0_0_12px_rgba(59,130,246,0.3)] shrink-0">
-            <div className="w-full h-full rounded-full bg-[#0d121f] flex items-center justify-center text-white text-xs font-bold">
-              {getInitials()}
-            </div>
+          <div className="relative w-10 h-10 rounded-full bg-gradient-to-tr from-cyan-500 via-blue-600 to-indigo-600 p-[1.5px] shadow-[0_0_12px_rgba(59,130,246,0.3)] shrink-0 overflow-hidden">
+            {avatarUrl ? (
+              <img
+                src={avatarUrl}
+                alt={displayName}
+                className="w-full h-full rounded-full object-cover"
+                onError={(e) => { e.currentTarget.style.display = 'none' }}
+              />
+            ) : (
+              <div className="w-full h-full rounded-full bg-[#0d121f] flex items-center justify-center text-white text-xs font-bold">
+                {getInitials()}
+              </div>
+            )}
             <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-[#090d16]" />
           </div>
           <div className="min-w-0">
