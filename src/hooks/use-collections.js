@@ -329,7 +329,7 @@ function loadStoredCollections() {
     const saved = window.localStorage.getItem(STORAGE_KEY)
     if (saved) {
       const parsed = JSON.parse(saved)
-      if (parsed.some(c => c.id === 'guide' || c.id === 'general-work' || c.id === 'default')) {
+      if (Array.isArray(parsed)) {
         return parsed
       }
     }
@@ -932,19 +932,153 @@ export function useCollections({ animatedSwal, user, sharedCollectionId }) {
       reader.onload = async (readerEvent) => {
         try {
           const imported = JSON.parse(readerEvent.target.result)
-          if (Array.isArray(imported)) {
-            setCollections(imported)
-            setSyncStatus('Backup imported successfully')
-          } else {
+          if (!Array.isArray(imported)) {
             animatedSwal.fire({
-              title: 'Invalid Format',
-              text: 'The backup file is not in the correct format. It should be a list of groups.',
+              title: 'Định dạng không hợp lệ',
+              text: 'File sao lưu phải là một danh sách các nhóm bookmark (JSON array).',
               icon: 'error'
             })
+            return
           }
-        } catch (err) {
+
+          // 1. Chuẩn hóa dữ liệu imported
+          const formattedImported = imported.map((col, cIdx) => ({
+            id: col.id || createId(),
+            name: col.name || `Nhóm ${cIdx + 1}`,
+            description: col.description || '',
+            shareMode: col.shareMode || 'private',
+            links: Array.isArray(col.links)
+              ? col.links.map((l, lIdx) => ({
+                  id: l.id || createId(),
+                  title: l.title || 'Untitled',
+                  url: l.url || 'https://tabmark.app',
+                  icon: l.icon || '🔗',
+                  tags: Array.isArray(l.tags) ? l.tags : [],
+                  note: l.note || '',
+                  status: l.status || 'todo',
+                  time: l.time || '5 min',
+                  aiSummary: l.aiSummary || l.ai_summary || '',
+                }))
+              : []
+          }))
+
+          // 2. Cập nhật state và localStorage ngay lập tức
+          setCollections(formattedImported)
+          if (formattedImported.length > 0) {
+            setActiveCollectionId(formattedImported[0].id)
+          }
+          window.localStorage.setItem(STORAGE_KEY, JSON.stringify(formattedImported))
+          setSyncStatus('Backup imported')
+
+          // 3. Nếu đang đăng nhập Supabase, đồng bộ đè lên Cloud để F5 không bị mất
+          if (isSupabaseConfigured && user?.id && user.id !== 'mock') {
+            try {
+              setSyncStatus('Đang lưu dữ liệu lên Supabase Cloud...')
+
+              // Xóa toàn bộ collections cũ của user trên Cloud
+              const { data: oldCols } = await supabase
+                .from('bookmark_collections')
+                .select('id')
+                .eq('owner_id', user.id)
+
+              if (oldCols && oldCols.length > 0) {
+                const oldIds = oldCols.map(c => c.id)
+                await supabase.from('bookmark_links').delete().in('collection_id', oldIds)
+                await supabase.from('bookmark_collections').delete().in('id', oldIds)
+              }
+
+              // Chèn toàn bộ collections và links mới vào Supabase
+              const cloudNewCols = []
+              for (let colIdx = 0; colIdx < formattedImported.length; colIdx++) {
+                const col = formattedImported[colIdx]
+                const { data: createdCol, error: colErr } = await supabase
+                  .from('bookmark_collections')
+                  .insert({
+                    owner_id: user.id,
+                    name: col.name,
+                    description: col.description,
+                    share_mode: col.shareMode || 'private',
+                  })
+                  .select()
+                  .single()
+
+                if (colErr || !createdCol) {
+                  console.warn('Lỗi import collection lên Supabase:', colErr)
+                  continue
+                }
+
+                const linksToInsert = (col.links || []).map((l, lIdx) => ({
+                  collection_id: createdCol.id,
+                  title: l.title,
+                  url: l.url,
+                  icon: l.icon || '🔗',
+                  tags: l.tags || [],
+                  note: l.note || '',
+                  status: l.status || 'todo',
+                  time: l.time || '5 min',
+                  ai_summary: l.aiSummary || '',
+                  position: lIdx,
+                }))
+
+                if (linksToInsert.length > 0) {
+                  const { data: insertedLinks } = await supabase
+                    .from('bookmark_links')
+                    .insert(linksToInsert)
+                    .select()
+
+                  cloudNewCols.push({
+                    id: createdCol.id,
+                    name: createdCol.name,
+                    description: createdCol.description,
+                    shareMode: createdCol.share_mode,
+                    ownerId: createdCol.owner_id,
+                    links: (insertedLinks || []).map(il => ({
+                      id: il.id,
+                      title: il.title,
+                      url: il.url,
+                      icon: il.icon,
+                      tags: il.tags ?? [],
+                      note: il.note ?? '',
+                      status: il.status ?? 'todo',
+                      time: il.time ?? '5 min',
+                      aiSummary: il.ai_summary ?? '',
+                    }))
+                  })
+                } else {
+                  cloudNewCols.push({
+                    id: createdCol.id,
+                    name: createdCol.name,
+                    description: createdCol.description,
+                    shareMode: createdCol.share_mode,
+                    ownerId: createdCol.owner_id,
+                    links: []
+                  })
+                }
+              }
+
+              if (cloudNewCols.length > 0) {
+                setCollections(cloudNewCols)
+                setActiveCollectionId(cloudNewCols[0]?.id)
+                window.localStorage.setItem(STORAGE_KEY, JSON.stringify(cloudNewCols))
+              }
+              setSyncStatus('Synced with Supabase')
+            } catch (syncErr) {
+              console.error('Lỗi đồng bộ import lên Supabase:', syncErr)
+            }
+          }
+
+          const totalLinks = formattedImported.reduce((acc, c) => acc + (c.links?.length || 0), 0)
           animatedSwal.fire({
-            title: 'Import Failed',
+            title: 'Nhập dữ liệu thành công! 🎉',
+            text: `Đã khôi phục ${formattedImported.length} nhóm và ${totalLinks} bookmark liên kết vào hệ thống.`,
+            icon: 'success',
+            timer: 2500,
+            showConfirmButton: false,
+          })
+        } catch (err) {
+          console.error(err)
+          animatedSwal.fire({
+            title: 'Nhập thất bại',
             text: err.message,
             icon: 'error'
           })

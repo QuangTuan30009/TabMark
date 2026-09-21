@@ -15,7 +15,7 @@ import {
 } from 'lucide-react'
 
 // High-res Favicon resolver with fallback
-function BrandFavicon({ url, title, className = "w-4 h-4" }) {
+function BrandFavicon({ url, title, icon, className = 'w-4 h-4' }) {
   const [hasError, setHasError] = useState(false)
 
   const getDomain = (rawUrl) => {
@@ -30,10 +30,20 @@ function BrandFavicon({ url, title, className = "w-4 h-4" }) {
 
   const domain = getDomain(url)
 
+  // 1. Nếu có Icon / Emoji tùy chỉnh do người dùng tự đặt
+  const isCustomIcon = icon && typeof icon === 'string' && icon.trim() && icon !== 'BM' && icon !== 'sparkles'
+  if (isCustomIcon) {
+    return (
+      <div className="w-5 h-5 rounded-md bg-gradient-to-br from-blue-500/40 via-purple-500/30 to-cyan-500/30 border border-cyan-400/30 flex items-center justify-center text-[10px] font-black text-cyan-200 shrink-0 shadow-sm select-none">
+        {icon}
+      </div>
+    )
+  }
+
   if (!domain || hasError) {
     return (
-      <div className="w-5 h-5 rounded-md bg-gradient-to-br from-blue-500/30 to-purple-500/30 border border-white/15 flex items-center justify-center text-[10px] font-black text-cyan-300 shrink-0 shadow-inner">
-        {title ? title.slice(0, 2).toUpperCase() : '🔗'}
+      <div className="w-5 h-5 rounded-md bg-gradient-to-br from-blue-500/30 to-purple-500/30 border border-white/15 flex items-center justify-center text-[10px] font-black text-cyan-300 shrink-0 shadow-inner select-none">
+        {icon || (title ? title.slice(0, 2).toUpperCase() : '🔗')}
       </div>
     )
   }
@@ -130,7 +140,7 @@ export default function KanbanCard({
         {/* Top Banner Bar: Favicon Pill + Action Menu */}
         <div className="absolute inset-x-3 top-3 flex items-center justify-between z-20">
           <div className="flex items-center gap-2 px-2.5 py-1 rounded-lg bg-black/50 backdrop-blur-md border border-white/15 shadow-md">
-            <BrandFavicon url={card.url} title={card.title} className="w-4 h-4" />
+            <BrandFavicon url={card.url} title={card.title} icon={card.icon} className="w-4 h-4" />
             <span className="text-[11px] font-bold text-slate-200 truncate max-w-[120px]">
               {card.url ? new URL(getHref(card.url)).hostname.replace(/^www\./i, '') : 'link'}
             </span>
@@ -216,7 +226,7 @@ export default function KanbanCard({
       <div className="p-4 space-y-3">
         {/* Title Row with Brand Logo */}
         <div className="flex items-start gap-2.5">
-          <BrandFavicon url={card.url} title={card.title} className="w-5 h-5" />
+          <BrandFavicon url={card.url} title={card.title} icon={card.icon} className="w-5 h-5" />
           <h4 className="font-bold text-sm text-white leading-snug line-clamp-2 select-none group-hover:text-blue-400 transition-colors flex-1">
             {card.title}
           </h4>

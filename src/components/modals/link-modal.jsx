@@ -47,6 +47,7 @@ export function LinkModal({
   const [aiSuccessMessage, setAiSuccessMessage] = useState('')
   const [faviconUrl, setFaviconUrl] = useState('')
   const [faviconError, setFaviconError] = useState(false)
+  const [isIconManuallyEdited, setIsIconManuallyEdited] = useState(Boolean(initialValues?.icon))
 
   // Auto-resolve favicon when URL changes
   useEffect(() => {
@@ -65,7 +66,8 @@ export function LinkModal({
       if (domain && domain.includes('.')) {
         setFaviconUrl(`https://www.google.com/s2/favicons?domain=${domain}&sz=128`)
         setFaviconError(false)
-        if (!icon) {
+        // Chỉ tự gợi ý icon viết tắt nếu người dùng CHƯA tự chỉnh sửa
+        if (!isIconManuallyEdited && !icon) {
           const name = domain.replace(/^www\./i, '').split('.')[0]
           setIcon(name.slice(0, 2).toUpperCase())
         }
@@ -73,7 +75,7 @@ export function LinkModal({
     } catch {
       // Invalid URL format while typing
     }
-  }, [url, icon])
+  }, [url])
 
   // Handle AI Auto-Fill
   async function handleAiAutoFill() {
@@ -320,19 +322,62 @@ export function LinkModal({
           {/* 3. Icon, Reading Time & Status */}
           <div className="grid gap-4 sm:grid-cols-3">
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-slate-300">Icon / Ký tự viết tắt</label>
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold text-slate-300">Icon / Ký tự viết tắt</label>
+                {url && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      try {
+                        const cleanUrl = url.startsWith('http') ? url : `https://${url}`
+                        const domain = new URL(cleanUrl).hostname.replace(/^www\./i, '').split('.')[0]
+                        setIcon(domain.slice(0, 2).toUpperCase())
+                        setIsIconManuallyEdited(false)
+                      } catch {}
+                    }}
+                    className="text-[10px] text-cyan-400 hover:underline cursor-pointer"
+                    title="Lấy lại chữ viết tắt tự động từ tên miền"
+                  >
+                    Tự động
+                  </button>
+                )}
+              </div>
               <div className="flex items-center gap-2">
                 <input
                   type="text"
-                  maxLength={6}
+                  maxLength={10}
                   value={icon}
-                  onChange={(e) => setIcon(e.target.value.toUpperCase())}
-                  placeholder="RE"
-                  className="w-full px-3.5 py-2.5 bg-white/[0.04] border border-white/[0.1] focus:border-cyan-500/60 rounded-xl text-xs text-white placeholder:text-slate-500 focus:outline-none uppercase font-bold text-center"
+                  onChange={(e) => {
+                    setIsIconManuallyEdited(true)
+                    setIcon(e.target.value)
+                  }}
+                  placeholder="VD: AI, 🚀"
+                  className="w-full px-3.5 py-2.5 bg-white/[0.04] border border-white/[0.1] focus:border-cyan-500/60 rounded-xl text-xs text-white placeholder:text-slate-500 focus:outline-none font-bold text-center"
                 />
-                <div className="w-10 h-10 shrink-0 rounded-xl bg-gradient-to-br from-blue-600/30 to-purple-600/30 border border-white/15 flex items-center justify-center font-bold text-xs text-cyan-300 shadow-inner">
+                <div 
+                  className="w-10 h-10 shrink-0 rounded-xl bg-gradient-to-br from-blue-600/40 via-purple-600/30 to-cyan-500/30 border border-cyan-400/40 flex items-center justify-center font-black text-xs text-cyan-200 shadow-sm select-none"
+                  title="Xem trước icon trên thẻ Kanban"
+                >
                   {icon || (title ? title.slice(0, 2).toUpperCase() : '🔗')}
                 </div>
+              </div>
+              {/* Gợi ý icon emoji nhanh */}
+              <div className="flex flex-wrap items-center gap-1 pt-1">
+                {['🚀', '💡', '💻', '📚', '🛠️', '🎨', '⚡', '🔍', '📝', '🎯', '🌐', '🔥'].map((emoji) => (
+                  <button
+                    key={emoji}
+                    type="button"
+                    onClick={() => {
+                      setIcon(emoji)
+                      setIsIconManuallyEdited(true)
+                    }}
+                    className={`w-6 h-6 rounded-lg text-xs flex items-center justify-center transition-transform hover:scale-110 cursor-pointer ${
+                      icon === emoji ? 'bg-cyan-500/30 border border-cyan-400' : 'bg-white/5 hover:bg-white/10'
+                    }`}
+                  >
+                    {emoji}
+                  </button>
+                ))}
               </div>
             </div>
 
