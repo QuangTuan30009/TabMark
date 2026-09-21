@@ -1,7 +1,6 @@
 # TabMark - AI-Powered Bookmark Manager with Kanban
 
-> **Dự án Khởi nghiệp Sinh viên (EXE201) — Đại học FPT**  
-> Trưởng nhóm: **Tạ Quang Tuấn** • Email: [support@tabmark.app](mailto:support@tabmark.app)
+
 
 TabMark là nền tảng quản lý bookmark thông minh thế hệ mới, kết hợp bảng Kanban trực quan và sức mạnh của Google Gemini AI, giúp bạn lưu trữ, phân loại và tra cứu liên kết theo tốc độ tư duy.
 
