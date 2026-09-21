@@ -340,7 +340,12 @@ export function ShareModal({
               </label>
               <select
                 value={selectedColId}
-                onChange={(e) => setSelectedColId(e.target.value)}
+                onChange={(e) => {
+                  const newId = e.target.value
+                  setSelectedColId(newId)
+                  const target = collections.find(c => c.id === newId)
+                  if (target?.shareMode) setShareMode(target.shareMode)
+                }}
                 className="w-full px-3.5 py-2.5 text-xs text-white bg-[#0e1320] border border-white/10 rounded-xl focus:border-blue-500 focus:outline-none transition-colors cursor-pointer"
               >
                 {collections.map(col => (
@@ -419,29 +424,72 @@ export function ShareModal({
             </div>
           )}
 
-          {/* 3. ACCESS RIGHTS */}
+          {/* 3. ACCESS RIGHTS (GIỮ NGUYÊN ĐẦY ĐỦ 3 QUYỀN TRUY CẬP) */}
           <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Quyền truy cập</label>
-            <div className="grid sm:grid-cols-2 gap-2.5">
+            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+              Quyền truy cập (Access Rights)
+            </label>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+              {/* Option 1: Private */}
+              <label className={`flex items-start gap-2.5 p-3 rounded-xl border cursor-pointer transition-all ${shareMode === 'private' ? 'bg-blue-500/10 border-blue-500/30' : 'bg-white/[0.02] border-white/5 hover:bg-white/[0.04]'}`}>
+                <input 
+                  type="radio" 
+                  name="shareMode" 
+                  value="private" 
+                  checked={shareMode === 'private'} 
+                  onChange={() => setShareMode('private')} 
+                  className="mt-0.5" 
+                />
+                <div>
+                  <div className="flex items-center gap-1.5">
+                    <Lock className="w-3.5 h-3.5 text-slate-400" />
+                    <span className="text-xs font-bold text-white">Riêng tư (Private)</span>
+                  </div>
+                  <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
+                    Chỉ bạn mới có quyền truy cập. Link chia sẻ sẽ bị tắt.
+                  </p>
+                </div>
+              </label>
+
+              {/* Option 2: View Only */}
               <label className={`flex items-start gap-2.5 p-3 rounded-xl border cursor-pointer transition-all ${shareMode === 'view' ? 'bg-blue-500/10 border-blue-500/30' : 'bg-white/[0.02] border-white/5 hover:bg-white/[0.04]'}`}>
-                <input type="radio" name="shareMode" value="view" checked={shareMode === 'view'} onChange={() => setShareMode('view')} className="mt-0.5" />
+                <input 
+                  type="radio" 
+                  name="shareMode" 
+                  value="view" 
+                  checked={shareMode === 'view'} 
+                  onChange={() => setShareMode('view')} 
+                  className="mt-0.5" 
+                />
                 <div>
                   <div className="flex items-center gap-1.5">
                     <Globe className="w-3.5 h-3.5 text-emerald-400" />
                     <span className="text-xs font-bold text-white">Chỉ xem (View Only)</span>
                   </div>
-                  <p className="text-[11px] text-slate-400 mt-0.5">Bất kỳ ai có link đều có thể xem và mở các bookmark.</p>
+                  <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
+                    Bất kỳ ai có link đều có thể xem bookmark, không thể sửa đổi.
+                  </p>
                 </div>
               </label>
 
-              <label className={`flex items-start gap-2.5 p-3 rounded-xl border cursor-pointer transition-all ${shareMode === 'private' ? 'bg-blue-500/10 border-blue-500/30' : 'bg-white/[0.02] border-white/5 hover:bg-white/[0.04]'}`}>
-                <input type="radio" name="shareMode" value="private" checked={shareMode === 'private'} onChange={() => setShareMode('private')} className="mt-0.5" />
+              {/* Option 3: Can Edit */}
+              <label className={`flex items-start gap-2.5 p-3 rounded-xl border cursor-pointer transition-all ${shareMode === 'edit' ? 'bg-blue-500/10 border-blue-500/30' : 'bg-white/[0.02] border-white/5 hover:bg-white/[0.04]'}`}>
+                <input 
+                  type="radio" 
+                  name="shareMode" 
+                  value="edit" 
+                  checked={shareMode === 'edit'} 
+                  onChange={() => setShareMode('edit')} 
+                  className="mt-0.5" 
+                />
                 <div>
                   <div className="flex items-center gap-1.5">
-                    <Lock className="w-3.5 h-3.5 text-slate-400" />
-                    <span className="text-xs font-bold text-white">Riêng tư (Tắt share)</span>
+                    <Globe className="w-3.5 h-3.5 text-amber-400" />
+                    <span className="text-xs font-bold text-white">Chỉnh sửa (Can Edit)</span>
                   </div>
-                  <p className="text-[11px] text-slate-400 mt-0.5">Chỉ riêng bạn mới có quyền truy cập nhóm này.</p>
+                  <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
+                    Người có link và đã đăng nhập có thể cùng thêm, sửa hoặc xóa link.
+                  </p>
                 </div>
               </label>
             </div>
