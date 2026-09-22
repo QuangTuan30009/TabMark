@@ -20,7 +20,7 @@ export default function DashboardHeader({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   return (
-    <header className="border-b border-white/[0.06] bg-[#090d16]/90 backdrop-blur-xl sticky top-0 z-40 px-3 sm:px-6 py-2 sm:py-2.5 select-none pt-safe">
+    <header className="border-b border-white/[0.06] bg-[#090d16]/90 backdrop-blur-xl sticky top-0 z-40 px-4 sm:px-6 pt-[calc(max(env(safe-area-inset-top,0px),0px)+0.875rem)] pb-3.5 sm:pt-[calc(max(env(safe-area-inset-top,0px),0px)+1rem)] sm:pb-4 select-none">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-4 min-w-0">
         
         {/* ── LEFT: HAMBURGER + SMART AI SEARCH BAR ── */}
@@ -45,7 +45,7 @@ export default function DashboardHeader({
               value={query}
               onChange={(event) => onQueryChange(event.target.value)}
               placeholder="Hỏi AI hoặc tìm bookmark..."
-              className="w-full pl-9 sm:pl-10 pr-8 sm:pr-10 py-1.5 sm:py-2 bg-white/[0.03] hover:bg-white/[0.05] border border-white/[0.08] focus:border-cyan-500/50 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-cyan-500/50 text-white placeholder:text-slate-500 transition-all shadow-inner"
+              className="w-full pl-9 sm:pl-10 pr-8 sm:pr-10 py-2 bg-white/[0.03] hover:bg-white/[0.05] border border-white/[0.08] focus:border-cyan-500/50 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-cyan-500/50 text-white placeholder:text-slate-500 transition-all shadow-inner"
             />
             <div className="hidden sm:flex absolute right-2.5 top-1/2 -translate-y-1/2 items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-white/[0.04] border border-white/10 text-[10px] text-slate-400 pointer-events-none">
               <Command className="w-2.5 h-2.5" />
@@ -59,14 +59,14 @@ export default function DashboardHeader({
           {/* PRO Badge / Upgrade Button */}
           {onOpenPayment && (
             user?.is_pro ? (
-              <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-gradient-to-r from-amber-500/15 to-orange-500/15 border border-amber-500/30 rounded-xl text-xs font-bold text-amber-300 shadow-[0_0_12px_rgba(251,191,36,0.15)] shrink-0 select-none">
+              <div className="flex items-center gap-1.5 px-3 py-2 bg-gradient-to-r from-amber-500/15 to-orange-500/15 border border-amber-500/30 rounded-xl text-xs font-bold text-amber-300 shadow-[0_0_12px_rgba(251,191,36,0.15)] shrink-0 select-none">
                 <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                <span className="text-[10px] sm:text-[11px] uppercase tracking-wider font-extrabold">PRO</span>
+                <span className="text-[11px] uppercase tracking-wider font-extrabold">PRO</span>
               </div>
             ) : (
               <button
                 onClick={onOpenPayment}
-                className="flex items-center gap-1 px-2.5 sm:px-3 py-1.5 bg-gradient-to-r from-amber-400 to-orange-500 hover:brightness-110 text-black rounded-xl text-xs font-black shadow-[0_0_12px_rgba(251,191,36,0.3)] transition-all cursor-pointer shrink-0"
+                className="flex items-center gap-1 px-3 py-2 bg-gradient-to-r from-amber-400 to-orange-500 hover:brightness-110 text-black rounded-xl text-xs font-black shadow-[0_0_12px_rgba(251,191,36,0.3)] transition-all cursor-pointer shrink-0"
                 title="Mở khóa tính năng AI không giới hạn"
               >
                 <Sparkles className="w-3.5 h-3.5" />
@@ -79,7 +79,7 @@ export default function DashboardHeader({
           {onAddGroup && (
             <button
               onClick={onAddGroup}
-              className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 hover:text-white border border-white/10 rounded-xl text-xs font-semibold transition-all cursor-pointer shrink-0"
+              className="flex items-center gap-1.5 px-3 py-2 bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 hover:text-white border border-white/10 rounded-xl text-xs font-semibold transition-all cursor-pointer shrink-0"
               title="Tạo nhóm bookmark mới"
             >
               <FolderPlus className="w-4 h-4 text-blue-400 shrink-0" />
@@ -91,7 +91,7 @@ export default function DashboardHeader({
           {onAddLink && (
             <button
               onClick={onAddLink}
-              className="flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold shadow-[0_0_15px_rgba(37,99,235,0.35)] transition-all cursor-pointer shrink-0"
+              className="flex items-center gap-1.5 px-3.5 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold shadow-[0_0_15px_rgba(37,99,235,0.35)] transition-all cursor-pointer shrink-0"
               title="Thêm bookmark mới"
             >
               <Plus className="w-4 h-4 shrink-0" />
@@ -104,7 +104,7 @@ export default function DashboardHeader({
           {!isSharedView && onShare && (
             <button
               onClick={onShare}
-              className="hidden lg:flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 bg-purple-600/15 hover:bg-purple-600/25 border border-purple-500/25 rounded-xl text-xs font-semibold text-purple-300 hover:text-purple-200 transition-all cursor-pointer shrink-0"
+              className="hidden lg:flex items-center gap-1.5 px-3 py-2 bg-purple-600/15 hover:bg-purple-600/25 border border-purple-500/25 rounded-xl text-xs font-semibold text-purple-300 hover:text-purple-200 transition-all cursor-pointer shrink-0"
               title="Chia sẻ Kanban Board"
             >
               <Sparkles className="w-3.5 h-3.5 text-purple-400" />
@@ -117,7 +117,7 @@ export default function DashboardHeader({
             {/* Export Button */}
             <button
               onClick={onExport}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.08] rounded-xl text-xs font-semibold text-slate-300 hover:text-white transition-all cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-2 bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.08] rounded-xl text-xs font-semibold text-slate-300 hover:text-white transition-all cursor-pointer"
               title="Export Bookmarks"
             >
               <Download className="w-3.5 h-3.5" />
@@ -127,7 +127,7 @@ export default function DashboardHeader({
             {/* Sync Button */}
             <button
               onClick={onSync}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.08] rounded-xl text-xs font-semibold text-slate-300 hover:text-white transition-all cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-2 bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.08] rounded-xl text-xs font-semibold text-slate-300 hover:text-white transition-all cursor-pointer"
               title="Sync Database"
             >
               <RefreshCw className="w-3.5 h-3.5" />
@@ -137,7 +137,7 @@ export default function DashboardHeader({
             {/* Import Button */}
             <button
               onClick={onImport}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.08] rounded-xl text-xs font-semibold text-slate-300 hover:text-white transition-all cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-2 bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.08] rounded-xl text-xs font-semibold text-slate-300 hover:text-white transition-all cursor-pointer"
               title="Import Bookmarks"
             >
               <Upload className="w-3.5 h-3.5" />
@@ -149,7 +149,7 @@ export default function DashboardHeader({
           <div className="relative 2xl:hidden flex items-center">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-1.5 sm:p-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-slate-400 hover:text-white transition-colors cursor-pointer"
+              className="p-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-slate-400 hover:text-white transition-colors cursor-pointer"
               title="Thao tác khác"
               aria-label="More actions"
             >
