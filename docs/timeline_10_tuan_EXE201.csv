@@ -1,0 +1,59 @@
+﻿Tuần,Giai đoạn,Nhiệm vụ chính,Kết quả đầu ra (Deliverable),Người phụ trách,Cột mốc đánh giá (Milestone)
+Tuần 1,Khởi động & Xác định vấn đề,"- Thành lập nhóm, phân công vai trò (Leader, Dev, Marketing, Design)
+- Khảo sát thực trạng quản lý bookmark và mở quá nhiều tab trình duyệt
+- Lên ý tưởng sản phẩm TabMark và phác thảo Lean Canvas v1",- Biên bản họp nhóm & phân chia công việc
+- Bảng Lean Canvas v1
+- Bản mô tả vấn đề & giải pháp,Cả nhóm,Khởi động dự án
+Tuần 2,Nghiên cứu thị trường & Khách hàng,"- Phỏng vấn sâu 20-30 sinh viên, lập trình viên và nhân viên văn phòng
+- Phân tích đối thủ cạnh tranh (Raindrop, Toby, Pocket, Chrome Bookmark)
+- Xác định khách hàng mục tiêu & đề xuất giá trị cốt lõi (UVP)",- Báo cáo kết quả phỏng vấn khách hàng
+- Bảng phân tích đối thủ cạnh tranh
+- Bản định vị sản phẩm TabMark,Marketing & Business,Validation ý tưởng
+Tuần 3,Thiết kế giải pháp & UI/UX,"- Thiết kế User Flow & kiến trúc thông tin ứng dụng
+- Thiết kế Wireframe và Prototype chi tiết trên Figma
+- Chọn công nghệ: React 19, Tailwind CSS, Supabase, Google Gemini API
+- Khởi tạo Git repository và cấu hình môi trường dự án",- Bộ thiết kế UI/UX Figma hoàn chỉnh
+- User Flow & sơ đồ kiến trúc hệ thống
+- Repository GitHub sẵn sàng,UI/UX Designer & Tech Lead,Chuẩn bị phát triển
+Tuần 4,Phát triển MVP v1 & Landing Page,"- Xây dựng Landing Page giới thiệu tính năng, bảng giá và công nghệ
+- Phát triển giao diện Kanban Dashboard kéo thả quản lý bookmark
+- Tích hợp Google Gemini AI tóm tắt liên kết tự động
+- Đẩy sản phẩm lên Vercel chạy thực tế",- Web App MVP v1 chạy trên Vercel
+- Landing Page hoàn chỉnh
+- Báo cáo và trình bày cột mốc OC 1,Tech Team & Leader,ĐÁNH GIÁ CỘT MỐC OC 1
+Tuần 5,Thử nghiệm người dùng & Extension,"- Cho nhóm người dùng đầu tiên (Early Adopters) trải nghiệm thử MVP
+- Thu thập phản hồi về trải nghiệm kéo thả và tóm tắt AI
+- Phát triển Chrome Extension hỗ trợ lưu trang 1-click
+- Hoàn thiện đăng nhập Google OAuth & Email/Password qua Supabase",- Bản Chrome Extension chạy thử nghiệm
+- Hệ thống Auth & Profile người dùng
+- Bản tổng hợp phản hồi người dùng v1,Tech Team & Marketing,Thu thập phản hồi
+Tuần 6,Nâng cấp tính năng & Chia sẻ,"- Phát triển tính năng Chia sẻ (Toàn bộ, theo nhóm, chọn lọc từng link)
+- Tối ưu hóa kéo thả sắp xếp vị trí tab lên/xuống trong cùng nhóm
+- Xây dựng tính năng sao lưu/khôi phục JSON (Export & Import)
+- Báo cáo tiến độ sản phẩm và người dùng thử nghiệm",- Tính năng chia sẻ nâng cao hoạt động
+- Hệ thống sắp xếp tab & sao lưu dữ liệu
+- Báo cáo tiến độ cột mốc OC 2,Tech Team,ĐÁNH GIÁ CỘT MỐC OC 2
+Tuần 7,Truyền thông & Thu hút người dùng,"- Triển khai chiến dịch truyền thông trên mạng xã hội và cộng đồng sinh viên
+- Đăng bài giới thiệu TabMark trên các nhóm công nghệ và học tập
+- Cài đặt Google Analytics đo lường chỉ số truy cập (Traction)
+- Hỗ trợ và phản hồi thắc mắc của người dùng mới",- Chiến dịch truyền thông trực tuyến
+- Dữ liệu Google Analytics (Traffic, User)
+- Đạt mốc 50-100 người dùng đăng ký trải nghiệm,Marketing Team,Kéo người dùng (Traction)
+Tuần 8,Kiểm chứng mô hình kinh doanh,"- Đánh giá mức độ sẵn sàng chi trả (Willingness to Pay) của người dùng
+- Kiểm tra tính hiệu quả của các gói FREE và PRO
+- Thử nghiệm tích hợp cổng thanh toán QR PayOS cho gói PRO
+- Phân tích chi phí vận hành (API Gemini, Cloud) và dự phóng tài chính",- Dữ liệu phản hồi về gói trả phí PRO
+- Luồng thanh toán QR tự động
+- Bảng phân tích tài chính & điểm hòa vốn,Business & Tech Lead,Xác thực mô hình doanh thu
+Tuần 9,Tối ưu hóa sản phẩm & Bảo mật,"- Tối ưu hóa tốc độ tải trang, giao diện di động và bảo mật dữ liệu
+- Sửa các lỗi phát sinh từ phản hồi người dùng thực tế
+- Hoàn thiện toàn bộ tài liệu dự án và báo cáo số liệu tăng trưởng
+- Báo cáo tiến độ tổng thể cột mốc OC 3",- Sản phẩm hoàn thiện đạt độ ổn định cao
+- Báo cáo số liệu Traction & Doanh thu
+- Báo cáo đánh giá cột mốc OC 3,Cả nhóm,ĐÁNH GIÁ CỘT MỐC OC 3
+Tuần 10,Tổng kết dự án & Thuyết trình chung kết,"- Hoàn thiện Slide thuyết trình (Pitch Deck) gọi vốn / bảo vệ dự án
+- Luyện tập thuyết trình và chuẩn bị kịch bản demo sản phẩm
+- Viết báo cáo tổng kết môn học EXE201
+- Thuyết trình bảo vệ trước Hội đồng Ban giám khảo",- Slide Pitch Deck chuyên nghiệp
+- Báo cáo tổng kết dự án hoàn chỉnh
+- Bản thuyết trình bảo vệ trước Hội đồng,Cả nhóm,BẢO VỆ CHUNG KẾT (FINAL PITCH)

@@ -5,22 +5,10 @@ import { FeaturesSection } from '@/components/landing/features-section'
 import { PricingSection } from '@/components/landing/pricing-section'
 import { Footer } from '@/components/landing/footer'
 import { PaymentModal } from '@/components/modals/payment-modal'
-import { registerBackButtonHandler } from '@/lib/backButtonHandler'
 
 export default function LandingPage({ onOpenDashboard, onLoginClick, user }) {
   const [paymentModalOpen, setPaymentModalOpen] = useState(false)
   const [selectedPlanId, setSelectedPlanId] = useState('pro')
-
-  useEffect(() => {
-    const unregister = registerBackButtonHandler(() => {
-      if (paymentModalOpen) {
-        setPaymentModalOpen(false)
-        return true
-      }
-      return false
-    })
-    return unregister
-  }, [paymentModalOpen])
 
   return (
     <div className="min-h-screen bg-background text-foreground">

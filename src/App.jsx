@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState } from 'react'
 import { isSupabaseConfigured, getUserProfile } from '@/lib/bookmarksApi'
 import LandingPage from '@/pages/LandingPage'
 import WelcomeScreen from '@/pages/WelcomeScreen'
@@ -7,8 +7,6 @@ import { DashboardPage } from '@/pages/dashboard-page'
 import { AdminPage } from '@/pages/admin-page'
 import { supabase } from '@/lib/supabaseClient'
 import { isAdminUser } from '@/lib/adminApi'
-import { isInstalledApp } from '@/lib/platform'
-import { setupHardwareBackButton } from '@/lib/backButtonHandler'
 import { logoutGoogle } from '@/lib/googleAuth'
 
 export default function App() {
@@ -18,24 +16,10 @@ export default function App() {
     if (hash === '#dashboard') return 'dashboard';
     if (hash === '#login') return 'login';
     if (hash.startsWith('#shared/')) return 'shared';
-    if (isInstalledApp()) {
-      const savedMock = localStorage.getItem('tabmark_mock_user');
-      return savedMock ? 'dashboard' : 'login';
-    }
     return 'home';
   })
   const [showWelcome, setShowWelcome] = useState(() => window.location.hash !== '#dashboard')
   const [user, setUser] = useState(null)
-  const pageRef = useRef(page)
-  pageRef.current = page
-
-  // Initialize hardware back button handler for Android
-  useEffect(() => {
-    setupHardwareBackButton({
-      getPage: () => pageRef.current,
-      setPage: (newPage) => setPage(newPage),
-    })
-  }, [])
 
   // Sync user with profile data
   async function syncUserWithProfile(rawUser) {
