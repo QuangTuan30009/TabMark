@@ -27,7 +27,6 @@ OC1/
 *.apk
 .agents/
 skills-lock.json
-docs/academic/
-docs/financial/
-docs/guides/
+docs/
+
 
