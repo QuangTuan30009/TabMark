@@ -25,3 +25,9 @@ node_modules
 .DS_Store
 OC1/
 *.apk
+.agents/
+skills-lock.json
+docs/academic/
+docs/financial/
+docs/guides/
+

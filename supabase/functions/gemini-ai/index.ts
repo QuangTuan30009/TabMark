@@ -5,12 +5,29 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { GoogleGenerativeAI } from 'https://esm.sh/@google/generative-ai@0.24.1'
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+function getCorsHeaders(req: Request) {
+  const origin = req.headers.get('Origin') || '*'
+  const envAllowed = Deno.env.get('ALLOWED_ORIGINS')
+  const allowedOrigins = envAllowed ? envAllowed.split(',').map((o: string) => o.trim()) : []
+
+  // Nếu cấu hình ALLOWED_ORIGINS trong Supabase Secrets, kiểm tra whitelist; hỗ trợ Chrome extension và localhost khi dev
+  const isAllowed =
+    allowedOrigins.length === 0 ||
+    allowedOrigins.includes(origin) ||
+    origin.startsWith('chrome-extension://') ||
+    origin.includes('localhost') ||
+    origin.includes('127.0.0.1')
+
+  return {
+    'Access-Control-Allow-Origin': isAllowed ? origin : (allowedOrigins[0] || '*'),
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  }
 }
 
 serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req)
+
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }

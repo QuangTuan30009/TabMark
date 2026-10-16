@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react'
-import { Navbar } from '@/components/landing/navbar'
-import { HeroSection } from '@/components/landing/hero-section'
-import { FeaturesSection } from '@/components/landing/features-section'
-import { PricingSection } from '@/components/landing/pricing-section'
-import { Footer } from '@/components/landing/footer'
+import { useState } from 'react'
+import { Navbar } from '@/components/features/landing/navbar'
+import { HeroSection } from '@/components/features/landing/hero-section'
+import { FeaturesSection } from '@/components/features/landing/features-section'
+import { PricingSection } from '@/components/features/landing/pricing-section'
+import { Footer } from '@/components/features/landing/footer'
 import { PaymentModal } from '@/components/modals/payment-modal'
 
 export default function LandingPage({ onOpenDashboard, onLoginClick, user }) {

@@ -1,4 +1,4 @@
-import { RevealSection } from '@/components/landing/reveal'
+import { RevealSection } from '@/components/ui/reveal-section'
 import { Sparkles, Layers, Search } from 'lucide-react'
 
 const features = [

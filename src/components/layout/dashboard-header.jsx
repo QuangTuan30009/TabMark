@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Search, Download, Upload, RefreshCw, Plus, Sparkles, Command, Menu, MoreVertical, FolderPlus } from 'lucide-react'
 
-export default function DashboardHeader({
+export function DashboardHeader({
   query,
   onQueryChange,
   onAddGroup,
@@ -231,3 +231,5 @@ export default function DashboardHeader({
     </header>
   )
 }
+
+export default DashboardHeader

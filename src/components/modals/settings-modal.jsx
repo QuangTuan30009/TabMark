@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { updateUserProfile } from '@/lib/bookmarksApi'
+import { updateUserProfile } from '@/services/bookmarks.service'
 import { supabase, isSupabaseConfigured } from '@/lib/supabaseClient'
 import { Upload, Trash2, KeyRound, Sparkles, Image as ImageIcon, CheckCircle2, AlertCircle } from 'lucide-react'
 

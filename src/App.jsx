@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react'
-import { isSupabaseConfigured, getUserProfile } from '@/lib/bookmarksApi'
-import LandingPage from '@/pages/LandingPage'
-import WelcomeScreen from '@/pages/WelcomeScreen'
-import AuthScreen from '@/pages/AuthScreen'
+import { isSupabaseConfigured, getUserProfile } from '@/services/bookmarks.service'
+import LandingPage from '@/pages/landing-page'
+import WelcomeScreen from '@/components/common/welcome-screen'
+import AuthScreen from '@/pages/auth-page'
 import { DashboardPage } from '@/pages/dashboard-page'
 import { AdminPage } from '@/pages/admin-page'
 import { supabase } from '@/lib/supabaseClient'
-import { isAdminUser } from '@/lib/adminApi'
-import { logoutGoogle } from '@/lib/googleAuth'
+import { isAdminUser } from '@/services/admin.service'
+import { logoutGoogle } from '@/services/auth.service'
 
 export default function App() {
   const [page, setPage] = useState(() => {

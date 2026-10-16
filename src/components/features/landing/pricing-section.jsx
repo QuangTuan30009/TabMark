@@ -1,5 +1,5 @@
 import { Check } from 'lucide-react'
-import { RevealSection } from '@/components/landing/reveal'
+import { RevealSection } from '@/components/ui/reveal-section'
 
 const plans = [
   {

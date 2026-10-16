@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { MoreVertical, Plus } from 'lucide-react'
 import KanbanCard from './kanban-card'
-import PopupBlockerModal from './popup-blocker-modal'
+import PopupBlockerModal from '@/components/modals/popup-blocker-modal'
 
 export default function KanbanColumn({
   columnKey,

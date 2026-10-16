@@ -19,7 +19,7 @@ import {
   Shield,
   X
 } from 'lucide-react'
-import { isAdminUser } from '@/lib/adminApi'
+import { isAdminUser } from '@/services/admin.service'
 
 // Helper to match collection name with mockup icons
 function getCollectionIcon(name) {

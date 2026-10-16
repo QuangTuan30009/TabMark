@@ -1,8 +1,8 @@
 import { useState, useMemo, useEffect } from 'react'
 import { X, Check, Copy, Sparkles, ShieldCheck, Zap, QrCode, ArrowRight, ArrowLeft } from 'lucide-react'
 import Swal from 'sweetalert2'
-import { PAYMENT_CONFIG, generateVietQRUrl } from '@/lib/paymentConfig'
-import { upgradeUserToPro, recordTransaction } from '@/lib/bookmarksApi'
+import { PAYMENT_CONFIG, generateVietQRUrl } from '@/config/payment.config'
+import { upgradeUserToPro, recordTransaction } from '@/services/bookmarks.service'
 
 export function PaymentModal({ isOpen, onClose, user, onUpgradeSuccess, initialPlanId }) {
   const getMatchedPlan = (id) => {

@@ -12,9 +12,10 @@ import {
   X,
   ExternalLink,
 } from 'lucide-react'
-import { extractLinkMetadataWithAI } from '@/lib/geminiApi'
-import { isSupabaseConfigured } from '@/lib/bookmarksApi'
-import { getAiQuota, consumeAiQuota, showQuotaExceededAlert } from '@/lib/quotaManager'
+import { extractLinkMetadataWithAI } from '@/services/gemini.service'
+import { isSupabaseConfigured } from '@/services/bookmarks.service'
+import { getAiQuota, consumeAiQuota } from '@/services/quota.service'
+import { showQuotaExceededAlert } from '@/components/modals/quota-alert'
 
 const QUICK_TAGS = ['dev', 'design', 'ai', 'tools', 'docs', 'learning', 'reading', 'work', 'tutorial']
 

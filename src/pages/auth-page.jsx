@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Mail, Lock, AlertCircle, Check, Eye, EyeOff, Sparkles, Shield, ArrowLeft, Layers, Zap } from 'lucide-react'
 import { isSupabaseConfigured, supabase } from '@/lib/supabaseClient'
-import { signInWithGoogle } from '@/lib/googleAuth'
+import { signInWithGoogle } from '@/services/auth.service'
 
 export default function AuthScreen({ onLogin, onBackHome }) {
   const [isSignUp, setIsSignUp] = useState(false)
