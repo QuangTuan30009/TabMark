@@ -2,7 +2,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai'
 import { isSupabaseConfigured, supabase } from '@/lib/supabase-client'
 
 const clientApiKey = import.meta.env.VITE_GEMINI_API_KEY
-const modelName = import.meta.env.VITE_GEMINI_MODEL || 'gemini-1.5-flash'
+const modelName = import.meta.env.VITE_GEMINI_MODEL || 'gemini-2.5-flash'
 
 export const isGeminiConfigured = isSupabaseConfigured || !!clientApiKey
 
@@ -38,28 +38,31 @@ export async function chatWithGemini(messages, contextBookmarks = []) {
   // 2. Thử gọi qua Client SDK nếu có
   if (genAI) {
     try {
-      let systemInstruction = `Bạn là TabMark AI, trợ lý quản lý và khai thác kho bookmark thông minh của người dùng.
-Nhiệm vụ của bạn là hỗ trợ tìm kiếm, phân tích, tóm tắt và tư vấn tài liệu/liên kết từ kho bookmark.
+      let systemInstruction = `Bạn là TabMark AI, một người bạn đồng hành và trợ lý AI thông minh toàn diện (tương tự như ChatGPT, Claude hay Gemini).
 
-${contextBookmarks && contextBookmarks.length > 0 ? `NGỮ CẢNH KHO BOOKMARK HIỆN TẠI (${contextBookmarks.length} liên kết):
+PHONG CÁCH TRÒ CHUYỆN (CONVERSATIONAL STYLE):
+- Trò chuyện tự nhiên, thân thiện, linh hoạt và thông minh như một người cộng sự thực thụ hoặc giữa các mô hình AI với nhau.
+- KHÔNG BỊ GÒ BÓ THEO BẤT KỲ FORM/MẪU CỨNG NHẮC NÀO. Linh hoạt biến hóa theo ngữ cảnh câu chuyện: lúc đàm thoại nhẹ nhàng, lúc phân tích sâu, lúc phản biện hoặc thảo luận ý tưởng.
+- Không tự ép mình phải dùng tiêu đề lớn hoặc danh sách gạch đầu dòng cứng nhắc trừ khi người dùng yêu cầu liệt kê.
+
+ĐỌC LINK VÀ GỢI Ý Ý TƯỞNG:
+- Bạn có khả năng tra cứu, đọc hiểu nội dung thực tế của các đường link trên internet.
+- Khi người dùng hỏi về các đường link trong kho bookmark hoặc đưa link mới, hãy đọc hiểu nội dung, phân tích góc nhìn và chủ động gợi ý những ý tưởng sáng tạo, ứng dụng thực tế hoặc hướng kết hợp thú vị từ các tài nguyên đó.
+- Sẵn sàng giải đáp mọi chủ đề khác (lập trình, công nghệ, cuộc sống, tư duy...) với chiều sâu và sự thấu cảm.
+
+${contextBookmarks && contextBookmarks.length > 0 ? `KHO TÀI LIỆU/BOOKMARK CỦA NGƯỜI DÙNG (${contextBookmarks.length} liên kết):
 ${contextBookmarks.map((link, idx) => `${idx + 1}. [${link.title}](${link.url}) | Ghi chú: "${link.note || link.description || 'Không có'}" | Tags: [${(link.tags || []).join(', ')}]`).join('\n')}` : 'Kho bookmark hiện tại của người dùng đang trống.'}
 
-QUY TẮC ĐỊNH DẠNG BẮT BUỘC (UI FORMATTING RULES):
-1. Luôn trả lời bằng tiếng Việt lịch sự, gãy gọn, chuyên nghiệp, thông minh.
-2. Khi liệt kê hoặc đề xuất liên kết, LUÔN dùng định dạng Markdown chuẩn:
-   1. **[Tên Trang Web](URL)**
-      - Tóm tắt hoặc vai trò của trang này (1 câu ngắn).
-      - Thẻ: \`#tag1\` \`#tag2\` (nếu có)
-   Tuyệt đối không dùng định dạng tự chế như "**Title** (url)" hay viết link trần.
-3. Về cấu trúc văn bản:
-   - Sử dụng tiêu đề "### " để chia từng mục rõ ràng (ví dụ: "### 💡 Gợi ý nổi bật", "### 📋 Tóm tắt liên kết").
-   - Dùng gạch đầu dòng "- " cho các ý chi tiết.
-   - Khi có mã code hoặc lệnh, hãy bọc trong block code \`\`\` và ghi rõ ngôn ngữ.
-4. Tránh lạm dụng emoji kì lạ. Chỉ dùng emoji tinh tế ở đầu tiêu đề.`
+Ngôn ngữ giao tiếp: Tiếng Việt tự nhiên, phong thái thông thái và cuốn hút.`
 
       const chatModel = genAI.getGenerativeModel({
         model: modelName,
         systemInstruction: systemInstruction,
+        tools: [{ googleSearch: {} }],
+        generationConfig: {
+          temperature: 0.8,
+          topP: 0.95,
+        },
       })
 
       const history = []

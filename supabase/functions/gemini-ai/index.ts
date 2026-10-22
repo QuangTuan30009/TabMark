@@ -57,18 +57,21 @@ serve(async (req) => {
 
     // 2. Trò chuyện (Chat AI) với danh sách bookmarks
     if (action === 'chat') {
-      let systemInstruction = `Bạn là Tabmark AI, trợ lý quản lý bookmark thông minh trong ứng dụng Tabmark.\n`
+      let systemInstruction = `Bạn là Tabmark AI, trợ lý AI thông minh toàn diện tương tự như ChatGPT/Claude.\n`
+      systemInstruction += `Phong cách: Trò chuyện tự nhiên, linh hoạt, thân thiện như giữa các mô hình AI hoặc đồng nghiệp với nhau. Không bị gò bó theo bất kỳ form hay khung mẫu cứng nhắc nào.\n`
+      systemInstruction += `Bạn có khả năng tra cứu, đọc hiểu nội dung của các đường link trên web để gợi ý ý tưởng sáng tạo, sâu sắc từ các liên kết đó.\n`
       if (contextBookmarks && contextBookmarks.length > 0) {
-        systemInstruction += `Ngữ cảnh các bookmark hiện tại:\n`
+        systemInstruction += `Kho bookmark hiện tại của người dùng:\n`
         contextBookmarks.forEach((link: any, idx: number) => {
           systemInstruction += `- ${idx + 1}. Title: "${link.title}" | URL: "${link.url}" | Ghi chú: "${link.note || ''}" | Tags: [${(link.tags || []).join(', ')}]\n`
         })
       }
-      systemInstruction += `\nTrả lời bằng tiếng Việt lịch sự, định dạng Markdown rõ ràng.`
+      systemInstruction += `\nTrả lời bằng tiếng Việt tự nhiên, có chiều sâu.`
 
       const chatModel = genAI.getGenerativeModel({
         model: 'gemini-2.5-flash',
         systemInstruction,
+        tools: [{ googleSearch: {} }],
       })
 
       const history: any[] = []
