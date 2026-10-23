@@ -59,18 +59,18 @@ export function HeroSection({ onOpenDashboard }) {
               </a>
             </div>
 
-            {/* Social proof metric */}
-            {/* <div className="pt-2 flex items-center gap-4 text-xs text-slate-400">
-              <div className="flex -space-x-2 overflow-hidden">
-                <span className="inline-block h-7 w-7 rounded-full ring-2 ring-[#06080f] bg-blue-600 flex items-center justify-center text-[10px] font-bold text-white">TM</span>
-                <span className="inline-block h-7 w-7 rounded-full ring-2 ring-[#06080f] bg-purple-600 flex items-center justify-center text-[10px] font-bold text-white">AI</span>
-                <span className="inline-block h-7 w-7 rounded-full ring-2 ring-[#06080f] bg-cyan-600 flex items-center justify-center text-[10px] font-bold text-white">Pro</span>
-              </div>
-              <p className="text-slate-400">
-                Đã phục vụ hơn <b className="text-white font-semibold">1,000+</b> liên kết & bookmark khoa học.
-              </p>
-            </div> */}
-
+            {/* Extension Support link */}
+            <div className="pt-2 flex items-center gap-3 text-xs text-slate-400">
+              <a
+                href="https://github.com/QuangTuan30009/TabMark/tree/main/extension"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-cyan-300 hover:text-white transition-colors"
+              >
+                <span>Hỗ trợ Chrome Extension</span>
+                <ArrowRight className="w-3 h-3" />
+              </a>
+            </div>
           </div>
 
           {/* Right Column: Dynamic 3D Isometric Floating Kanban Board */}

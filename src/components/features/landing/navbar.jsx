@@ -30,8 +30,10 @@ export function Navbar({ onOpenDashboard, onLoginClick }) {
   }, []);
 
   const navLinks = [
+    { href: "#solution", text: "Giải pháp" },
     { href: "#features", text: "Tính năng" },
     { href: "#pricing", text: "Bảng giá" },
+    { href: "#team", text: "Đội ngũ" },
     { href: "https://github.com/QuangTuan30009/TabMark", text: "Liên hệ", isExternal: true }
   ];
 

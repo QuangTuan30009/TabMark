@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Navbar } from '@/components/features/landing/navbar'
 import { HeroSection } from '@/components/features/landing/hero-section'
+import { ProblemSolutionSection } from '@/components/features/landing/problem-solution-section'
 import { FeaturesSection } from '@/components/features/landing/features-section'
 import { PricingSection } from '@/components/features/landing/pricing-section'
 import { Footer } from '@/components/features/landing/footer'
@@ -14,6 +15,7 @@ export default function LandingPage({ onOpenDashboard, onLoginClick, user }) {
     <div className="min-h-screen bg-background text-foreground">
       <Navbar onOpenDashboard={onOpenDashboard} onLoginClick={onLoginClick || onOpenDashboard} />
       <HeroSection onOpenDashboard={onOpenDashboard} />
+      <ProblemSolutionSection onOpenDashboard={onOpenDashboard} />
       <FeaturesSection />
       <PricingSection
         onSelectPlan={(planId) => {

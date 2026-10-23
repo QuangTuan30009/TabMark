@@ -20,11 +20,19 @@ const footerLinkGroups = [
   {
     heading: 'Dự án',
     links: [
-      { text: 'Về chúng tôi', href: '#features' },
+      { text: 'Về chúng tôi', href: '#team' },
       { text: 'Chính sách bảo mật', href: '/privacy-policy.html', isExternal: true },
       { text: 'Liên hệ hỗ trợ', href: 'mailto:support@tabmark.app', isExternal: true },
     ],
   },
+]
+
+const teamMembers = [
+  { name: 'Tạ Quang Tuấn', role: 'Project Leader & AI / Fullstack' },
+  { name: 'Nguyễn Phương Vũ', role: 'AI Core & Backend Engineer' },
+  { name: 'Phạm Hoàng Nam', role: 'AI & Frontend Engineer' },
+  { name: 'Nguyễn Cao Thành Trung', role: 'AI & QA Engineer' },
+  { name: 'Võ Nguyễn Thiên Thanh', role: 'UI/UX & Graphic Designer (GD)' },
 ]
 
 export function Footer() {
@@ -47,7 +55,7 @@ export function Footer() {
             </p>
             <div className="mt-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-xs font-semibold text-cyan-300">
               <Sparkles className="w-3 h-3 text-cyan-400" />
-              <span>Dự án khởi nghiệp sinh viên EXE201</span>
+              <span>Dự án khởi nghiệp sinh viên EXE101</span>
             </div>
           </div>
 
@@ -72,8 +80,26 @@ export function Footer() {
           ))}
         </div>
 
-        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/[0.06] pt-8 md:flex-row text-xs text-slate-500">
-          <p>© 2026 TabMark • Nền tảng quản lý bookmark trực quan AI • EXE201 Production</p>
+        {/* Đội ngũ phát triển dự án (EXE101) */}
+        <div id="team" className="mt-12 pt-8 border-t border-white/[0.06]">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-300">
+              Đội ngũ phát triển dự án (EXE101)
+            </span>
+            <span className="text-[11px] text-slate-500">Khởi nghiệp đổi mới sáng tạo</span>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+            {teamMembers.map((m, idx) => (
+              <div key={idx} className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.06] text-xs hover:border-cyan-500/30 transition-colors flex flex-col justify-between">
+                <p className="font-semibold text-slate-200">{m.name}</p>
+                <p className="text-[11px] text-cyan-400/80 mt-1 leading-tight">{m.role}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-8 flex flex-col items-center justify-between gap-4 border-t border-white/[0.06] pt-8 md:flex-row text-xs text-slate-500">
+          <p>© 2026 TabMark • Nền tảng quản lý bookmark trực quan AI • EXE101 Production</p>
           <div className="flex items-center gap-4">
             <a href="https://github.com/QuangTuan30009/TabMark" target="_blank" rel="noreferrer" className="text-slate-400 hover:text-white transition-colors" title="Mã nguồn GitHub"><Code2 className="h-4 w-4" /></a>
             <a href="https://tabmark.app" target="_blank" rel="noreferrer" className="text-slate-400 hover:text-white transition-colors" title="Website"><Globe className="h-4 w-4" /></a>
