@@ -59,9 +59,17 @@ export default function AuthScreen({ onLogin, onBackHome }) {
     if (isSupabaseConfigured) {
       try {
         if (isSignUp) {
+          const defaultDisplayName = email.trim().split('@')[0]
           const { data, error: signUpError } = await supabase.auth.signUp({
             email: email.trim(),
             password: password,
+            options: {
+              data: {
+                full_name: defaultDisplayName,
+                name: defaultDisplayName,
+                display_name: defaultDisplayName,
+              }
+            }
           })
           if (signUpError) throw signUpError
 

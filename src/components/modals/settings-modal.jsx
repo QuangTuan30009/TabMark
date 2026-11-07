@@ -108,6 +108,8 @@ export function SettingsModal({ isOpen, onClose, user, onUserUpdated, onOpenPaym
           await supabase.auth.updateUser({
             data: {
               full_name: trimmedName,
+              name: trimmedName,
+              display_name: trimmedName,
               avatar_url: trimmedAvatar
             }
           })
@@ -136,10 +138,14 @@ export function SettingsModal({ isOpen, onClose, user, onUserUpdated, onOpenPaym
       const updatedUser = {
         ...user,
         full_name: trimmedName,
+        name: trimmedName,
+        display_name: trimmedName,
         avatar_url: trimmedAvatar,
         user_metadata: {
           ...user?.user_metadata,
           full_name: trimmedName,
+          name: trimmedName,
+          display_name: trimmedName,
           avatar_url: trimmedAvatar
         }
       }

@@ -31,8 +31,10 @@ TabMark là nền tảng quản lý bookmark thông minh thế hệ mới, kết
   - Sao lưu và khôi phục dữ liệu qua file JSON (Export & Import) dễ dàng.
   - Tự động đồng bộ thời gian thực với cơ sở dữ liệu đám mây Supabase và lưu trữ dự phòng ngoại tuyến (LocalStorage).
 
-- **Tiện ích Chrome Extension:**
-  - Thư mục `extension/` hỗ trợ cài đặt extension vào trình duyệt để lưu nhanh các trang web đang xem vào TabMark.
+- **Tiện ích Trình duyệt (Browser Extension):**
+  - Đã có mặt chính thức trên **[Microsoft Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/tabmark-smart-bookmark-/dldjaanefkaicpcdaglljeoofcabngnk)** (hỗ trợ Edge, Chrome, Cốc Cốc, Brave).
+  - Cho phép lưu nhanh trang web đang xem vào bảng Kanban chỉ với 1 click, menu chuột phải hoặc phím tắt `Alt + S`.
+  - Hỗ trợ mã nguồn mở trong thư mục `extension/` để tự do tùy biến.
 
 ---
 

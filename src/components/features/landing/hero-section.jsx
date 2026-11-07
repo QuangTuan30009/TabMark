@@ -62,12 +62,13 @@ export function HeroSection({ onOpenDashboard }) {
             {/* Extension Support link */}
             <div className="pt-2 flex items-center gap-3 text-xs text-slate-400">
               <a
-                href="https://github.com/QuangTuan30009/TabMark/tree/main/extension"
+                href="https://microsoftedge.microsoft.com/addons/detail/tabmark-smart-bookmark-/dldjaanefkaicpcdaglljeoofcabngnk"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-cyan-300 hover:text-white transition-colors"
+                title="Cài đặt tiện ích mở rộng TabMark trên Microsoft Edge Addons (hỗ trợ Edge, Chrome, Cốc Cốc, Brave)"
               >
-                <span>Hỗ trợ Chrome Extension</span>
+                <span>Cài đặt Extension (Edge Add-ons)</span>
                 <ArrowRight className="w-3 h-3" />
               </a>
             </div>
