@@ -836,7 +836,6 @@ export function AdminPage({ user, onBack }) {
                         <th className="py-2.5 px-3 font-semibold">Gói Yêu Cầu</th>
                         <th className="py-2.5 px-3 font-semibold">Số Tiền</th>
                         <th className="py-2.5 px-3 font-semibold">Phương Thức</th>
-                        <th className="py-2.5 px-3 font-semibold">Thời Gian</th>
                         <th className="py-2.5 px-3 text-right font-semibold">Hành Động Admin</th>
                       </tr>
                     </thead>
@@ -848,7 +847,6 @@ export function AdminPage({ user, onBack }) {
                           <td className="py-3 px-3 font-bold text-purple-300">{tx.plan_name || tx.planName || 'Gói Pro'}</td>
                           <td className="py-3 px-3 font-extrabold text-emerald-400 font-mono">{formatVND(tx.amount)}</td>
                           <td className="py-3 px-3 text-slate-300">VietQR 24/7</td>
-                          <td className="py-3 px-3 text-slate-400 text-[11px]">{new Date(tx.created_at).toLocaleString('vi-VN')}</td>
                           <td className="py-3 px-3 text-right">
                             <div className="flex items-center justify-end gap-2">
                               <button
@@ -1037,7 +1035,6 @@ export function AdminPage({ user, onBack }) {
                         <th className="py-3 px-3 font-semibold">Gói Dịch Vụ</th>
                         <th className="py-3 px-3 font-semibold">Số Tiền</th>
                         <th className="py-3 px-3 font-semibold">Phương Thức</th>
-                        <th className="py-3 px-3 font-semibold">Thời Gian</th>
                         <th className="py-3 px-3 text-right font-semibold">Trạng Thái</th>
                       </tr>
                     </thead>
@@ -1053,7 +1050,6 @@ export function AdminPage({ user, onBack }) {
                           </td>
                           <td className="py-3.5 px-3 font-extrabold text-white font-mono">{formatVND(tx.amount)}</td>
                           <td className="py-3.5 px-3 text-slate-300">VietQR</td>
-                          <td className="py-3.5 px-3 text-slate-400 text-[11px]">{new Date(tx.created_at).toLocaleString('vi-VN')}</td>
                           <td className="py-3.5 px-3 text-right">
                             {tx.status === 'completed' || tx.status === 'success' ? (
                               <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
