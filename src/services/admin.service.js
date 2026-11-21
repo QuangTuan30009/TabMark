@@ -195,44 +195,67 @@ export async function getAdminTransactionsList() {
 export async function adminApproveTransaction(txId, userId, planId = 'pro', transactionCode = null, email = null) {
   try {
     const isUUID = txId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(txId)
+    const isValidUserUUID = userId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId)
 
-    // 1. Cập nhật trạng thái giao dịch sang 'completed' trong Database
     if (isSupabaseConfigured) {
-      try {
-        let q = supabase.from('transactions').update({ 
+      // 1. Cập nhật trạng thái giao dịch sang 'completed' trong Database
+      if (isUUID || transactionCode) {
+        let q = supabase.from('transactions').update({
           status: 'completed',
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         })
-        if (isUUID) {
-          q = q.eq('id', txId)
-        } else if (transactionCode) {
-          q = q.eq('transaction_code', transactionCode)
+        if (isUUID) q = q.eq('id', txId)
+        else q = q.eq('transaction_code', transactionCode)
+
+        const { error: txUpdateError, count } = await q.select('id', { count: 'exact', head: true })
+        if (txUpdateError) {
+          console.warn('Lỗi update transaction Supabase:', txUpdateError.message)
         }
-        await q
-      } catch (err) {
-        console.warn('Lỗi cập nhật transaction trên Supabase:', err)
+
+        // Nếu không tìm thấy record (transaction chỉ trong localStorage), thử insert mới
+        if (!txUpdateError && count === 0 && transactionCode) {
+          const insertPayload = {
+            status: 'completed',
+            plan_id: planId,
+            plan_name: planId,
+            amount: 0,
+            transaction_code: transactionCode,
+            payment_method: 'vietqr',
+            email: email || '',
+          }
+          if (isValidUserUUID) insertPayload.user_id = userId
+          const { error: insertErr } = await supabase.from('transactions').insert(insertPayload)
+          if (insertErr) console.warn('Lỗi insert transaction Supabase:', insertErr.message)
+        }
       }
 
-      // 2. Kích hoạt nâng cấp Pro cho người dùng
-      const isValidUserUUID = userId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId)
-      try {
-        if (isValidUserUUID) {
-          await upgradeUserToPro(userId, planId)
-        } else if (email) {
-          const { data: found } = await supabase.from('profiles').select('id').eq('email', email).maybeSingle()
-          if (found?.id) {
-            await upgradeUserToPro(found.id, planId)
-          }
+      // 2. Kích hoạt nâng cấp Pro cho người dùng qua RPC
+      let resolvedUserId = isValidUserUUID ? userId : null
+
+      if (!resolvedUserId && email) {
+        const { data: found } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('email', email)
+          .maybeSingle()
+        if (found?.id) resolvedUserId = found.id
+      }
+
+      if (resolvedUserId) {
+        const upgradeResult = await upgradeUserToPro(resolvedUserId, planId)
+        if (!upgradeResult) {
+          console.warn('upgradeUserToPro không trả về dữ liệu, kiểm tra lại RLS/RPC.')
         }
-      } catch (err) {
-        console.warn('Lỗi kích hoạt quyền Pro trong Supabase:', err)
+      } else {
+        console.warn('Không tìm được userId hợp lệ để kích hoạt Pro, email:', email)
       }
     }
 
-    // 3. Cập nhật trạng thái cache cục bộ để phản hồi tức thì trên UI
-    if (userId) {
-      localStorage.setItem(`tabmark_user_plan_${userId}`, planId)
-      localStorage.setItem(`tabmark_is_pro_${userId}`, 'true')
+    // 3. Cập nhật cache cục bộ để phản hồi tức thì trên UI
+    const resolvedUserId2 = isValidUserUUID ? userId : null
+    if (resolvedUserId2) {
+      localStorage.setItem(`tabmark_user_plan_${resolvedUserId2}`, planId)
+      localStorage.setItem(`tabmark_is_pro_${resolvedUserId2}`, 'true')
     }
 
     try {

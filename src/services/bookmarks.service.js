@@ -227,6 +227,21 @@ export async function upgradeUserToPro(userId, plan = 'pro') {
     const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId)
     if (!isUUID) return null
 
+    // Ưu tiên dùng RPC Security Definer để bypass RLS column restriction
+    const { data: rpcData, error: rpcError } = await supabase.rpc('upgrade_user_plan', {
+      target_user_id: userId,
+      target_plan: plan,
+      duration_days: 365,
+    })
+
+    if (!rpcError) {
+      console.log('upgradeUserToPro via RPC thành công:', rpcData)
+      return { id: userId, is_pro: true, plan }
+    }
+
+    console.warn('RPC upgrade_user_plan thất bại, thử direct update:', rpcError.message)
+
+    // Fallback: thử direct update (chỉ hoạt động nếu admin hoặc RLS cho phép)
     const { data, error } = await supabase
       .from('profiles')
       .update({
@@ -239,7 +254,7 @@ export async function upgradeUserToPro(userId, plan = 'pro') {
       .maybeSingle()
 
     if (error) {
-      console.warn('Lỗi Supabase khi upgradeUserToPro:', error.message)
+      console.warn('Lỗi Supabase khi upgradeUserToPro (fallback):', error.message)
       return null
     }
     return data

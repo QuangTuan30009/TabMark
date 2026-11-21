@@ -69,8 +69,31 @@ create table if not exists public.transactions (
   updated_at timestamptz not null default now()
 );
 
+-- --------------------------------------------------------------------
+-- 5. BẢNG AI_CHAT_HISTORY (Lưu lịch sử hội thoại Trợ lý Gemini AI)
+-- --------------------------------------------------------------------
+create table if not exists public.ai_chat_history (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  role text not null check (role in ('user', 'model', 'system')),
+  message text not null,
+  created_at timestamptz not null default now()
+);
+
+-- --------------------------------------------------------------------
+-- 6. BẢNG ACTIVITY_LOGS (Nhật ký hoạt động của người dùng & quản trị)
+-- --------------------------------------------------------------------
+create table if not exists public.activity_logs (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  action_type text not null,
+  description text not null default '',
+  metadata jsonb default '{}'::jsonb,
+  created_at timestamptz not null default now()
+);
+
 -- ====================================================================
--- 5. INDEXES TỐI ƯU HIỆU NĂNG TRUY VẤN (Theo supabase-postgres-best-practices)
+-- 7. INDEXES TỐI ƯU HIỆU NĂNG TRUY VẤN (Theo supabase-postgres-best-practices)
 -- Giúp Postgres tránh Sequential Scan và tăng tốc 10x-50x khi lượng dữ liệu lớn
 -- ====================================================================
 create index if not exists bookmark_collections_owner_idx
@@ -88,8 +111,14 @@ create index if not exists transactions_status_created_at_idx
 create index if not exists profiles_plan_is_pro_idx
   on public.profiles (plan, is_pro);
 
+create index if not exists ai_chat_history_user_idx
+  on public.ai_chat_history (user_id, created_at desc);
+
+create index if not exists activity_logs_user_idx
+  on public.activity_logs (user_id, created_at desc);
+
 -- ====================================================================
--- 6. HÀM HỖ TRỢ XÁC THỰC QUYỀN ADMIN (Security Definer Function)
+-- 8. HÀM HỖ TRỢ XÁC THỰC QUYỀN ADMIN (Security Definer Function)
 -- ====================================================================
 create or replace function public.is_admin()
 returns boolean
@@ -98,20 +127,23 @@ stable
 security definer
 set search_path = public
 as $$
-  select coalesce(
-    (select auth.jwt() ->> 'email' in ('taquangtuan2016@gmail.com', 'admin@tabmark.io')),
-    false
+  select exists (
+    select 1 from auth.users
+    where id = auth.uid()
+    and lower(email) in ('taquangtuan2016@gmail.com', 'admin@tabmark.io')
   );
 $$;
 
 -- ====================================================================
--- 7. THIẾT LẬP ROW LEVEL SECURITY (RLS) TỐI ƯU HIỆU NĂNG & AN TOÀN
+-- 9. THIẾT LẬP ROW LEVEL SECURITY (RLS) TỐI ƯU HIỆU NĂNG & AN TOÀN
 -- Lưu ý: Luôn bọc (select auth.uid()) để Postgres cache kết quả cho toàn bộ query
 -- ====================================================================
 alter table public.profiles enable row level security;
 alter table public.bookmark_collections enable row level security;
 alter table public.bookmark_links enable row level security;
 alter table public.transactions enable row level security;
+alter table public.ai_chat_history enable row level security;
+alter table public.activity_logs enable row level security;
 
 -- Dọn dẹp policies cũ
 drop policy if exists "Users can view own profile" on public.profiles;
@@ -232,8 +264,35 @@ create policy "Admins can update transactions"
   to authenticated
   using ((select public.is_admin()));
 
+-- 9.5. POLICIES CHO AI_CHAT_HISTORY
+create policy "Users can view own chat history"
+  on public.ai_chat_history for select
+  to authenticated
+  using (user_id = (select auth.uid()));
+
+create policy "Users can insert own chat messages"
+  on public.ai_chat_history for insert
+  to authenticated
+  with check (user_id = (select auth.uid()));
+
+create policy "Users can delete own chat history"
+  on public.ai_chat_history for delete
+  to authenticated
+  using (user_id = (select auth.uid()));
+
+-- 9.6. POLICIES CHO ACTIVITY_LOGS
+create policy "Users can view own activity logs"
+  on public.activity_logs for select
+  to authenticated
+  using (user_id = (select auth.uid()) or (select public.is_admin()));
+
+create policy "Users can insert own activity logs"
+  on public.activity_logs for insert
+  to authenticated
+  with check (user_id = (select auth.uid()));
+
 -- ====================================================================
--- 8. BẢO VỆ CỘT NHẠY CẢM (Chống Privilege Escalation)
+-- 10. BẢO VỆ CỘT NHẠY CẢM (Chống Privilege Escalation)
 -- Ngăn người dùng tự update is_pro/plan qua Browser Console
 -- ====================================================================
 revoke update on public.profiles from authenticated;
@@ -246,7 +305,7 @@ grant update (full_name, avatar_url, updated_at) on public.profiles to authentic
 create or replace function public.upgrade_user_plan(
   target_user_id uuid,
   target_plan text default 'pro',
-  duration_days integer default 30
+  duration_days integer default 365
 )
 returns boolean
 language plpgsql
@@ -254,9 +313,14 @@ security definer
 set search_path = public
 as $$
 begin
-  -- Chỉ cho phép Admin hoặc hệ thống gọi hàm này
-  if not (select public.is_admin()) and (select auth.uid()) != target_user_id then
-    raise exception 'Không có quyền kích hoạt gói dịch vụ';
+  -- Chỉ cho phép Admin hoặc chính user đó (tự nâng cấp sau thanh toán)
+  -- Admin check dùng auth.users để tránh lỗi JWT claim case-sensitive
+  if not exists (
+    select 1 from auth.users
+    where id = auth.uid()
+    and lower(email) in ('taquangtuan2016@gmail.com', 'admin@tabmark.io')
+  ) and (select auth.uid()) != target_user_id then
+    raise exception 'Không có quyền kích hoạt gói dịch vụ cho người dùng này';
   end if;
 
   update public.profiles
