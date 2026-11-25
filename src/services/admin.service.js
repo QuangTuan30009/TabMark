@@ -199,21 +199,22 @@ export async function adminApproveTransaction(txId, userId, planId = 'pro', tran
 
     if (isSupabaseConfigured) {
       // 1. Cập nhật trạng thái giao dịch sang 'completed' trong Database
+      // Lưu ý: bảng transactions thực tế có thể không có cột updated_at nên chỉ update status
       if (isUUID || transactionCode) {
         let q = supabase.from('transactions').update({
           status: 'completed',
-          updated_at: new Date().toISOString(),
         })
         if (isUUID) q = q.eq('id', txId)
         else q = q.eq('transaction_code', transactionCode)
 
-        const { error: txUpdateError, count } = await q.select('id', { count: 'exact', head: true })
+        const { data: updatedRows, error: txUpdateError } = await q.select('id')
         if (txUpdateError) {
-          console.warn('Lỗi update transaction Supabase:', txUpdateError.message)
+          console.error('Lỗi update transaction Supabase:', txUpdateError.message)
+          return { success: false, error: `Không thể cập nhật giao dịch: ${txUpdateError.message}` }
         }
 
         // Nếu không tìm thấy record (transaction chỉ trong localStorage), thử insert mới
-        if (!txUpdateError && count === 0 && transactionCode) {
+        if ((!updatedRows || updatedRows.length === 0) && transactionCode) {
           const insertPayload = {
             status: 'completed',
             plan_id: planId,
@@ -225,7 +226,10 @@ export async function adminApproveTransaction(txId, userId, planId = 'pro', tran
           }
           if (isValidUserUUID) insertPayload.user_id = userId
           const { error: insertErr } = await supabase.from('transactions').insert(insertPayload)
-          if (insertErr) console.warn('Lỗi insert transaction Supabase:', insertErr.message)
+          if (insertErr) {
+            console.error('Lỗi insert transaction Supabase:', insertErr.message)
+            return { success: false, error: `Không thể lưu giao dịch mới: ${insertErr.message}` }
+          }
         }
       }
 
@@ -236,7 +240,7 @@ export async function adminApproveTransaction(txId, userId, planId = 'pro', tran
         const { data: found } = await supabase
           .from('profiles')
           .select('id')
-          .eq('email', email)
+          .ilike('email', email.trim())
           .maybeSingle()
         if (found?.id) resolvedUserId = found.id
       }
@@ -244,7 +248,8 @@ export async function adminApproveTransaction(txId, userId, planId = 'pro', tran
       if (resolvedUserId) {
         const upgradeResult = await upgradeUserToPro(resolvedUserId, planId)
         if (!upgradeResult) {
-          console.warn('upgradeUserToPro không trả về dữ liệu, kiểm tra lại RLS/RPC.')
+          console.error('upgradeUserToPro thất bại cho user:', resolvedUserId)
+          return { success: false, error: 'Đã cập nhật giao dịch nhưng không thể nâng cấp gói cho người dùng (kiểm tra quyền RPC/RLS).' }
         }
       } else {
         console.warn('Không tìm được userId hợp lệ để kích hoạt Pro, email:', email)
@@ -284,18 +289,19 @@ export async function adminRejectTransaction(txId, transactionCode = null) {
     const isUUID = txId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(txId)
 
     if (isSupabaseConfigured) {
-      try {
-        let q = supabase.from('transactions').update({ 
-          status: 'failed',
-          updated_at: new Date().toISOString()
-        })
-        if (isUUID) {
-          q = q.eq('id', txId)
-        } else if (transactionCode) {
-          q = q.eq('transaction_code', transactionCode)
-        }
-        await q
-      } catch (e) {}
+      let q = supabase.from('transactions').update({
+        status: 'failed',
+      })
+      if (isUUID) {
+        q = q.eq('id', txId)
+      } else if (transactionCode) {
+        q = q.eq('transaction_code', transactionCode)
+      }
+      const { error: rejectErr } = await q
+      if (rejectErr) {
+        console.error('Lỗi từ chối giao dịch Supabase:', rejectErr.message)
+        return { success: false, error: `Không thể từ chối giao dịch: ${rejectErr.message}` }
+      }
     }
 
     try {
@@ -352,14 +358,24 @@ export async function adminUpdateUserPlan(userId, planId) {
     localStorage.setItem(`tabmark_is_pro_${userId}`, planId !== 'free' ? 'true' : 'false')
 
     if (isSupabaseConfigured && userId) {
-      await supabase
-        .from('profiles')
-        .update({
-          plan: planId,
-          is_pro: planId !== 'free',
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', userId)
+      if (planId !== 'free') {
+        const res = await upgradeUserToPro(userId, planId)
+        if (!res) {
+          return { success: false, error: 'Không thể cập nhật gói cho người dùng trên Supabase.' }
+        }
+      } else {
+        const { error } = await supabase
+          .from('profiles')
+          .update({
+            plan: 'free',
+            is_pro: false,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', userId)
+        if (error) {
+          return { success: false, error: error.message }
+        }
+      }
     }
     return { success: true }
   } catch (e) {
